@@ -1,0 +1,46 @@
+TebLocalPlannerROS:
+
+  odom_topic: odom
+  map_frame: map
+      
+  # ================= Trajectory (轨迹配置) =================
+  teb_autosize: True
+  dt_ref: 0.3
+  global_plan_overwrite_orientation: True
+  max_global_plan_lookahead_dist: 1.5   # 别看太远，看眼前 1.5 米的线就行
+  feasibility_check_no_poses: 2
+
+  # ================= ViaPoints (全覆盖的绝对核心！) =================
+  # 这两行是魔法！它会强迫机器人死死踩着你的橙色/绿色螺旋线走
+  global_plan_viapoint_sep: 0.2  # 每隔 10cm 从全局路径上抠出一个必经点
+  weight_viapoint: 50.0         # 权重拉到极致（默认是1），哪怕撞墙也要踩这个点！
+
+  # ================= Robot (机器人底盘限制) =================
+  max_vel_x: 0.15
+  max_vel_x_backwards: 0.1
+  max_vel_theta: 0.5
+  acc_lim_x: 0.5
+  acc_lim_theta: 1.0
+  
+  # 最小转弯半径 (对于 Turtlebot3 这种差速轮，设为 0 可以原地打转)
+  min_turning_radius: 0.0
+
+  # ================= GoalTolerance (目标容忍度) =================
+  xy_goal_tolerance: 0.2
+  yaw_goal_tolerance: 0.2
+  free_goal_vel: False
+
+  # ================= Obstacles (对障碍物彻底“降智降恐”) =================
+  min_obstacle_dist: 0.11        # 保持和物理机器人半径一致即可
+  include_costmap_obstacles: False #  彻底无视局部障碍物！完全信任全局规划！
+  costmap_obstacles_behind_robot_dist: 0.1
+
+  # ================= Optimization (压制避障权重) =================
+  weight_max_vel_x: 2
+  weight_max_vel_theta: 1
+  weight_acc_lim_x: 1
+  weight_acc_lim_theta: 1
+  weight_kinematics_nh: 1000
+  weight_kinematics_forward_drive: 1
+  weight_optimaltime: 1          # 压低时间权重，别着急，慢工出细活
+  weight_obstacle: 0.0           # 彻底关闭避障惩罚

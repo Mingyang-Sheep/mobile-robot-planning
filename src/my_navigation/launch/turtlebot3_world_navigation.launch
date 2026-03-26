@@ -1,0 +1,40 @@
+<launch>
+  <arg name="model" default="burger" />
+
+  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_world.launch">
+    <arg name="model" value="$(arg model)" />
+  </include>
+  
+  <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+    <arg name="model" value="$(arg model)" />
+  </include>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find turtlebot3_navigation)/maps/map.yaml" />
+  
+  <include file="$(find turtlebot3_navigation)/launch/amcl.launch">
+    <arg name="initial_pose_x" value="-2.0"/>
+    <arg name="initial_pose_y" value="-0.5"/>
+    <arg name="initial_pose_a" value="0.0"/>
+  </include>
+
+  <rosparam file="$(find my_navigation)/config/robot_config.yaml" command="load" />
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+
+    <rosparam file="$(find my_navigation)/config/costmap_common_params_burger.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find my_navigation)/config/costmap_common_params_burger.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find my_navigation)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find my_navigation)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find my_navigation)/config/move_base_params.yaml" command="load" />
+    <rosparam file="$(find my_navigation)/config/teb_local_planner_params.yaml" command="load" />
+
+    <param name="global_costmap/static_map" value="true" />
+    <param name="global_costmap/rolling_window" value="false" />
+    
+    <param name="local_costmap/width" value="6.0" />
+    <param name="local_costmap/height" value="6.0" />
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find my_navigation)/rviz/my_nav.rviz">
+  </node>
+</launch>
