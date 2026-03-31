@@ -14,4 +14,4 @@ base_local_planner: "teb_local_planner/TebLocalPlannerROS"
 SpiralSTC:
   # 把工具半径/机器人半径改小，让它能钻进狭窄的迷宫通道
   robot_radius: 0.105
-  tool_radius: 0.105
+  tool_radius: 0.08
