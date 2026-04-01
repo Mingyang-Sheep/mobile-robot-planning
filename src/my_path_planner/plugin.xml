@@ -1,5 +1,13 @@
 <library path="lib/libbsa_spiral_planner">
   <class name="my_path_planner/SpiralSTC" type="full_coverage_path_planner::SpiralSTC" base_class_type="nav_core::BaseGlobalPlanner">
-    <description>BSA Spiral Coverage Planner Plugin</description>
+    <description>BSA Spiral Coverage Planner Plugin (BSA)</description>
+  </class>
+</library>
+
+<library path="lib/libstc_planner">
+  <class name="my_path_planner/STCPlanner" 
+         type="my_path_planner::STCPlanner" 
+         base_class_type="nav_core::BaseGlobalPlanner">
+    <description>Spanning Tree Coverage (STC)-</description>
   </class>
 </library>

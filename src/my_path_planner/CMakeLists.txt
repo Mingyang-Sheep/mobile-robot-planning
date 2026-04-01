@@ -226,3 +226,18 @@ target_link_libraries(bsa_spiral_planner
 
 # 确保插件能被正确导出
 add_dependencies(bsa_spiral_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# ==================== STC Planner ====================
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+)
+
+add_library(stc_planner
+  src/stc_planner/stc_planner.cpp
+)
+
+target_link_libraries(stc_planner
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(stc_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
