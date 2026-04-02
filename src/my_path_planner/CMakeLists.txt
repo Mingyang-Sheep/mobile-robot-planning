@@ -241,3 +241,10 @@ target_link_libraries(stc_planner
 )
 
 add_dependencies(stc_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# ==================== BCD Planner ====================
+include_directories(include ${catkin_INCLUDE_DIRS})
+
+add_library(bcd_planner src/bcd_planner/bcd_planner.cpp)
+
+target_link_libraries(bcd_planner ${catkin_LIBRARIES})
+add_dependencies(bcd_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

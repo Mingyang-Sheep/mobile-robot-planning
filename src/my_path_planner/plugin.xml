@@ -11,3 +11,11 @@
     <description>Spanning Tree Coverage (STC)-</description>
   </class>
 </library>
+
+<library path="lib/libbcd_planner">
+  <class name="my_path_planner/BCDPlanner" 
+         type="my_path_planner::BCDPlanner" 
+         base_class_type="nav_core::BaseGlobalPlanner">
+    <description>Boustrophedon Cellular Decomposition (BCD)</description>
+  </class>
+</library>
