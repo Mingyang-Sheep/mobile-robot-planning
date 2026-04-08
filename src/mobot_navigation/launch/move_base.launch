@@ -1,0 +1,15 @@
+<launch>
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find mobot_navigation)/config/costmap_common_params_burger.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find mobot_navigation)/config/costmap_common_params_burger.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find mobot_navigation)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find mobot_navigation)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find mobot_navigation)/config/move_base_params.yaml" command="load" />
+    <rosparam file="$(find mobot_navigation)/config/teb_local_planner_params.yaml" command="load" />
+
+    <param name="global_costmap/static_map" value="true" />
+    <param name="global_costmap/rolling_window" value="false" />
+    <param name="local_costmap/width" value="6.0" />
+    <param name="local_costmap/height" value="6.0" />
+  </node>
+</launch>

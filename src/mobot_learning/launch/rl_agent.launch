@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot" default="burger"/>
+
+  <!-- Load robot config -->
+  <rosparam command="load" file="$(find mobot_bringup)/config/robot_config.yaml" ns="robot_config"/>
+
+  <!-- RL Agent Node -->
+  <node pkg="mobot_learning" type="dqn_agent" name="dqn_agent" output="screen">
+    <param name="robot_type" value="$(arg robot)"/>
+    <rosparam command="load" file="$(find mobot_learning)/config/dqn_params.yaml"/>
+  </node>
+
+</launch>
