@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Launch Arguments -->
+  <arg name="robot" default="burger" doc="Robot type: burger, waffle, husky"/>
+  <arg name="planner" default="traditional" doc="Planner type: traditional, rl"/>
+  <arg name="world" default="$(find mobot_worlds)/worlds/empty.world"/>
+  <arg name="map_file" default="$(find mobot_maps)/maps/map.yaml"/>
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+  <arg name="yaw" default="0.0"/>
+  <arg name="gui" default="true"/>
+
+  <!-- Load robot config -->
+  <rosparam command="load" file="$(find mobot_bringup)/config/robot_config.yaml" ns="robot_config"/>
+
+  <!-- Get robot-specific parameters -->
+  <arg name="description_pkg" value="$(eval 'mobot_description')"/>
+  <arg name="urdf_file" value="$(eval arg('robot') + '.urdf.xacro')"/>
+
+  <!-- Robot Description: dynamically load URDF based on robot arg -->
+  <!-- <param name="robot_description"
+         command="$(find xacro)/xacro $(find $(arg description_pkg))/urdf/$(arg urdf_file)"/> -->
+  <!-- <param name="robot_description" 
+         command="$(find xacro)/xacro $(find mobot_description)/urdf/$(arg robot).urdf.xacro" /> -->
+  <param name="robot_description" 
+         command="$(find xacro)/xacro $(find  mobot_description)/urdf/$(arg urdf_file)" />
+
+  <!-- <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -model $(arg robot) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -Y $(arg yaw) -param robot_description" /> -->
+  <!-- Gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <!-- Spawn Robot -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+        args="-urdf -model $(arg robot) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -Y $(arg yaw) -param robot_description"/>
+
+  <!-- Robot State Publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0"/>
+  </node>
+
+  <!-- Planner Selection -->
+  <group if="$(eval planner == 'traditional')">
+    <!-- <include file="$(find mobot_traditional_planner)/launch/move_base.launch"> -->
+    <include file="$(find mobot_navigation)/launch/move_base.launch" />
+  </group>
+
+  <group if="$(eval planner == 'rl')">
+    <include file="$(find mobot_learning)/launch/rl_agent.launch">
+      <arg name="robot" value="$(arg robot)"/>
+    </include>
+  </group>
+
+</launch>

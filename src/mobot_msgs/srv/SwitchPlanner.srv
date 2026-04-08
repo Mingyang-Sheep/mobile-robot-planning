@@ -1,0 +1,6 @@
+string planner_type
+bool enable
+---
+bool accepted
+string status_message
+
