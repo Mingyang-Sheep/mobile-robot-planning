@@ -1,0 +1,4 @@
+initial_poses:
+  turtlebot3_world: {x: -2.0, y: -0.5, a: 0.0}
+  turtlebot3_house: {x: -3.0, y: 1.0, a: 0.0}
+  clearpath_playpen: {x: 0.0, y: 0.0, a: 0.0}

@@ -1,36 +1,58 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- Launch Arguments -->
-  <arg name="robot" default="burger" doc="Robot type: burger, waffle, husky"/>
-  <arg name="planner" default="traditional" doc="Planner type: traditional, rl"/>
-  <arg name="world" default="$(find mobot_worlds)/worlds/empty.world"/>
-  <arg name="map_file" default="$(find mobot_maps)/maps/map.yaml"/>
-  <arg name="x_pos" default="0.0"/>
-  <arg name="y_pos" default="0.0"/>
-  <arg name="z_pos" default="0.0"/>
-  <arg name="yaw" default="0.0"/>
-  <arg name="gui" default="true"/>
+  <!-- ==================== 顶级仿真启动入口 ==================== -->
+  <!-- 这个 launch 文件只暴露 robot / map / planner 三个核心参数，
+       通过参数拼接统一切换机器人、Gazebo world、静态地图和初始位姿。 -->
 
-  <!-- Load robot config -->
-  <rosparam command="load" file="$(find mobot_bringup)/config/robot_config.yaml" ns="robot_config"/>
+  <!-- robot: 当前允许 burger / waffle_pi / husky 三种机器人 -->
+  <arg name="robot" default="waffle_pi" doc="机器人型号：burger / waffle_pi / husky"/>
 
-  <!-- Get robot-specific parameters -->
-  <arg name="description_pkg" value="$(eval 'mobot_description')"/>
-  <arg name="urdf_file" value="$(eval arg('robot') + '.urdf.xacro')"/>
+  <!-- map: 既作为 Gazebo world 文件名基名，也作为地图 yaml 和初始位姿 key -->
+  <arg name="map" default="turtlebot3_world" doc="场景名称：turtlebot3_world / turtlebot3_house / clearpath_playpen"/>
 
-  <!-- Robot Description: dynamically load URDF based on robot arg -->
-  <!-- <param name="robot_description"
-         command="$(find xacro)/xacro $(find $(arg description_pkg))/urdf/$(arg urdf_file)"/> -->
-  <!-- <param name="robot_description" 
-         command="$(find xacro)/xacro $(find mobot_description)/urdf/$(arg robot).urdf.xacro" /> -->
-  <param name="robot_description" 
-         command="$(find xacro)/xacro $(find  mobot_description)/urdf/$(arg urdf_file)" />
+  <!-- planner: 当前顶级 launch 先只做参数暴露，后续 planner_bridge.py 可直接读取该参数 -->
+  <arg name="planner" default="a_star" doc="规划器标识，当前仅暴露参数，便于后续接入 planner_bridge.py"/>
 
-  <!-- <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" 
-        args="-urdf -model $(arg robot) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -Y $(arg yaw) -param robot_description" /> -->
-  <!-- Gazebo -->
+  <!-- 下面这些属于辅助参数，不影响你要求的核心切换逻辑 -->
+  <arg name="gui" default="true" doc="是否打开 Gazebo 图形界面"/>
+  <arg name="spawn_z" default="0.0" doc="机器人生成时的 z 坐标"/>
+
+  <!-- planner 参数当前虽然还没有直接驱动核心节点，但先放到参数服务器，
+       后续 planner_bridge.py 或其它调度节点可以直接读取 /planner。 -->
+  <param name="/planner" value="$(arg planner)"/>
+
+  <!-- 把统一后的模型目录加入 Gazebo 搜索路径。
+       这样 world 文件内部使用 model://xxx 时，就会优先到 mobot_worlds/models 中查找。 -->
+  <env name="GAZEBO_MODEL_PATH" value="$(find mobot_worlds)/models:$(optenv GAZEBO_MODEL_PATH)"/>
+
+  <!-- 先把 map -> 初始位姿 的映射整体加载到参数服务器。 -->
+  <rosparam command="load" file="$(find mobot_maps)/config/initial_poses.yaml"/>
+
+  <!-- set_init_pose.py 的职责：
+       1. 根据 map 参数读取 /initial_poses/$(arg map)
+       2. 把嵌套字段展开为全局简单参数 /initial_pose_x /initial_pose_y /initial_pose_yaw
+       这样后续脚本就不需要再处理嵌套 YAML。 -->
+  <node name="set_init_pose" pkg="mobot_bringup" type="set_init_pose.py" output="screen">
+    <param name="map_name" value="$(arg map)"/>
+  </node>
+
+  <!-- 地图服务采用“文件名与场景名同名”的动态匹配方式。
+       例如 map=turtlebot3_world 时，会自动读取：
+       $(find mobot_maps)/maps/turtlebot3_world.yaml
+       如果某个 world 目前还没有建图，对应 yaml 不存在时 map_server 会报错。
+       后续完成建图后，只需要把 yaml/pgm 命名为 MAP_NAME.yaml（及其引用的图片），就能自动加载。 -->
+  <node
+    name="map_server"
+    pkg="map_server"
+    type="map_server"
+    args="$(find mobot_maps)/maps/$(arg map).yaml"
+    output="screen"/>
+
+  <!-- Gazebo 仍然使用 gazebo_ros 的 empty_world.launch，
+       但真正加载的 world 文件由 map 参数动态拼接：
+       $(find mobot_worlds)/worlds/$(arg map).world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(arg world)"/>
+    <arg name="world_name" value="$(find mobot_worlds)/worlds/$(arg map).world"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="$(arg gui)"/>
@@ -38,36 +60,52 @@
     <arg name="debug" value="false"/>
   </include>
 
-  <!-- Spawn Robot -->
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -model $(arg robot) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -Y $(arg yaw) -param robot_description"/>
+  <!-- 生成 robot_description。
+       这里统一做路径分流，但不再保留任何机器人专属的 spawn 特例：
+       1. burger / waffle_pi 加载 mobot_description 中的 turtlebot3_$(arg robot).urdf.xacro
+       2. husky 加载 husky_description 中的 husky.urdf.xacro
+       无论是哪种机器人，后续都只允许进入同一个 spawn_robot_from_params.py 生成链路。 -->
+  <group unless="$(eval arg('robot') == 'husky')">
+    <param
+      name="robot_description"
+      command="$(find xacro)/xacro $(find mobot_description)/urdf/turtlebot3_$(arg robot).urdf.xacro"/>
+  </group>
+  <group if="$(eval arg('robot') == 'husky')">
+    <param
+      name="robot_description"
+      command="$(find xacro)/xacro $(find husky_description)/urdf/husky.urdf.xacro"/>
+  </group>
 
-  <!-- Robot State Publisher -->
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+  <!-- 由于 ROS1 XML Launch 无法把“运行时”参数服务器中的值再次注入到 spawn_model 命令行里，
+       所以这里不直接调用 gazebo_ros/spawn_model，也不允许引入 spawn_husky.launch 之类的特例，
+       而是交给一个很小的辅助脚本：
+       1. set_init_pose.py 先写入 /initial_pose_x /initial_pose_y /initial_pose_yaw
+       2. spawn_robot_from_params.py 再读取这些全局参数并调用 Gazebo 的 SpawnModel 服务
+       这样 map 参数一变，所有机器人都会强制在 initial_poses.yaml 指定的位置生成。 -->
+  <node name="spawn_robot" pkg="mobot_bringup" type="spawn_robot_from_params.py" output="screen">
+    <param name="robot" value="$(arg robot)"/>
+    <param name="z" value="$(arg spawn_z)"/>
+  </node>
+
+  <!-- robot_state_publisher 负责把 robot_description 解析为各 link 之间的 TF。 -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
     <param name="publish_frequency" type="double" value="50.0"/>
   </node>
 
-  <!-- Planner Selection -->
-  <group if="$(eval planner == 'traditional')">
-    
-    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
-    
-    <include file="$(find turtlebot3_navigation)/launch/amcl.launch">
-      <arg name="initial_pose_x" value="$(arg x_pos)"/>
-      <arg name="initial_pose_y" value="$(arg y_pos)"/>
-      <arg name="initial_pose_a" value="$(arg yaw)"/>
-    </include>
+  <!-- joint_state_publisher 负责为没有真实驱动的关节发布 joint_states，
+       否则 RViz 中 RobotModel 会发白，并报缺少关节相关 TF。 -->
+  <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen"/>
 
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mobot_navigation)/rviz/my_nav.rviz" />
+  <!-- RViz 统一加载我们的导航配置文件。 -->
+  <node
+    pkg="rviz"
+    type="rviz"
+    name="rviz"
+    args="-d $(find mobot_navigation)/rviz/my_nav.rviz"
+    output="screen"/>
 
-    <include file="$(find mobot_navigation)/launch/move_base.launch" />
-    
-  </group>
-
-  <group if="$(eval planner == 'rl')">
-    <include file="$(find mobot_learning)/launch/rl_agent.launch">
-      <arg name="robot" value="$(arg robot)"/>
-    </include>
-  </group>
-
+  <!-- 当前未接入 AMCL 等定位模块时，RViz 会缺少 map -> odom 的 TF。
+       fake_localization.py 现在固定发布零偏移的 map -> odom，
+       避免把 Gazebo 物理出生点二次叠加到地图原点。 -->
+  <node name="fake_localization" pkg="mobot_bringup" type="fake_localization.py" output="screen"/>
 </launch>
