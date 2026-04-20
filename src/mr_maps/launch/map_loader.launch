@@ -1,0 +1,9 @@
+<launch>
+  <!-- 当前官方可用导航地图只有 turtlebot3_world，对应 TurtleBot3 官方导航示例地图。 -->
+  <arg name="map_name" default="turtlebot3_world"/>
+
+  <node pkg="map_server"
+        type="map_server"
+        name="map_server"
+        args="$(find mr_maps)/maps/$(arg map_name).yaml"/>
+</launch>

@@ -1,0 +1,8 @@
+prefix=/home/lmy/mobile_robot_benchmark/devel
+
+Name: mr_msgs
+Description: Description of mr_msgs
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

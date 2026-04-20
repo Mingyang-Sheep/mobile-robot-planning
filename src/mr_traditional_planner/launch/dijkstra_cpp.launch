@@ -1,0 +1,4 @@
+<launch>
+  <!-- Dijkstra C++ 骨架：/map + /move_base_simple/goal -> /mr_traditional_planner/optimal_path -->
+  <node pkg="mr_traditional_planner" type="dijkstra_planner_cpp" name="dijkstra_planner_cpp" output="screen"/>
+</launch>

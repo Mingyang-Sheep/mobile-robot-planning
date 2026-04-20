@@ -1,0 +1,25 @@
+<launch>
+  <!-- 统一切换入口：algorithm 负责选算法，impl 负责选 C++/Python 实现。 -->
+  <arg name="algorithm" default="astar"/>
+  <arg name="impl" default="cpp"/>
+
+  <include if="$(eval arg('algorithm') == 'astar' and arg('impl') == 'cpp')"
+           file="$(find mr_traditional_planner)/launch/astar_cpp.launch"/>
+  <include if="$(eval arg('algorithm') == 'astar' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/astar_py.launch"/>
+
+  <include if="$(eval arg('algorithm') == 'dijkstra' and arg('impl') == 'cpp')"
+           file="$(find mr_traditional_planner)/launch/dijkstra_cpp.launch"/>
+  <include if="$(eval arg('algorithm') == 'dijkstra' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/dijkstra_py.launch"/>
+
+  <include if="$(eval arg('algorithm') == 'bcd' and arg('impl') == 'cpp')"
+           file="$(find mr_traditional_planner)/launch/bcd_cpp.launch"/>
+  <include if="$(eval arg('algorithm') == 'bcd' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/bcd_py.launch"/>
+
+  <include if="$(eval arg('algorithm') == 'stc' and arg('impl') == 'cpp')"
+           file="$(find mr_traditional_planner)/launch/stc_cpp.launch"/>
+  <include if="$(eval arg('algorithm') == 'stc' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/stc_py.launch"/>
+</launch>

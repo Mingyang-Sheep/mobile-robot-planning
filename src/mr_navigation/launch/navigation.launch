@@ -1,0 +1,32 @@
+<launch>
+  <!-- model 是多底盘入口，负责把导航层绑定到对应的底盘专有参数文件。 -->
+  <arg name="model" default="burger"/>
+  <!-- map_name 是导航地图入口，当前默认使用官方提供的 turtlebot3_world 地图。 -->
+  <arg name="map_name" default="turtlebot3_world"/>
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="odom_topic" default="/odom"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="move_forward_only" default="false"/>
+  <!-- turtlebot3_world 的固定起始点来自官方地图与仿真启动配置。 -->
+  <arg name="initial_pose_x" default="-2.0"/>
+  <arg name="initial_pose_y" default="-0.5"/>
+  <arg name="initial_pose_a" default="0.0"/>
+
+  <include file="$(find mr_maps)/launch/map_loader.launch">
+    <arg name="map_name" value="$(arg map_name)"/>
+  </include>
+
+  <include file="$(find mr_navigation)/launch/amcl.launch">
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+    <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+    <arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+  </include>
+
+  <include file="$(find mr_navigation)/launch/move_base.launch">
+    <arg name="model" value="$(arg model)"/>
+    <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+  </include>
+</launch>

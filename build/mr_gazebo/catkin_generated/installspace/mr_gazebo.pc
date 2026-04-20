@@ -1,0 +1,8 @@
+prefix=/home/lmy/mobile_robot_benchmark/install
+
+Name: mr_gazebo
+Description: Description of mr_gazebo
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

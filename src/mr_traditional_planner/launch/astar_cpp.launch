@@ -1,0 +1,4 @@
+<launch>
+  <!-- A* C++ 骨架：/map + /move_base_simple/goal -> /mr_traditional_planner/optimal_path -->
+  <node pkg="mr_traditional_planner" type="astar_planner_cpp" name="astar_planner_cpp" output="screen"/>
+</launch>

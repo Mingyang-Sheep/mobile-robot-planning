@@ -1,0 +1,20 @@
+# 局部规划器固定为 DWA，后续切换底盘时只替换对应 _model 参数文件即可。
+base_local_planner: dwa_local_planner/DWAPlannerROS
+# 全局规划器固定为 Navfn，保证 benchmark 基线算法一致。
+base_global_planner: navfn/NavfnROS
+# 不主动关闭代价地图，避免多模块联调时频繁重建导致的延迟尖峰。
+shutdown_costmaps: false
+# 控制循环频率设为 10Hz，与局部 costmap 和 DWA 控制频率一致。
+controller_frequency: 10.0
+# 全局规划等待耐心值为 5s，给静态地图上的重规划留出合理时间。
+planner_patience: 5.0
+# 局部控制等待耐心值为 15s，避免短时阻塞就触发恢复行为。
+controller_patience: 15.0
+# 保守清障触发距离设为 3m，防止轻微偏航就过早重置大范围代价。
+conservative_reset_dist: 3.0
+# 全局规划频率设为 5Hz，在静态地图中足够灵敏且不会带来过多重复计算。
+planner_frequency: 5.0
+# 10s 内持续振荡才判定异常，减少狭窄场景下短时试探动作被误报。
+oscillation_timeout: 10.0
+# 振荡判定位移阈值为 0.2m，避免机器人在原地附近来回小抖动。
+oscillation_distance: 0.2

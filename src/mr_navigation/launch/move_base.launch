@@ -1,0 +1,23 @@
+<launch>
+  <!-- model 只负责选择底盘专有参数文件，通用环境参数保持不变。 -->
+  <arg name="model" default="burger"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="odom_topic" default="/odom"/>
+  <arg name="move_forward_only" default="false"/>
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <!-- 专有参数按 model 动态拼接，后续新增 husky 只需补 _husky.yaml。 -->
+    <rosparam file="$(find mr_navigation)/config/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap"/>
+    <rosparam file="$(find mr_navigation)/config/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap"/>
+    <!-- 通用环境参数不绑定任何底盘型号，所有机器人共用同一套基础导航行为。 -->
+    <rosparam file="$(find mr_navigation)/config/local_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find mr_navigation)/config/global_costmap_params.yaml" command="load"/>
+    <rosparam file="$(find mr_navigation)/config/move_base_params.yaml" command="load"/>
+    <rosparam file="$(find mr_navigation)/config/dwa_local_planner_params_$(arg model).yaml" command="load"/>
+
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+
+    <param name="DWAPlannerROS/min_vel_x" value="0.0" if="$(arg move_forward_only)"/>
+  </node>
+</launch>

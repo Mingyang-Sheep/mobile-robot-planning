@@ -1,0 +1,23 @@
+local_costmap:
+  # 局部代价地图固定在里程计坐标系下，适合随车滚动更新。
+  global_frame: odom
+  # 机器人底盘参考系统一为 base_footprint，便于多底盘共用导航接口。
+  robot_base_frame: base_footprint
+
+  # 局部地图更新频率设为 10Hz，保证避障响应足够及时。
+  update_frequency: 10.0
+  # 发布频率同样设为 10Hz，方便控制器始终消费到最新局部代价地图。
+  publish_frequency: 10.0
+  # TF 容差保持 0.5s，吸收仿真/通信中的轻微时间抖动。
+  transform_tolerance: 0.5
+
+  # 局部代价地图不直接依赖静态整图，而是围绕机器人实时滚动。
+  static_map: false
+  # 开启 rolling window，形成真正随车移动的局部环境感知窗口。
+  rolling_window: true
+  # 局部窗口宽度设为 3m，兼顾窄场景机动和前方障碍预判。
+  width: 3.0
+  # 局部窗口高度设为 3m，与宽度对称，保证转向时前后左右视野均衡。
+  height: 3.0
+  # 分辨率保持 5cm，与地图和激光精度对齐，减少重采样误差。
+  resolution: 0.05

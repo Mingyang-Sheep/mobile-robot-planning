@@ -1,0 +1,53 @@
+<launch>
+  <!-- 总入口：一条命令同时启动 Gazebo 世界、地图、AMCL 和 move_base。 -->
+  <arg name="model" default="burger"/>
+  <arg name="map_name" default="turtlebot3_world"/>
+
+  <!-- 仿真世界默认与导航地图配套使用官方 turtlebot3_world。 -->
+  <arg name="robot_model" default="turtlebot3_$(arg model)"/>
+  <arg name="robot_name" default="$(arg robot_model)"/>
+  <arg name="x" default="-2.0"/>
+  <arg name="y" default="-0.5"/>
+  <arg name="z" default="0.01"/>
+  <arg name="yaw" default="0.0"/>
+
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="odom_topic" default="/odom"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="move_forward_only" default="false"/>
+
+  <!-- 先拉起与地图一一对应的官方导航仿真世界。 -->
+  <include file="$(find mr_gazebo)/launch/spawn_navigation_world.launch">
+    <arg name="robot_model" value="$(arg robot_model)"/>
+    <arg name="robot_name" value="$(arg robot_name)"/>
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="z" value="$(arg z)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <!-- 再启动地图、定位与导航栈，默认初始位姿与仿真出生点保持一致。 -->
+  <include file="$(find mr_navigation)/launch/navigation.launch">
+    <arg name="model" value="$(arg model)"/>
+    <arg name="map_name" value="$(arg map_name)"/>
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+    <arg name="initial_pose_x" value="$(arg x)"/>
+    <arg name="initial_pose_y" value="$(arg y)"/>
+    <arg name="initial_pose_a" value="$(arg yaw)"/>
+  </include>
+
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+        args="-d $(find mr_navigation)/rviz/navigation.rviz"/>
+</launch>

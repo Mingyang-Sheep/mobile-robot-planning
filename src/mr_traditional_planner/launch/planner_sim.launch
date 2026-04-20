@@ -1,0 +1,35 @@
+<launch>
+  <!-- 一键联调入口：同时拉起导航仿真环境和指定算法节点。 -->
+  <arg name="model" default="burger"/>
+  <arg name="map_name" default="turtlebot3_world"/>
+  <arg name="algorithm" default="astar"/>
+  <arg name="impl" default="cpp"/>
+
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="odom_topic" default="/odom"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="move_forward_only" default="false"/>
+
+  <include file="$(find mr_navigation)/launch/navigation_sim.launch">
+    <arg name="model" value="$(arg model)"/>
+    <arg name="map_name" value="$(arg map_name)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+  </include>
+
+  <include file="$(find mr_traditional_planner)/launch/planner.launch">
+    <arg name="algorithm" value="$(arg algorithm)"/>
+    <arg name="impl" value="$(arg impl)"/>
+  </include>
+</launch>

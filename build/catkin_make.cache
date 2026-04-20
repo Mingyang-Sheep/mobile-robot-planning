@@ -1,0 +1,2 @@
+mr_description:mr_gazebo:mr_maps:mr_msgs:mr_navigation:mr_traditional_planner
+-DCATKIN_DEVEL_PREFIX=/home/lmy/mobile_robot_benchmark/devel -DCMAKE_INSTALL_PREFIX=/home/lmy/mobile_robot_benchmark/install -G Unix Makefiles

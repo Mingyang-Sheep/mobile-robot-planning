@@ -1,0 +1,4 @@
+<launch>
+  <!-- BCD Python 骨架：/map -> /mr_traditional_planner/coverage_path，并作为 /move_base Action Client -->
+  <node pkg="mr_traditional_planner" type="bcd_planner_py.py" name="bcd_planner_py" output="screen"/>
+</launch>

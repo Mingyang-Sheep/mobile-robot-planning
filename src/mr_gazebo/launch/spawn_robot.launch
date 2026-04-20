@@ -1,0 +1,62 @@
+<launch>
+  <arg name="stage" default="1"/>
+  <arg name="robot_model" default="turtlebot3_burger"/>
+  <arg name="robot_name" default="$(arg robot_model)"/>
+
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.01"/>
+  <arg name="yaw" default="0.0"/>
+
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <env name="GAZEBO_MODEL_PATH" value="$(find mr_gazebo)/models:$(optenv GAZEBO_MODEL_PATH)"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find mr_description)/urdf/$(arg robot_model).urdf.xacro"/>
+
+  <!-- 裸车仿真同样需要基础 TF 树，否则 base_scan 等固定坐标系不会被发布。 -->
+  <node pkg="robot_state_publisher"
+        type="robot_state_publisher"
+        name="robot_state_publisher"
+        output="screen">
+    <param name="publish_frequency" value="30.0"/>
+  </node>
+
+  <node pkg="gazebo_ros"
+        type="spawn_model"
+        name="spawn_robot"
+        if="$(eval float(arg('z')) >= 0.0)"
+        args="-urdf
+              -param robot_description
+              -model $(arg robot_name)
+              -x $(arg x)
+              -y $(arg y)
+              -z $(arg z)
+              -Y $(arg yaw)"/>
+
+  <node pkg="gazebo_ros"
+        type="spawn_model"
+        name="spawn_robot"
+        if="$(eval float(arg('z')) &lt; 0.0)"
+        args="-urdf
+              -param robot_description
+              -model $(arg robot_name)
+              -x $(arg x)
+              -y $(arg y)
+              -z 0.0
+              -Y $(arg yaw)"/>
+</launch>

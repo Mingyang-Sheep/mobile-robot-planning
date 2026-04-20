@@ -1,0 +1,15 @@
+global_costmap:
+  # 全局代价地图工作在 map 坐标系下，用于承载静态地图和全局路径规划。
+  global_frame: map
+  # 机器人参考系保持通用 base_footprint，不与任何底盘型号耦合。
+  robot_base_frame: base_footprint
+
+  # 全局地图更新频率降到 1Hz，静态地图场景下足够且能减少无谓开销。
+  update_frequency: 1.0
+  # 发布频率同样设为 1Hz，使上层可视化与全局规划拿到稳定更新。
+  publish_frequency: 1.0
+  # TF 容差保持 0.5s，避免定位与地图更新偶发时间差导致报错。
+  transform_tolerance: 0.5
+
+  # 开启静态地图模式，让全局层直接以 map_server 输出的占据栅格为基底。
+  static_map: true

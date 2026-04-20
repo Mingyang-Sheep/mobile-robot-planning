@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mr_gazebo</name>
+  <version>0.1.0</version>
+  <description>Gazebo launch assets for the mobile-robot-benchmark workspace.</description>
+
+  <maintainer email="lmy@example.com">lmy</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>gazebo_ros</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>xacro</depend>
+
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>mr_description</exec_depend>
+
+  <export/>
+</package>
