@@ -77,6 +77,14 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/dwa_planner_py.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/cubic_spline_planner_py.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/bcd_planner_py.py")
 endif()
 

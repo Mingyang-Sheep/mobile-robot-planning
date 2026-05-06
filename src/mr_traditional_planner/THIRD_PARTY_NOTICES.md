@@ -2,8 +2,9 @@
 
 ## PythonRobotics
 
-The D*, D* Lite, Theta*, and RRT* planners in this package were adapted from
-the path planning examples in `AtsushiSakai/PythonRobotics`.
+The D*, D* Lite, Theta*, RRT*, Dynamic Window Approach, and Cubic Spline planners
+in this package were adapted from the path planning examples in
+`AtsushiSakai/PythonRobotics`.
 
 Source:
 
@@ -12,6 +13,8 @@ Source:
 - https://github.com/AtsushiSakai/PythonRobotics/tree/master/PathPlanning/ThetaStar
 - https://github.com/AtsushiSakai/PythonRobotics/tree/master/PathPlanning/RRTStar
 - https://github.com/AtsushiSakai/PythonRobotics/tree/master/PathPlanning/RRT
+- https://github.com/AtsushiSakai/PythonRobotics/tree/master/PathPlanning/DynamicWindowApproach
+- https://github.com/AtsushiSakai/PythonRobotics/tree/master/PathPlanning/CubicSpline
 
 License:
 

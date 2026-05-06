@@ -29,6 +29,16 @@
          base_class_type="mr_traditional_planner::PlannerPlugin">
     <description>RRT* sampling-based path planner plugin.</description>
   </class>
+  <class name="mr_traditional_planner/DynamicWindowApproachPlanner"
+         type="mr_traditional_planner::optimal::DynamicWindowApproachPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>Dynamic Window Approach local planner plugin.</description>
+  </class>
+  <class name="mr_traditional_planner/CubicSplinePlanner"
+         type="mr_traditional_planner::optimal::CubicSplinePlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>Cubic spline path generation and smoothing plugin.</description>
+  </class>
   <class name="mr_traditional_planner/BcdPlanner"
          type="mr_traditional_planner::coverage::BcdPlanner"
          base_class_type="mr_traditional_planner::PlannerPlugin">

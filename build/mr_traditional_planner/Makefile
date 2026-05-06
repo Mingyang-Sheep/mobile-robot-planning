@@ -1103,6 +1103,33 @@ src/optimal/astar_planner_node.cpp.s:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.s
 .PHONY : src/optimal/astar_planner_node.cpp.s
 
+src/optimal/cubic_spline_planner_node.o: src/optimal/cubic_spline_planner_node.cpp.o
+
+.PHONY : src/optimal/cubic_spline_planner_node.o
+
+# target to build an object file
+src/optimal/cubic_spline_planner_node.cpp.o:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.o
+.PHONY : src/optimal/cubic_spline_planner_node.cpp.o
+
+src/optimal/cubic_spline_planner_node.i: src/optimal/cubic_spline_planner_node.cpp.i
+
+.PHONY : src/optimal/cubic_spline_planner_node.i
+
+# target to preprocess a source file
+src/optimal/cubic_spline_planner_node.cpp.i:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.i
+.PHONY : src/optimal/cubic_spline_planner_node.cpp.i
+
+src/optimal/cubic_spline_planner_node.s: src/optimal/cubic_spline_planner_node.cpp.s
+
+.PHONY : src/optimal/cubic_spline_planner_node.s
+
+# target to generate assembly for a file
+src/optimal/cubic_spline_planner_node.cpp.s:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.s
+.PHONY : src/optimal/cubic_spline_planner_node.cpp.s
+
 src/optimal/dijkstra_planner_node.o: src/optimal/dijkstra_planner_node.cpp.o
 
 .PHONY : src/optimal/dijkstra_planner_node.o
@@ -1183,6 +1210,33 @@ src/optimal/dstar_planner_node.s: src/optimal/dstar_planner_node.cpp.s
 src/optimal/dstar_planner_node.cpp.s:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.s
 .PHONY : src/optimal/dstar_planner_node.cpp.s
+
+src/optimal/dwa_planner_node.o: src/optimal/dwa_planner_node.cpp.o
+
+.PHONY : src/optimal/dwa_planner_node.o
+
+# target to build an object file
+src/optimal/dwa_planner_node.cpp.o:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dwa_planner_node.cpp.o
+.PHONY : src/optimal/dwa_planner_node.cpp.o
+
+src/optimal/dwa_planner_node.i: src/optimal/dwa_planner_node.cpp.i
+
+.PHONY : src/optimal/dwa_planner_node.i
+
+# target to preprocess a source file
+src/optimal/dwa_planner_node.cpp.i:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dwa_planner_node.cpp.i
+.PHONY : src/optimal/dwa_planner_node.cpp.i
+
+src/optimal/dwa_planner_node.s: src/optimal/dwa_planner_node.cpp.s
+
+.PHONY : src/optimal/dwa_planner_node.s
+
+# target to generate assembly for a file
+src/optimal/dwa_planner_node.cpp.s:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dwa_planner_node.cpp.s
+.PHONY : src/optimal/dwa_planner_node.cpp.s
 
 src/optimal/rrt_star_planner_node.o: src/optimal/rrt_star_planner_node.cpp.o
 
@@ -1344,6 +1398,9 @@ help:
 	@echo "... src/optimal/astar_planner_node.o"
 	@echo "... src/optimal/astar_planner_node.i"
 	@echo "... src/optimal/astar_planner_node.s"
+	@echo "... src/optimal/cubic_spline_planner_node.o"
+	@echo "... src/optimal/cubic_spline_planner_node.i"
+	@echo "... src/optimal/cubic_spline_planner_node.s"
 	@echo "... src/optimal/dijkstra_planner_node.o"
 	@echo "... src/optimal/dijkstra_planner_node.i"
 	@echo "... src/optimal/dijkstra_planner_node.s"
@@ -1353,6 +1410,9 @@ help:
 	@echo "... src/optimal/dstar_planner_node.o"
 	@echo "... src/optimal/dstar_planner_node.i"
 	@echo "... src/optimal/dstar_planner_node.s"
+	@echo "... src/optimal/dwa_planner_node.o"
+	@echo "... src/optimal/dwa_planner_node.i"
+	@echo "... src/optimal/dwa_planner_node.s"
 	@echo "... src/optimal/rrt_star_planner_node.o"
 	@echo "... src/optimal/rrt_star_planner_node.i"
 	@echo "... src/optimal/rrt_star_planner_node.s"

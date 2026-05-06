@@ -17,6 +17,8 @@ std::string builtinPluginForAlgorithm(const std::string& algorithm) {
       std::make_pair("dstar_lite", "mr_traditional_planner/DStarLitePlanner"),
       std::make_pair("theta_star", "mr_traditional_planner/ThetaStarPlanner"),
       std::make_pair("rrt_star", "mr_traditional_planner/RRTStarPlanner"),
+      std::make_pair("dwa", "mr_traditional_planner/DynamicWindowApproachPlanner"),
+      std::make_pair("cubic_spline", "mr_traditional_planner/CubicSplinePlanner"),
       std::make_pair("bcd", "mr_traditional_planner/BcdPlanner"),
       std::make_pair("stc", "mr_traditional_planner/StcPlanner"),
   };

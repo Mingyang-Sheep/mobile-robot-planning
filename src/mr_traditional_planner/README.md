@@ -20,11 +20,19 @@
 - Publish: `/mr_traditional_planner/coverage_path` (`nav_msgs/Path`)
 - Action client: `/move_base` (`move_base_msgs/MoveBaseAction`)
 
+### Local controllers and smoothers
+
+- `dwa` subscribes `/map`, `/odom`, and `/move_base_simple/goal`; publishes `/cmd_vel`
+  and the selected preview trajectory on `/mr_traditional_planner/optimal_path`.
+- `cubic_spline` publishes a smoothed `nav_msgs/Path` to
+  `/mr_traditional_planner/optimal_path`; it can use either RViz `2D Nav Goal` or
+  `input_path_topic`.
+
 ## Launch Switching
 
 - Unified entry: `roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=cpp`
 - Full simulation entry: `roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py`
-- Supported `algorithm`: `astar`, `dijkstra`, `dstar`, `dstar_lite`, `theta_star`, `rrt_star`, `bcd`, `stc`
+- Supported `algorithm`: `astar`, `dijkstra`, `dstar`, `dstar_lite`, `theta_star`, `rrt_star`, `dwa`, `cubic_spline`, `bcd`, `stc`
 - Supported `impl`: `cpp`, `py`
 - C++ plugin override: `roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_traditional_planner/AStarPlanner`
 - Built-in C++ plugins:
@@ -34,6 +42,8 @@
   - `mr_traditional_planner/DStarLitePlanner`
   - `mr_traditional_planner/ThetaStarPlanner`
   - `mr_traditional_planner/RRTStarPlanner`
+  - `mr_traditional_planner/DynamicWindowApproachPlanner`
+  - `mr_traditional_planner/CubicSplinePlanner`
   - `mr_traditional_planner/BcdPlanner`
   - `mr_traditional_planner/StcPlanner`
 - Debug trigger: all algorithms use RViz `2D Nav Goal`
@@ -51,12 +61,16 @@ roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=your_p
 
 Common private parameters exposed by the built-in plugins are `map_topic`,
 `goal_topic`, `path_topic`, `robot_radius`, `map_frame`, and `robot_frame`.
+DWA additionally exposes `odom_topic`, `cmd_vel_topic`, and sampling/control
+parameters such as `max_speed`, `predict_time`, and `control_frequency`.
+Cubic Spline additionally exposes `input_path_topic`, `spline_resolution`,
+`control_point_ratio`, and `collision_check`.
 Coverage plugins also expose `goal_timeout`; BCD exposes `sweep_spacing`, and STC
 exposes `tree_spacing`.
 
 ## Current Scope
 
 - A* and Dijkstra are implemented in both C++ and Python.
-- D*, D* Lite, Theta*, and RRT* are adapted from PythonRobotics and implemented in both C++ and Python.
+- D*, D* Lite, Theta*, RRT*, Dynamic Window Approach, and Cubic Spline are adapted from PythonRobotics and implemented in both C++ and Python.
 - BCD coverage is implemented in both C++ and Python.
 - STC coverage is implemented in both C++ and Python.

@@ -40,6 +40,8 @@ add_library(mr_traditional_planner_plugins
   src/optimal/dstar_lite_planner_node.cpp
   src/optimal/theta_star_planner_node.cpp
   src/optimal/rrt_star_planner_node.cpp
+  src/optimal/dwa_planner_node.cpp
+  src/optimal/cubic_spline_planner_node.cpp
   src/coverage/bcd_planner_node.cpp
   src/coverage/stc_planner_node.cpp
 )
@@ -65,6 +67,8 @@ catkin_install_python(PROGRAMS
   scripts/optimal/dstar_lite_planner_py.py
   scripts/optimal/theta_star_planner_py.py
   scripts/optimal/rrt_star_planner_py.py
+  scripts/optimal/dwa_planner_py.py
+  scripts/optimal/cubic_spline_planner_py.py
   scripts/coverage/bcd_planner_py.py
   scripts/coverage/stc_planner_py.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

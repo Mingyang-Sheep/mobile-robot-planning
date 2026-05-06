@@ -10,6 +10,8 @@
 - `dstar_lite`
 - `theta_star`
 - `rrt_star`
+- `dwa`
+- `cubic_spline`
 - `bcd`
 - `stc`
 
@@ -61,13 +63,15 @@ roslaunch mr_traditional_planner planner_sim.launch algorithm:=dstar impl:=cpp
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=dstar_lite impl:=py
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=theta_star impl:=cpp
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=rrt_star impl:=py
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=dwa impl:=cpp
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=cubic_spline impl:=py
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=bcd impl:=cpp
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py
 ```
 
 参数说明：
 
-- `algorithm:=astar|dijkstra|dstar|dstar_lite|theta_star|rrt_star|bcd|stc`
+- `algorithm:=astar|dijkstra|dstar|dstar_lite|theta_star|rrt_star|dwa|cubic_spline|bcd|stc`
 - `impl:=cpp|py`
 - `planner_plugin:=...` 可选，仅 `impl:=cpp` 时生效；不填时会按 `algorithm` 自动映射到内置插件
 
@@ -79,6 +83,8 @@ roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py
 - `mr_traditional_planner/DStarLitePlanner`
 - `mr_traditional_planner/ThetaStarPlanner`
 - `mr_traditional_planner/RRTStarPlanner`
+- `mr_traditional_planner/DynamicWindowApproachPlanner`
+- `mr_traditional_planner/CubicSplinePlanner`
 - `mr_traditional_planner/BcdPlanner`
 - `mr_traditional_planner/StcPlanner`
 
@@ -125,12 +131,12 @@ roslaunch mr_traditional_planner planner.launch algorithm:=stc impl:=cpp
 
 差别只在于：
 
-- `A* / Dijkstra / D* / D* Lite / Theta* / RRT*` 会把你点击的位置当作真实规划终点
+- `A* / Dijkstra / D* / D* Lite / Theta* / RRT* / Cubic Spline / DWA` 会把你点击的位置当作真实规划终点
 - `BCD / STC` 只把这次点击当作“开始覆盖”的触发信号，真正的覆盖起点仍然取机器人当前位姿
 
 如果你用的是当前仓库里的 RViz 配置 [navigation.rviz](/home/lmy/mobile_robot_benchmark/src/mr_navigation/rviz/navigation.rviz)，工具栏里显示的就是 `2D Nav Goal`。
 
-### 4.1 A* / Dijkstra / D* / D* Lite / Theta* / RRT*
+### 4.1 A* / Dijkstra / D* / D* Lite / Theta* / RRT* / Cubic Spline
 
 这些是最优路径算法，订阅：
 
@@ -151,7 +157,35 @@ roslaunch mr_traditional_planner planner.launch algorithm:=stc impl:=cpp
 rostopic echo -n 1 /mr_traditional_planner/optimal_path
 ```
 
-### 4.2 BCD / STC
+### 4.2 DWA
+
+DWA 是局部动态窗口控制器，订阅：
+
+- `/map`
+- `/odom`
+- `/move_base_simple/goal`
+
+发布：
+
+- `/cmd_vel`
+- `/mr_traditional_planner/optimal_path`，用于观察当前选中的预测轨迹
+
+调试方法：
+
+1. 启动仿真和算法。
+2. 打开 RViz。
+3. 点击 `2D Nav Goal`。
+4. 在地图上给一个目标点。
+5. 观察 `/cmd_vel` 和 `/mr_traditional_planner/optimal_path`。
+
+快速观察：
+
+```bash
+rostopic echo -n 1 /cmd_vel
+rostopic echo -n 1 /mr_traditional_planner/optimal_path
+```
+
+### 4.3 BCD / STC
 
 这两类是覆盖算法，交互方式现在已经和最优路径算法完全统一：
 
