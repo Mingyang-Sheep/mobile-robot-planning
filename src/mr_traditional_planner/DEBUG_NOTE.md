@@ -6,6 +6,10 @@
 
 - `astar`
 - `dijkstra`
+- `dstar`
+- `dstar_lite`
+- `theta_star`
+- `rrt_star`
 - `bcd`
 - `stc`
 
@@ -53,13 +57,17 @@ roslaunch mr_traditional_planner planner_sim.launch algorithm:=astar impl:=cpp
 
 ```bash
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=dijkstra impl:=py
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=dstar impl:=cpp
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=dstar_lite impl:=py
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=theta_star impl:=cpp
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=rrt_star impl:=py
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=bcd impl:=cpp
 roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py
 ```
 
 参数说明：
 
-- `algorithm:=astar|dijkstra|bcd|stc`
+- `algorithm:=astar|dijkstra|dstar|dstar_lite|theta_star|rrt_star|bcd|stc`
 - `impl:=cpp|py`
 - `planner_plugin:=...` 可选，仅 `impl:=cpp` 时生效；不填时会按 `algorithm` 自动映射到内置插件
 
@@ -67,13 +75,17 @@ roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py
 
 - `mr_traditional_planner/AStarPlanner`
 - `mr_traditional_planner/DijkstraPlanner`
+- `mr_traditional_planner/DStarPlanner`
+- `mr_traditional_planner/DStarLitePlanner`
+- `mr_traditional_planner/ThetaStarPlanner`
+- `mr_traditional_planner/RRTStarPlanner`
 - `mr_traditional_planner/BcdPlanner`
 - `mr_traditional_planner/StcPlanner`
 
 例如直接指定插件类型：
 
 ```bash
-roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_traditional_planner/StcPlanner
+roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_traditional_planner/DStarLitePlanner
 ```
 
 ## 3. 不重启仿真时如何切算法
@@ -106,21 +118,21 @@ roslaunch mr_traditional_planner planner.launch algorithm:=stc impl:=cpp
 
 ## 4. 不同算法如何触发
 
-当前四类算法的调试入口已经统一：
+当前算法的调试入口已经统一：
 
 - 都订阅 `/move_base_simple/goal`
 - 都通过 RViz 的 `2D Nav Goal` 触发
 
 差别只在于：
 
-- `A* / Dijkstra` 会把你点击的位置当作真实规划终点
+- `A* / Dijkstra / D* / D* Lite / Theta* / RRT*` 会把你点击的位置当作真实规划终点
 - `BCD / STC` 只把这次点击当作“开始覆盖”的触发信号，真正的覆盖起点仍然取机器人当前位姿
 
 如果你用的是当前仓库里的 RViz 配置 [navigation.rviz](/home/lmy/mobile_robot_benchmark/src/mr_navigation/rviz/navigation.rviz)，工具栏里显示的就是 `2D Nav Goal`。
 
-### 4.1 A* / Dijkstra
+### 4.1 A* / Dijkstra / D* / D* Lite / Theta* / RRT*
 
-这两类是最优路径算法，订阅：
+这些是最优路径算法，订阅：
 
 - `/map`
 - `/move_base_simple/goal`
@@ -141,7 +153,7 @@ rostopic echo -n 1 /mr_traditional_planner/optimal_path
 
 ### 4.2 BCD / STC
 
-这两类是覆盖算法，交互方式现在已经和 A* / Dijkstra 完全统一：
+这两类是覆盖算法，交互方式现在已经和最优路径算法完全统一：
 
 - 订阅 `/map`
 - 订阅 `/move_base_simple/goal`
@@ -223,7 +235,7 @@ rosrun tf tf_echo map base_footprint
 rosrun tf tf_echo odom base_footprint
 ```
 
-如果 `map -> base_footprint` 不通，A* / Dijkstra / BCD / STC 都会失败，因为它们都要从 TF 里拿机器人起点。
+如果 `map -> base_footprint` 不通，当前这些算法都会失败，因为它们都要从 TF 里拿机器人起点。
 
 ### 步骤 4：确认 move_base Action Server 正常
 

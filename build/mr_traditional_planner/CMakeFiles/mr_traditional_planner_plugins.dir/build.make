@@ -83,9 +83,61 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.s"
 	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dijkstra_planner_node.cpp -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.s
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/flags.make
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_planner_node.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o -c /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_planner_node.cpp
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.i"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_planner_node.cpp > CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.i
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.s"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_planner_node.cpp -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.s
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/flags.make
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_lite_planner_node.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o -c /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_lite_planner_node.cpp
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.i"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_lite_planner_node.cpp > CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.i
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.s"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_lite_planner_node.cpp -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.s
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/flags.make
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/theta_star_planner_node.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o -c /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/theta_star_planner_node.cpp
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.i"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/theta_star_planner_node.cpp > CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.i
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.s"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/theta_star_planner_node.cpp -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.s
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/flags.make
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/rrt_star_planner_node.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o -c /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/rrt_star_planner_node.cpp
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.i"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/rrt_star_planner_node.cpp > CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.i
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.s"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/rrt_star_planner_node.cpp -o CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.s
+
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/flags.make
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/bcd_planner_node.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o"
 	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o -c /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/bcd_planner_node.cpp
 
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.i: cmake_force
@@ -98,7 +150,7 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverag
 
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/flags.make
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/stc_planner_node.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o"
 	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o -c /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/stc_planner_node.cpp
 
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.i: cmake_force
@@ -113,6 +165,10 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverag
 mr_traditional_planner_plugins_OBJECTS = \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o" \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o" \
+"CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o" \
+"CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o" \
+"CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o" \
+"CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o" \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o" \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o"
 
@@ -121,6 +177,10 @@ mr_traditional_planner_plugins_EXTERNAL_OBJECTS =
 
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make
@@ -155,7 +215,7 @@ mr_traditional_planner_plugins_EXTERNAL_OBJECTS =
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX shared library /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX shared library /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so"
 	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mr_traditional_planner_plugins.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

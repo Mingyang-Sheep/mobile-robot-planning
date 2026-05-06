@@ -24,12 +24,16 @@
 
 - Unified entry: `roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=cpp`
 - Full simulation entry: `roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py`
-- Supported `algorithm`: `astar`, `dijkstra`, `bcd`, `stc`
+- Supported `algorithm`: `astar`, `dijkstra`, `dstar`, `dstar_lite`, `theta_star`, `rrt_star`, `bcd`, `stc`
 - Supported `impl`: `cpp`, `py`
 - C++ plugin override: `roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_traditional_planner/AStarPlanner`
 - Built-in C++ plugins:
   - `mr_traditional_planner/AStarPlanner`
   - `mr_traditional_planner/DijkstraPlanner`
+  - `mr_traditional_planner/DStarPlanner`
+  - `mr_traditional_planner/DStarLitePlanner`
+  - `mr_traditional_planner/ThetaStarPlanner`
+  - `mr_traditional_planner/RRTStarPlanner`
   - `mr_traditional_planner/BcdPlanner`
   - `mr_traditional_planner/StcPlanner`
 - Debug trigger: all algorithms use RViz `2D Nav Goal`
@@ -53,5 +57,6 @@ exposes `tree_spacing`.
 ## Current Scope
 
 - A* and Dijkstra are implemented in both C++ and Python.
+- D*, D* Lite, Theta*, and RRT* are adapted from PythonRobotics and implemented in both C++ and Python.
 - BCD coverage is implemented in both C++ and Python.
 - STC coverage is implemented in both C++ and Python.

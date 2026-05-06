@@ -9,6 +9,26 @@
          base_class_type="mr_traditional_planner::PlannerPlugin">
     <description>Dijkstra optimal path planner plugin.</description>
   </class>
+  <class name="mr_traditional_planner/DStarPlanner"
+         type="mr_traditional_planner::optimal::DStarPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>D* optimal path planner plugin.</description>
+  </class>
+  <class name="mr_traditional_planner/DStarLitePlanner"
+         type="mr_traditional_planner::optimal::DStarLitePlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>D* Lite optimal path planner plugin.</description>
+  </class>
+  <class name="mr_traditional_planner/ThetaStarPlanner"
+         type="mr_traditional_planner::optimal::ThetaStarPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>Theta* any-angle optimal path planner plugin.</description>
+  </class>
+  <class name="mr_traditional_planner/RRTStarPlanner"
+         type="mr_traditional_planner::optimal::RRTStarPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>RRT* sampling-based path planner plugin.</description>
+  </class>
   <class name="mr_traditional_planner/BcdPlanner"
          type="mr_traditional_planner::coverage::BcdPlanner"
          base_class_type="mr_traditional_planner::PlannerPlugin">

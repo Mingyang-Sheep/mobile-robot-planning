@@ -36,6 +36,10 @@ include_directories(
 add_library(mr_traditional_planner_plugins
   src/optimal/astar_planner_node.cpp
   src/optimal/dijkstra_planner_node.cpp
+  src/optimal/dstar_planner_node.cpp
+  src/optimal/dstar_lite_planner_node.cpp
+  src/optimal/theta_star_planner_node.cpp
+  src/optimal/rrt_star_planner_node.cpp
   src/coverage/bcd_planner_node.cpp
   src/coverage/stc_planner_node.cpp
 )
@@ -57,6 +61,10 @@ add_dependencies(planner_plugin_node ${catkin_EXPORTED_TARGETS})
 catkin_install_python(PROGRAMS
   scripts/optimal/astar_planner_py.py
   scripts/optimal/dijkstra_planner_py.py
+  scripts/optimal/dstar_planner_py.py
+  scripts/optimal/dstar_lite_planner_py.py
+  scripts/optimal/theta_star_planner_py.py
+  scripts/optimal/rrt_star_planner_py.py
   scripts/coverage/bcd_planner_py.py
   scripts/coverage/stc_planner_py.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -71,6 +79,7 @@ install(TARGETS
 )
 
 install(FILES planner_plugins.xml
+  THIRD_PARTY_NOTICES.md
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

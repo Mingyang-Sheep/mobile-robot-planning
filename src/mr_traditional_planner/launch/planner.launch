@@ -16,6 +16,14 @@
 
   <include if="$(eval arg('algorithm') == 'dijkstra' and arg('impl') == 'py')"
            file="$(find mr_traditional_planner)/launch/dijkstra_py.launch"/>
+  <include if="$(eval arg('algorithm') == 'dstar' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/dstar_py.launch"/>
+  <include if="$(eval arg('algorithm') == 'dstar_lite' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/dstar_lite_py.launch"/>
+  <include if="$(eval arg('algorithm') == 'theta_star' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/theta_star_py.launch"/>
+  <include if="$(eval arg('algorithm') == 'rrt_star' and arg('impl') == 'py')"
+           file="$(find mr_traditional_planner)/launch/rrt_star_py.launch"/>
 
   <include if="$(eval arg('algorithm') == 'bcd' and arg('impl') == 'py')"
            file="$(find mr_traditional_planner)/launch/bcd_py.launch"/>

@@ -1887,12 +1887,12 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_tra
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/depend
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=9,10,11,12,13 "Built target mr_traditional_planner_plugins"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=9,10,11,12,13,14,15,16,17 "Built target mr_traditional_planner_plugins"
 .PHONY : mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all
 
 # Build rule for subdir invocation for target.
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 9
 	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 0
 .PHONY : mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule
@@ -2212,7 +2212,7 @@ mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_pl
 mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/depend
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=14,15 "Built target planner_plugin_node"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=18,19 "Built target planner_plugin_node"
 .PHONY : mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all
 
 # Build rule for subdir invocation for target.

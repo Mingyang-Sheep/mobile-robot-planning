@@ -1130,6 +1130,114 @@ src/optimal/dijkstra_planner_node.cpp.s:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.s
 .PHONY : src/optimal/dijkstra_planner_node.cpp.s
 
+src/optimal/dstar_lite_planner_node.o: src/optimal/dstar_lite_planner_node.cpp.o
+
+.PHONY : src/optimal/dstar_lite_planner_node.o
+
+# target to build an object file
+src/optimal/dstar_lite_planner_node.cpp.o:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o
+.PHONY : src/optimal/dstar_lite_planner_node.cpp.o
+
+src/optimal/dstar_lite_planner_node.i: src/optimal/dstar_lite_planner_node.cpp.i
+
+.PHONY : src/optimal/dstar_lite_planner_node.i
+
+# target to preprocess a source file
+src/optimal/dstar_lite_planner_node.cpp.i:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.i
+.PHONY : src/optimal/dstar_lite_planner_node.cpp.i
+
+src/optimal/dstar_lite_planner_node.s: src/optimal/dstar_lite_planner_node.cpp.s
+
+.PHONY : src/optimal/dstar_lite_planner_node.s
+
+# target to generate assembly for a file
+src/optimal/dstar_lite_planner_node.cpp.s:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.s
+.PHONY : src/optimal/dstar_lite_planner_node.cpp.s
+
+src/optimal/dstar_planner_node.o: src/optimal/dstar_planner_node.cpp.o
+
+.PHONY : src/optimal/dstar_planner_node.o
+
+# target to build an object file
+src/optimal/dstar_planner_node.cpp.o:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o
+.PHONY : src/optimal/dstar_planner_node.cpp.o
+
+src/optimal/dstar_planner_node.i: src/optimal/dstar_planner_node.cpp.i
+
+.PHONY : src/optimal/dstar_planner_node.i
+
+# target to preprocess a source file
+src/optimal/dstar_planner_node.cpp.i:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.i
+.PHONY : src/optimal/dstar_planner_node.cpp.i
+
+src/optimal/dstar_planner_node.s: src/optimal/dstar_planner_node.cpp.s
+
+.PHONY : src/optimal/dstar_planner_node.s
+
+# target to generate assembly for a file
+src/optimal/dstar_planner_node.cpp.s:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.s
+.PHONY : src/optimal/dstar_planner_node.cpp.s
+
+src/optimal/rrt_star_planner_node.o: src/optimal/rrt_star_planner_node.cpp.o
+
+.PHONY : src/optimal/rrt_star_planner_node.o
+
+# target to build an object file
+src/optimal/rrt_star_planner_node.cpp.o:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o
+.PHONY : src/optimal/rrt_star_planner_node.cpp.o
+
+src/optimal/rrt_star_planner_node.i: src/optimal/rrt_star_planner_node.cpp.i
+
+.PHONY : src/optimal/rrt_star_planner_node.i
+
+# target to preprocess a source file
+src/optimal/rrt_star_planner_node.cpp.i:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.i
+.PHONY : src/optimal/rrt_star_planner_node.cpp.i
+
+src/optimal/rrt_star_planner_node.s: src/optimal/rrt_star_planner_node.cpp.s
+
+.PHONY : src/optimal/rrt_star_planner_node.s
+
+# target to generate assembly for a file
+src/optimal/rrt_star_planner_node.cpp.s:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.s
+.PHONY : src/optimal/rrt_star_planner_node.cpp.s
+
+src/optimal/theta_star_planner_node.o: src/optimal/theta_star_planner_node.cpp.o
+
+.PHONY : src/optimal/theta_star_planner_node.o
+
+# target to build an object file
+src/optimal/theta_star_planner_node.cpp.o:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o
+.PHONY : src/optimal/theta_star_planner_node.cpp.o
+
+src/optimal/theta_star_planner_node.i: src/optimal/theta_star_planner_node.cpp.i
+
+.PHONY : src/optimal/theta_star_planner_node.i
+
+# target to preprocess a source file
+src/optimal/theta_star_planner_node.cpp.i:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.i
+.PHONY : src/optimal/theta_star_planner_node.cpp.i
+
+src/optimal/theta_star_planner_node.s: src/optimal/theta_star_planner_node.cpp.s
+
+.PHONY : src/optimal/theta_star_planner_node.s
+
+# target to generate assembly for a file
+src/optimal/theta_star_planner_node.cpp.s:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.s
+.PHONY : src/optimal/theta_star_planner_node.cpp.s
+
 src/planner_plugin_node.o: src/planner_plugin_node.cpp.o
 
 .PHONY : src/planner_plugin_node.o
@@ -1239,6 +1347,18 @@ help:
 	@echo "... src/optimal/dijkstra_planner_node.o"
 	@echo "... src/optimal/dijkstra_planner_node.i"
 	@echo "... src/optimal/dijkstra_planner_node.s"
+	@echo "... src/optimal/dstar_lite_planner_node.o"
+	@echo "... src/optimal/dstar_lite_planner_node.i"
+	@echo "... src/optimal/dstar_lite_planner_node.s"
+	@echo "... src/optimal/dstar_planner_node.o"
+	@echo "... src/optimal/dstar_planner_node.i"
+	@echo "... src/optimal/dstar_planner_node.s"
+	@echo "... src/optimal/rrt_star_planner_node.o"
+	@echo "... src/optimal/rrt_star_planner_node.i"
+	@echo "... src/optimal/rrt_star_planner_node.s"
+	@echo "... src/optimal/theta_star_planner_node.o"
+	@echo "... src/optimal/theta_star_planner_node.i"
+	@echo "... src/optimal/theta_star_planner_node.s"
 	@echo "... src/planner_plugin_node.o"
 	@echo "... src/planner_plugin_node.i"
 	@echo "... src/planner_plugin_node.s"

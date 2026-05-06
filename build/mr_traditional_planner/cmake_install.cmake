@@ -61,6 +61,22 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/dstar_planner_py.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/dstar_lite_planner_py.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/theta_star_planner_py.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/rrt_star_planner_py.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/bcd_planner_py.py")
 endif()
 
@@ -112,7 +128,10 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/mr_traditional_planner" TYPE FILE FILES "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/planner_plugins.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/mr_traditional_planner" TYPE FILE FILES
+    "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/planner_plugins.xml"
+    "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/THIRD_PARTY_NOTICES.md"
+    )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)

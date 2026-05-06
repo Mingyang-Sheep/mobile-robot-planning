@@ -8,6 +8,10 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/stc_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o"
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/astar_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o"
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dijkstra_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o"
+  "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_lite_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o"
+  "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o"
+  "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/rrt_star_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o"
+  "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/theta_star_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
