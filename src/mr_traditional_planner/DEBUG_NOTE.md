@@ -61,6 +61,20 @@ roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py
 
 - `algorithm:=astar|dijkstra|bcd|stc`
 - `impl:=cpp|py`
+- `planner_plugin:=...` 可选，仅 `impl:=cpp` 时生效；不填时会按 `algorithm` 自动映射到内置插件
+
+当前 C++ 内置插件：
+
+- `mr_traditional_planner/AStarPlanner`
+- `mr_traditional_planner/DijkstraPlanner`
+- `mr_traditional_planner/BcdPlanner`
+- `mr_traditional_planner/StcPlanner`
+
+例如直接指定插件类型：
+
+```bash
+roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_traditional_planner/StcPlanner
+```
 
 ## 3. 不重启仿真时如何切算法
 

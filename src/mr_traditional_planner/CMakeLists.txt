@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   move_base_msgs
   nav_msgs
+  pluginlib
   roscpp
   rospy
   tf
@@ -14,12 +15,14 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
+  LIBRARIES mr_traditional_planner_plugins
   CATKIN_DEPENDS
     actionlib
     actionlib_msgs
     geometry_msgs
     move_base_msgs
     nav_msgs
+    pluginlib
     roscpp
     rospy
     tf
@@ -30,38 +33,25 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(astar_planner_cpp
+add_library(mr_traditional_planner_plugins
   src/optimal/astar_planner_node.cpp
-)
-target_link_libraries(astar_planner_cpp
-  ${catkin_LIBRARIES}
-)
-
-add_executable(dijkstra_planner_cpp
   src/optimal/dijkstra_planner_node.cpp
-)
-target_link_libraries(dijkstra_planner_cpp
-  ${catkin_LIBRARIES}
-)
-
-add_executable(bcd_planner_cpp
   src/coverage/bcd_planner_node.cpp
-)
-target_link_libraries(bcd_planner_cpp
-  ${catkin_LIBRARIES}
-)
-
-add_executable(stc_planner_cpp
   src/coverage/stc_planner_node.cpp
 )
-target_link_libraries(stc_planner_cpp
+target_link_libraries(mr_traditional_planner_plugins
   ${catkin_LIBRARIES}
 )
 
-add_dependencies(astar_planner_cpp ${catkin_EXPORTED_TARGETS})
-add_dependencies(dijkstra_planner_cpp ${catkin_EXPORTED_TARGETS})
-add_dependencies(bcd_planner_cpp ${catkin_EXPORTED_TARGETS})
-add_dependencies(stc_planner_cpp ${catkin_EXPORTED_TARGETS})
+add_executable(planner_plugin_node
+  src/planner_plugin_node.cpp
+)
+target_link_libraries(planner_plugin_node
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(mr_traditional_planner_plugins ${catkin_EXPORTED_TARGETS})
+add_dependencies(planner_plugin_node ${catkin_EXPORTED_TARGETS})
 
 # 预先接入 Python 节点安装流程，后续补算法实现时不需要再改构建骨架。
 catkin_install_python(PROGRAMS
@@ -73,11 +63,15 @@ catkin_install_python(PROGRAMS
 )
 
 install(TARGETS
-  astar_planner_cpp
-  dijkstra_planner_cpp
-  bcd_planner_cpp
-  stc_planner_cpp
+  mr_traditional_planner_plugins
+  planner_plugin_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(FILES planner_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 install(DIRECTORY include launch scripts/utils

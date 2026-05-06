@@ -4,6 +4,7 @@
   <arg name="map_name" default="turtlebot3_world"/>
   <arg name="algorithm" default="astar"/>
   <arg name="impl" default="cpp"/>
+  <arg name="planner_plugin" default=""/>
 
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
@@ -31,5 +32,6 @@
   <include file="$(find mr_traditional_planner)/launch/planner.launch">
     <arg name="algorithm" value="$(arg algorithm)"/>
     <arg name="impl" value="$(arg impl)"/>
+    <arg name="planner_plugin" value="$(arg planner_plugin)"/>
   </include>
 </launch>

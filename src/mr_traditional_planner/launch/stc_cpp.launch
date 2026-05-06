@@ -1,4 +1,6 @@
 <launch>
-  <!-- STC C++ 骨架：/map -> /mr_traditional_planner/coverage_path，并作为 /move_base Action Client -->
-  <node pkg="mr_traditional_planner" type="stc_planner_cpp" name="stc_planner_cpp" output="screen"/>
+  <!-- STC C++ plugin：/map -> /mr_traditional_planner/coverage_path，并作为 /move_base Action Client -->
+  <node pkg="mr_traditional_planner" type="planner_plugin_node" name="stc_planner_cpp" output="screen">
+    <param name="planner_plugin" value="mr_traditional_planner/StcPlanner"/>
+  </node>
 </launch>

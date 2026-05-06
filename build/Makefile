@@ -441,19 +441,6 @@ actionlib_msgs_generate_messages_cpp/fast:
 .PHONY : actionlib_msgs_generate_messages_cpp/fast
 
 #=============================================================================
-# Target rules for targets named stc_planner_cpp
-
-# Build rule for target.
-stc_planner_cpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 stc_planner_cpp
-.PHONY : stc_planner_cpp
-
-# fast build rule for target.
-stc_planner_cpp/fast:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build
-.PHONY : stc_planner_cpp/fast
-
-#=============================================================================
 # Target rules for targets named roscpp_generate_messages_py
 
 # Build rule for target.
@@ -558,19 +545,6 @@ actionlib_generate_messages_py/fast:
 .PHONY : actionlib_generate_messages_py/fast
 
 #=============================================================================
-# Target rules for targets named astar_planner_cpp
-
-# Build rule for target.
-astar_planner_cpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 astar_planner_cpp
-.PHONY : astar_planner_cpp
-
-# fast build rule for target.
-astar_planner_cpp/fast:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build
-.PHONY : astar_planner_cpp/fast
-
-#=============================================================================
 # Target rules for targets named actionlib_generate_messages_nodejs
 
 # Build rule for target.
@@ -608,19 +582,6 @@ nav_msgs_generate_messages_cpp: cmake_check_build_system
 nav_msgs_generate_messages_cpp/fast:
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build.make mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build
 .PHONY : nav_msgs_generate_messages_cpp/fast
-
-#=============================================================================
-# Target rules for targets named dijkstra_planner_cpp
-
-# Build rule for target.
-dijkstra_planner_cpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 dijkstra_planner_cpp
-.PHONY : dijkstra_planner_cpp
-
-# fast build rule for target.
-dijkstra_planner_cpp/fast:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build
-.PHONY : dijkstra_planner_cpp/fast
 
 #=============================================================================
 # Target rules for targets named std_msgs_generate_messages_lisp
@@ -935,6 +896,19 @@ move_base_msgs_generate_messages_lisp/fast:
 .PHONY : move_base_msgs_generate_messages_lisp/fast
 
 #=============================================================================
+# Target rules for targets named mr_traditional_planner_plugins
+
+# Build rule for target.
+mr_traditional_planner_plugins: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner_plugins
+.PHONY : mr_traditional_planner_plugins
+
+# fast build rule for target.
+mr_traditional_planner_plugins/fast:
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build
+.PHONY : mr_traditional_planner_plugins/fast
+
+#=============================================================================
 # Target rules for targets named move_base_msgs_generate_messages_nodejs
 
 # Build rule for target.
@@ -985,19 +959,6 @@ tf_generate_messages_nodejs: cmake_check_build_system
 tf_generate_messages_nodejs/fast:
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/build.make mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/build
 .PHONY : tf_generate_messages_nodejs/fast
-
-#=============================================================================
-# Target rules for targets named bcd_planner_cpp
-
-# Build rule for target.
-bcd_planner_cpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 bcd_planner_cpp
-.PHONY : bcd_planner_cpp
-
-# fast build rule for target.
-bcd_planner_cpp/fast:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build
-.PHONY : bcd_planner_cpp/fast
 
 #=============================================================================
 # Target rules for targets named nav_msgs_generate_messages_nodejs
@@ -1064,6 +1025,19 @@ tf2_msgs_generate_messages_nodejs/fast:
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build.make mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build
 .PHONY : tf2_msgs_generate_messages_nodejs/fast
 
+#=============================================================================
+# Target rules for targets named planner_plugin_node
+
+# Build rule for target.
+planner_plugin_node: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 planner_plugin_node
+.PHONY : planner_plugin_node
+
+# fast build rule for target.
+planner_plugin_node/fast:
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build
+.PHONY : planner_plugin_node/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1098,7 +1072,6 @@ help:
 	@echo "... std_msgs_generate_messages_cpp"
 	@echo "... tf2_msgs_generate_messages_cpp"
 	@echo "... actionlib_msgs_generate_messages_cpp"
-	@echo "... stc_planner_cpp"
 	@echo "... roscpp_generate_messages_py"
 	@echo "... move_base_msgs_generate_messages_py"
 	@echo "... actionlib_generate_messages_lisp"
@@ -1107,11 +1080,9 @@ help:
 	@echo "... rosgraph_msgs_generate_messages_lisp"
 	@echo "... actionlib_msgs_generate_messages_eus"
 	@echo "... actionlib_generate_messages_py"
-	@echo "... astar_planner_cpp"
 	@echo "... actionlib_generate_messages_nodejs"
 	@echo "... rosgraph_msgs_generate_messages_eus"
 	@echo "... nav_msgs_generate_messages_cpp"
-	@echo "... dijkstra_planner_cpp"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... geometry_msgs_generate_messages_cpp"
 	@echo "... tf2_msgs_generate_messages_py"
@@ -1136,16 +1107,17 @@ help:
 	@echo "... sensor_msgs_generate_messages_eus"
 	@echo "... sensor_msgs_generate_messages_lisp"
 	@echo "... move_base_msgs_generate_messages_lisp"
+	@echo "... mr_traditional_planner_plugins"
 	@echo "... move_base_msgs_generate_messages_nodejs"
 	@echo "... nav_msgs_generate_messages_py"
 	@echo "... tf_generate_messages_lisp"
 	@echo "... tf_generate_messages_nodejs"
-	@echo "... bcd_planner_cpp"
 	@echo "... nav_msgs_generate_messages_nodejs"
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... sensor_msgs_generate_messages_nodejs"
 	@echo "... tf2_msgs_generate_messages_lisp"
 	@echo "... tf2_msgs_generate_messages_nodejs"
+	@echo "... planner_plugin_node"
 .PHONY : help
 
 

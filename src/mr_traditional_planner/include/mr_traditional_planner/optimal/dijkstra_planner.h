@@ -1,6 +1,8 @@
 #ifndef MR_TRADITIONAL_PLANNER_OPTIMAL_DIJKSTRA_PLANNER_H_
 #define MR_TRADITIONAL_PLANNER_OPTIMAL_DIJKSTRA_PLANNER_H_
 
+#include "mr_traditional_planner/planner_plugin.h"
+
 #include <tf/transform_listener.h>
 
 #include <geometry_msgs/PoseStamped.h>
@@ -9,6 +11,7 @@
 #include <ros/ros.h>
 
 #include <cstdint>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -16,9 +19,10 @@
 namespace mr_traditional_planner {
 namespace optimal {
 
-class DijkstraPlanner {
+class DijkstraPlanner : public PlannerPlugin {
  public:
   DijkstraPlanner();
+  void initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) override;
 
   struct Node {
     int x;
@@ -45,6 +49,7 @@ class DijkstraPlanner {
   void publishPath(const std::vector<int>& path_indices) const;
 
   ros::NodeHandle nh_;
+  ros::NodeHandle private_nh_;
   ros::Subscriber map_sub_;
   ros::Subscriber goal_sub_;
   ros::Publisher path_pub_;
@@ -58,6 +63,8 @@ class DijkstraPlanner {
   double origin_x_;
   double origin_y_;
   double robot_radius_;
+  std::string map_frame_;
+  std::string robot_frame_;
   std::vector<std::uint8_t> obstacle_grid_;
   std::vector<std::pair<int, int>> inflation_offsets_;
 };

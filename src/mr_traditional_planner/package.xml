@@ -14,9 +14,12 @@
   <depend>geometry_msgs</depend>
   <depend>move_base_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>
   <depend>tf</depend>
 
-  <export/>
+  <export>
+    <mr_traditional_planner plugin="${prefix}/planner_plugins.xml"/>
+  </export>
 </package>

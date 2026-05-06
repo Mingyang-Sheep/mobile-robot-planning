@@ -1,0 +1,22 @@
+<library path="lib/libmr_traditional_planner_plugins">
+  <class name="mr_traditional_planner/AStarPlanner"
+         type="mr_traditional_planner::optimal::AStarPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>A* optimal path planner plugin.</description>
+  </class>
+  <class name="mr_traditional_planner/DijkstraPlanner"
+         type="mr_traditional_planner::optimal::DijkstraPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>Dijkstra optimal path planner plugin.</description>
+  </class>
+  <class name="mr_traditional_planner/BcdPlanner"
+         type="mr_traditional_planner::coverage::BcdPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>BCD coverage planner plugin.</description>
+  </class>
+  <class name="mr_traditional_planner/StcPlanner"
+         type="mr_traditional_planner::coverage::StcPlanner"
+         base_class_type="mr_traditional_planner::PlannerPlugin">
+    <description>STC coverage planner plugin.</description>
+  </class>
+</library>

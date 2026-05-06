@@ -1,6 +1,8 @@
 #ifndef MR_TRADITIONAL_PLANNER_OPTIMAL_ASTAR_PLANNER_H_
 #define MR_TRADITIONAL_PLANNER_OPTIMAL_ASTAR_PLANNER_H_
 
+#include "mr_traditional_planner/planner_plugin.h"
+
 #include <tf/transform_listener.h>
 
 #include <geometry_msgs/PoseStamped.h>
@@ -9,6 +11,7 @@
 #include <ros/ros.h>
 
 #include <cstdint>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -24,9 +27,10 @@ struct Node {
   int parent_index;
 };
 
-class AStarPlanner {
+class AStarPlanner : public PlannerPlugin {
  public:
   AStarPlanner();
+  void initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) override;
 
  private:
   void mapCallback(const nav_msgs::OccupancyGridConstPtr& msg);
@@ -46,6 +50,7 @@ class AStarPlanner {
   void publishPath(const std::vector<int>& path_indices) const;
 
   ros::NodeHandle nh_;
+  ros::NodeHandle private_nh_;
   ros::Subscriber map_sub_;
   ros::Subscriber goal_sub_;
   ros::Publisher path_pub_;
@@ -59,6 +64,8 @@ class AStarPlanner {
   double origin_x_;
   double origin_y_;
   double robot_radius_;
+  std::string map_frame_;
+  std::string robot_frame_;
   std::vector<std::uint8_t> obstacle_grid_;
   std::vector<std::pair<int, int>> inflation_offsets_;
 };

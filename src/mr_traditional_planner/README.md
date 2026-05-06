@@ -26,8 +26,29 @@
 - Full simulation entry: `roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py`
 - Supported `algorithm`: `astar`, `dijkstra`, `bcd`, `stc`
 - Supported `impl`: `cpp`, `py`
+- C++ plugin override: `roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_traditional_planner/AStarPlanner`
+- Built-in C++ plugins:
+  - `mr_traditional_planner/AStarPlanner`
+  - `mr_traditional_planner/DijkstraPlanner`
+  - `mr_traditional_planner/BcdPlanner`
+  - `mr_traditional_planner/StcPlanner`
 - Debug trigger: all algorithms use RViz `2D Nav Goal`
 - Coverage note: for `bcd` / `stc`, the clicked point only acts as a trigger signal
+
+## C++ Plugin Extension
+
+New C++ algorithms implement `mr_traditional_planner::PlannerPlugin`, export the class
+with `PLUGINLIB_EXPORT_CLASS`, and add one class entry to `planner_plugins.xml`.
+After that, switch to it without changing launch files:
+
+```bash
+roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=your_pkg/YourPlanner
+```
+
+Common private parameters exposed by the built-in plugins are `map_topic`,
+`goal_topic`, `path_topic`, `robot_radius`, `map_frame`, and `robot_frame`.
+Coverage plugins also expose `goal_timeout`; BCD exposes `sweep_spacing`, and STC
+exposes `tree_spacing`.
 
 ## Current Scope
 

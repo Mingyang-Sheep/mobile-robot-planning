@@ -4,5 +4,5 @@ Name: mr_traditional_planner
 Description: Description of mr_traditional_planner
 Version: 0.1.0
 Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib 
-Requires: actionlib actionlib_msgs geometry_msgs move_base_msgs nav_msgs roscpp rospy tf
+Libs: -L${prefix}/lib -lmr_traditional_planner_plugins
+Requires: actionlib actionlib_msgs geometry_msgs move_base_msgs nav_msgs pluginlib roscpp rospy tf

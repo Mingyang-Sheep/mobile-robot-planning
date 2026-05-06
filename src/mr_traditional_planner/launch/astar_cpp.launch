@@ -1,4 +1,6 @@
 <launch>
-  <!-- A* C++ 骨架：/map + /move_base_simple/goal -> /mr_traditional_planner/optimal_path -->
-  <node pkg="mr_traditional_planner" type="astar_planner_cpp" name="astar_planner_cpp" output="screen"/>
+  <!-- A* C++ plugin：/map + /move_base_simple/goal -> /mr_traditional_planner/optimal_path -->
+  <node pkg="mr_traditional_planner" type="planner_plugin_node" name="astar_planner_cpp" output="screen">
+    <param name="planner_plugin" value="mr_traditional_planner/AStarPlanner"/>
+  </node>
 </launch>

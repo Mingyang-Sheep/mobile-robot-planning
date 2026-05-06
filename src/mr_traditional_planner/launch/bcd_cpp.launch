@@ -1,4 +1,6 @@
 <launch>
-  <!-- BCD C++ 骨架：/map -> /mr_traditional_planner/coverage_path，并作为 /move_base Action Client -->
-  <node pkg="mr_traditional_planner" type="bcd_planner_cpp" name="bcd_planner_cpp" output="screen"/>
+  <!-- BCD C++ plugin：/map -> /mr_traditional_planner/coverage_path，并作为 /move_base Action Client -->
+  <node pkg="mr_traditional_planner" type="planner_plugin_node" name="bcd_planner_cpp" output="screen">
+    <param name="planner_plugin" value="mr_traditional_planner/BcdPlanner"/>
+  </node>
 </launch>

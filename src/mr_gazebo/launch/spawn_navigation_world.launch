@@ -15,7 +15,9 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
 
-  <env name="GAZEBO_MODEL_PATH" value="$(find mr_gazebo)/models:$(optenv GAZEBO_MODEL_PATH)"/>
+  <env name="GAZEBO_MODEL_PATH"
+       value="$(find mr_gazebo)/models:$(env HOME)/.gazebo/models:/usr/share/gazebo-11/models:$(optenv GAZEBO_MODEL_PATH)"/>
+  <env name="GAZEBO_MODEL_DATABASE_URI" value=""/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find mr_gazebo)/worlds/turtlebot3_world.world"/>

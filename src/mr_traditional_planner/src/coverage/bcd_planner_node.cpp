@@ -3,6 +3,7 @@
 #include <actionlib/client/simple_client_goal_state.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Quaternion.h>
+#include <pluginlib/class_list_macros.h>
 #include <tf/transform_datatypes.h>
 
 #include <algorithm>
@@ -49,13 +50,33 @@ BcdPlanner::BcdPlanner()
       robot_radius_(0.15),
       sweep_spacing_(0.2),
       goal_timeout_(30.0),
-      is_executing_(false) {
+      is_executing_(false),
+      map_frame_("map"),
+      robot_frame_("base_footprint") {}
+
+void BcdPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) {
+  nh_ = nh;
+  private_nh_ = private_nh;
+
+  std::string map_topic;
+  std::string goal_topic;
+  std::string path_topic;
+  private_nh_.param<std::string>("map_topic", map_topic, std::string("/map"));
+  private_nh_.param<std::string>("goal_topic", goal_topic, std::string("/move_base_simple/goal"));
+  private_nh_.param<std::string>("path_topic", path_topic,
+                                 std::string("/mr_traditional_planner/coverage_path"));
+  private_nh_.param<double>("robot_radius", robot_radius_, robot_radius_);
+  private_nh_.param<double>("sweep_spacing", sweep_spacing_, sweep_spacing_);
+  private_nh_.param<double>("goal_timeout", goal_timeout_, goal_timeout_);
+  private_nh_.param<std::string>("map_frame", map_frame_, map_frame_);
+  private_nh_.param<std::string>("robot_frame", robot_frame_, robot_frame_);
+
   // 全覆盖算法统一以地图为输入。
-  map_sub_ = nh_.subscribe("/map", 1, &BcdPlanner::mapCallback, this);
+  map_sub_ = nh_.subscribe(map_topic, 1, &BcdPlanner::mapCallback, this);
   // 与 A* 完全对齐：覆盖算法也统一使用 RViz 的 2D Nav Goal 作为触发入口。
-  goal_sub_ = nh_.subscribe("/move_base_simple/goal", 1, &BcdPlanner::goalCallback, this);
+  goal_sub_ = nh_.subscribe(goal_topic, 1, &BcdPlanner::goalCallback, this);
   // 全覆盖路径统一输出到专用 Path 话题，便于可视化与评测。
-  path_pub_ = nh_.advertise<nav_msgs::Path>("/mr_traditional_planner/coverage_path", 1, true);
+  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic, 1, true);
 }
 
 void BcdPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
@@ -69,8 +90,8 @@ void BcdPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
 }
 
 void BcdPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
-  if (!msg->header.frame_id.empty() && msg->header.frame_id != "map") {
-    ROS_WARN_STREAM("BCD C++: 仅支持 map 坐标系触发，当前收到的是 "
+  if (!msg->header.frame_id.empty() && msg->header.frame_id != map_frame_) {
+    ROS_WARN_STREAM("BCD C++: 仅支持 " << map_frame_ << " 坐标系触发，当前收到的是 "
                     << msg->header.frame_id << "。");
     return;
   }
@@ -169,10 +190,11 @@ bool BcdPlanner::lookupStartPose(double& start_world_x, double& start_world_y) {
   tf::StampedTransform transform;
 
   try {
-    tf_listener_.waitForTransform("map", "base_footprint", ros::Time(0), ros::Duration(0.2));
-    tf_listener_.lookupTransform("map", "base_footprint", ros::Time(0), transform);
+    tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
+    tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
   } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("BCD C++: 获取 map -> base_footprint 失败，停止规划。" << ex.what());
+    ROS_WARN_STREAM("BCD C++: 获取 " << map_frame_ << " -> " << robot_frame_
+                                     << " 失败，停止规划。" << ex.what());
     return false;
   }
 
@@ -644,7 +666,7 @@ double BcdPlanner::computeWaypointYaw(const std::vector<int>& path_indices,
 void BcdPlanner::publishPath(const std::vector<int>& path_indices) const {
   nav_msgs::Path path_msg;
   path_msg.header.stamp = ros::Time::now();
-  path_msg.header.frame_id = "map";
+  path_msg.header.frame_id = map_frame_;
 
   path_msg.poses.reserve(path_indices.size());
   for (std::size_t waypoint_index = 0; waypoint_index < path_indices.size(); ++waypoint_index) {
@@ -670,7 +692,7 @@ void BcdPlanner::executeCoveragePath(const std::vector<int>& path_indices) {
 
     move_base_msgs::MoveBaseGoal goal;
     goal.target_pose.header.stamp = ros::Time::now();
-    goal.target_pose.header.frame_id = "map";
+    goal.target_pose.header.frame_id = map_frame_;
     goal.target_pose.pose.position.x = world.first;
     goal.target_pose.pose.position.y = world.second;
     goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(
@@ -696,9 +718,5 @@ void BcdPlanner::executeCoveragePath(const std::vector<int>& path_indices) {
 }  // namespace coverage
 }  // namespace mr_traditional_planner
 
-int main(int argc, char** argv) {
-  ros::init(argc, argv, "bcd_planner_cpp");
-  mr_traditional_planner::coverage::BcdPlanner planner;
-  ros::spin();
-  return 0;
-}
+PLUGINLIB_EXPORT_CLASS(mr_traditional_planner::coverage::BcdPlanner,
+                       mr_traditional_planner::PlannerPlugin)

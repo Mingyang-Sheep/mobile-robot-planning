@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from collections import deque
 import heapq
 import math
 
@@ -19,6 +20,15 @@ class GridNode:
         self.y = y
         self.g = g
         self.h = h
+        self.parent_index = parent_index
+
+
+class CoarseSearchNode:
+    __slots__ = ("x", "y", "parent_index")
+
+    def __init__(self, x, y, parent_index):
+        self.x = x
+        self.y = y
         self.parent_index = parent_index
 
 
@@ -46,7 +56,7 @@ class StcPlannerNode:
 
         # 0.15m 与其它传统算法保持一致，确保所有算法共用同一套碰撞边界。
         self.robot_radius = 0.15
-        # 0.2m 用作 STC 粗栅格间距，控制生成树节点的采样密度。
+        # 0.2m 用作 STC 粗栅格间距，模拟旧实现中缩放后的生成树节点尺度。
         self.tree_spacing = 0.2
         # 单个 waypoint 超时后直接跳过，避免整条覆盖链路被单点卡住。
         self.goal_timeout = 30.0
@@ -54,7 +64,7 @@ class StcPlannerNode:
         self.obstacle_set = set()
         self.is_executing = False
 
-        # STC 的安全连接也统一采用 4 邻域 A*，保证连接段绝对不穿障碍。
+        # STC 的细栅格安全连接统一采用 4 邻域 A*，保证连接段绝对不穿障碍。
         self.motion_model = [
             (1, 0, 1.0),
             (0, 1, 1.0),
@@ -110,6 +120,9 @@ class StcPlannerNode:
             return
 
         self.publish_path(path_indices)
+        execution_path = self.compress_path(path_indices)
+        if not execution_path:
+            execution_path = list(path_indices)
 
         self.is_executing = True
         try:
@@ -118,7 +131,7 @@ class StcPlannerNode:
 
             # RViz 的 2D Nav Goal 在这里仅作为统一触发入口，不保留其原始单点导航目标。
             self.move_base_client.cancel_all_goals()
-            self.execute_coverage_path(path_indices)
+            self.execute_coverage_path(execution_path)
         finally:
             self.is_executing = False
 
@@ -131,7 +144,12 @@ class StcPlannerNode:
                 "map", "base_footprint", rospy.Time(0)
             )
             return translation[0], translation[1]
-        except (tf.Exception, tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as exc:
+        except (
+            tf.Exception,
+            tf.LookupException,
+            tf.ConnectivityException,
+            tf.ExtrapolationException,
+        ) as exc:
             rospy.logwarn("STC Python: 获取 map -> base_footprint 失败，停止规划。%s", exc)
             return None
 
@@ -176,126 +194,45 @@ class StcPlannerNode:
         if self.latest_map is None or self.resolution <= 0.0:
             return []
 
-        # 0.2m 统一换算为 STC 粗栅格步长，既控制树节点密度，也保证不同实现的采样尺度一致。
+        # 0.2m 统一换算为 STC 粗栅格步长，贴近旧 spiral_stc 的缩放网格思路。
         coarse_step_cells = max(1, int(round(self.tree_spacing / self.resolution)))
-        coarse_width = int(math.ceil(float(self.map_width) / coarse_step_cells))
-        coarse_height = int(math.ceil(float(self.map_height) / coarse_step_cells))
-
-        def coarse_key(coarse_x, coarse_y):
-            return coarse_y * coarse_width + coarse_x
-
-        def coarse_center(coarse_x, coarse_y):
-            anchor_x = coarse_x * coarse_step_cells
-            anchor_y = coarse_y * coarse_step_cells
-            block_width = min(coarse_step_cells, self.map_width - anchor_x)
-            block_height = min(coarse_step_cells, self.map_height - anchor_y)
-            return (
-                anchor_x + max(0, block_width - 1) // 2,
-                anchor_y + max(0, block_height - 1) // 2,
-            )
-
-        def coarse_cell_is_free(coarse_x, coarse_y):
-            anchor_x = coarse_x * coarse_step_cells
-            anchor_y = coarse_y * coarse_step_cells
-            end_x = min(anchor_x + coarse_step_cells, self.map_width)
-            end_y = min(anchor_y + coarse_step_cells, self.map_height)
-
-            for grid_y in range(anchor_y, end_y):
-                for grid_x in range(anchor_x, end_x):
-                    if self.is_obstacle(grid_x, grid_y):
-                        return False
-            return True
-
-        free_nodes = set()
-        for coarse_y in range(coarse_height):
-            for coarse_x in range(coarse_width):
-                if coarse_cell_is_free(coarse_x, coarse_y):
-                    free_nodes.add(coarse_key(coarse_x, coarse_y))
-
-        if not free_nodes:
+        free_grid = self.build_free_coarse_grid(coarse_step_cells)
+        if not free_grid or not free_grid[0]:
             return []
 
-        start_coarse_x = max(0, min(coarse_width - 1, start_x // coarse_step_cells))
-        start_coarse_y = max(0, min(coarse_height - 1, start_y // coarse_step_cells))
+        free_count = sum(1 for row in free_grid for is_free in row if is_free)
+        if free_count == 0:
+            return []
 
-        current_key = None
-        best_start_distance = float("inf")
-        for node_key in free_nodes:
-            coarse_x = node_key % coarse_width
-            coarse_y = node_key // coarse_width
-            center_x, center_y = coarse_center(coarse_x, coarse_y)
-            distance = math.hypot(center_x - start_x, center_y - start_y)
+        start_cell = self.find_start_coarse_cell(free_grid, coarse_step_cells, start_x, start_y)
+        if start_cell is None:
+            return []
 
-            # 优先从机器人所在粗栅格附近开始，找不到时退化到最近自由粗栅格。
-            if coarse_x == start_coarse_x and coarse_y == start_coarse_y:
-                current_key = node_key
+        # visited 与旧实现保持一致：障碍粗栅格初始化为已访问，未访问的自由粗栅格留给 spiral/STC 处理。
+        visited = [[not is_free for is_free in row] for row in free_grid]
+        path_nodes = [start_cell]
+        visited[start_cell[1]][start_cell[0]] = True
+        visited_count = 1
+
+        path_nodes, visited_count = self.spiral_fill(path_nodes, free_grid, visited, visited_count)
+        center_sequence = []
+        self.append_coarse_centers(center_sequence, path_nodes, coarse_step_cells)
+
+        # 旧 spiral_stc 的核心逻辑：spiral 卡住后，搜索到最近未访问自由块，再从那里继续 spiral。
+        while visited_count < free_count:
+            connector = self.search_to_open_coarse_cell(path_nodes[-1], free_grid, visited)
+            if not connector:
+                rospy.logwarn("STC Python: 剩余自由块不可达，提前结束本轮覆盖。")
                 break
 
-            if distance < best_start_distance:
-                best_start_distance = distance
-                current_key = node_key
+            for coarse_x, coarse_y in connector[1:]:
+                if not visited[coarse_y][coarse_x]:
+                    visited[coarse_y][coarse_x] = True
+                    visited_count += 1
 
-        if current_key is None:
-            return []
-
-        center_sequence = []
-        globally_visited = set()
-        neighbor_order = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-
-        def append_center(node_key):
-            coarse_x = node_key % coarse_width
-            coarse_y = node_key // coarse_width
-            center_x, center_y = coarse_center(coarse_x, coarse_y)
-            linear_index = self.to_index(center_x, center_y)
-            if not center_sequence or center_sequence[-1] != linear_index:
-                center_sequence.append(linear_index)
-
-        def dfs_visit(node_key):
-            globally_visited.add(node_key)
-            append_center(node_key)
-
-            coarse_x = node_key % coarse_width
-            coarse_y = node_key // coarse_width
-            for step_x, step_y in neighbor_order:
-                neighbor_x = coarse_x + step_x
-                neighbor_y = coarse_y + step_y
-                if not (0 <= neighbor_x < coarse_width and 0 <= neighbor_y < coarse_height):
-                    continue
-
-                neighbor_key = coarse_key(neighbor_x, neighbor_y)
-                if neighbor_key not in free_nodes or neighbor_key in globally_visited:
-                    continue
-
-                dfs_visit(neighbor_key)
-                # 关键步骤：STC 在树边回溯时再次写入父节点中心，形成“沿生成树往返”的覆盖轨迹。
-                append_center(node_key)
-
-        while len(globally_visited) < len(free_nodes):
-            if current_key not in free_nodes or current_key in globally_visited:
-                best_distance = float("inf")
-                best_key = None
-
-                current_grid_x, current_grid_y = start_x, start_y
-                if center_sequence:
-                    current_grid_x, current_grid_y = self.index_to_grid(center_sequence[-1])
-
-                for candidate_key in free_nodes:
-                    if candidate_key in globally_visited:
-                        continue
-
-                    candidate_x = candidate_key % coarse_width
-                    candidate_y = candidate_key // coarse_width
-                    center_x, center_y = coarse_center(candidate_x, candidate_y)
-                    distance = math.hypot(center_x - current_grid_x, center_y - current_grid_y)
-                    if distance < best_distance:
-                        best_distance = distance
-                        best_key = candidate_key
-
-                if best_key is None:
-                    break
-                current_key = best_key
-
-            dfs_visit(current_key)
+            path_nodes = list(connector)
+            path_nodes, visited_count = self.spiral_fill(path_nodes, free_grid, visited, visited_count)
+            self.append_coarse_centers(center_sequence, path_nodes, coarse_step_cells)
 
         dense_path = []
         current_x, current_y = start_x, start_y
@@ -310,7 +247,175 @@ class StcPlannerNode:
             self.append_indices(dense_path, connector)
             current_x, current_y = self.index_to_grid(dense_path[-1])
 
-        return self.compress_path(dense_path)
+        return dense_path
+
+    def build_free_coarse_grid(self, coarse_step_cells):
+        coarse_width = int(math.ceil(float(self.map_width) / coarse_step_cells))
+        coarse_height = int(math.ceil(float(self.map_height) / coarse_step_cells))
+        free_grid = [[False for _ in range(coarse_width)] for _ in range(coarse_height)]
+
+        for coarse_y in range(coarse_height):
+            for coarse_x in range(coarse_width):
+                anchor_x = coarse_x * coarse_step_cells
+                anchor_y = coarse_y * coarse_step_cells
+                end_x = min(anchor_x + coarse_step_cells, self.map_width)
+                end_y = min(anchor_y + coarse_step_cells, self.map_height)
+                is_free = True
+
+                for grid_y in range(anchor_y, end_y):
+                    for grid_x in range(anchor_x, end_x):
+                        if self.is_obstacle(grid_x, grid_y):
+                            is_free = False
+                            break
+                    if not is_free:
+                        break
+
+                free_grid[coarse_y][coarse_x] = is_free
+
+        return free_grid
+
+    def find_start_coarse_cell(self, free_grid, coarse_step_cells, start_x, start_y):
+        coarse_width = len(free_grid[0])
+        coarse_height = len(free_grid)
+        coarse_x = max(0, min(coarse_width - 1, start_x // coarse_step_cells))
+        coarse_y = max(0, min(coarse_height - 1, start_y // coarse_step_cells))
+
+        if free_grid[coarse_y][coarse_x]:
+            return coarse_x, coarse_y
+
+        best_cell = None
+        best_distance = float("inf")
+        for candidate_y, row in enumerate(free_grid):
+            for candidate_x, is_free in enumerate(row):
+                if not is_free:
+                    continue
+
+                center_x, center_y = self.coarse_center(
+                    candidate_x, candidate_y, coarse_step_cells
+                )
+                distance = math.hypot(center_x - start_x, center_y - start_y)
+                if distance < best_distance:
+                    best_distance = distance
+                    best_cell = (candidate_x, candidate_y)
+
+        return best_cell
+
+    def spiral_fill(self, path_nodes, free_grid, visited, visited_count):
+        coarse_width = len(free_grid[0])
+        coarse_height = len(free_grid)
+
+        while True:
+            if len(path_nodes) > 1:
+                prev_x, prev_y = path_nodes[-2]
+                curr_x, curr_y = path_nodes[-1]
+                # 关键步骤：先尝试向当前前进方向的左侧转，和旧 spiral_stc.cpp 保持一致。
+                step_x = -(curr_y - prev_y)
+                step_y = curr_x - prev_x
+            else:
+                step_x = 0
+                step_y = 1
+
+            moved = False
+            for _ in range(4):
+                next_x = path_nodes[-1][0] + step_x
+                next_y = path_nodes[-1][1] + step_y
+
+                if (
+                    0 <= next_x < coarse_width
+                    and 0 <= next_y < coarse_height
+                    and free_grid[next_y][next_x]
+                    and not visited[next_y][next_x]
+                ):
+                    path_nodes.append((next_x, next_y))
+                    visited[next_y][next_x] = True
+                    visited_count += 1
+                    moved = True
+                    break
+
+                step_x, step_y = step_y, -step_x
+
+            if not moved:
+                break
+
+        return path_nodes, visited_count
+
+    def search_to_open_coarse_cell(self, start_cell, free_grid, visited):
+        coarse_width = len(free_grid[0])
+        coarse_height = len(free_grid)
+        start_index = start_cell[1] * coarse_width + start_cell[0]
+        queue = deque([start_index])
+        closed_set = {start_index}
+        node_lookup = {start_index: CoarseSearchNode(start_cell[0], start_cell[1], -1)}
+
+        while queue:
+            current_index = queue.popleft()
+            current_node = node_lookup[current_index]
+
+            if not visited[current_node.y][current_node.x]:
+                return self.reconstruct_coarse_path(current_index, node_lookup)
+
+            for next_x, next_y in self.ordered_coarse_neighbors(
+                current_node, node_lookup, coarse_width, coarse_height
+            ):
+                if not free_grid[next_y][next_x]:
+                    continue
+
+                next_index = next_y * coarse_width + next_x
+                if next_index in closed_set:
+                    continue
+
+                closed_set.add(next_index)
+                node_lookup[next_index] = CoarseSearchNode(next_x, next_y, current_index)
+                queue.append(next_index)
+
+        return []
+
+    def ordered_coarse_neighbors(self, current_node, node_lookup, coarse_width, coarse_height):
+        if current_node.parent_index != -1:
+            parent_node = node_lookup[current_node.parent_index]
+            step_x = current_node.x - parent_node.x
+            step_y = current_node.y - parent_node.y
+            # 关键步骤：搜索邻居时也先尝试左转，再顺时针轮转，贴合旧 A* to open space 的转向偏置。
+            step_x, step_y = -step_y, step_x
+        else:
+            step_x = 0
+            step_y = 1
+
+        for _ in range(4):
+            next_x = current_node.x + step_x
+            next_y = current_node.y + step_y
+            if 0 <= next_x < coarse_width and 0 <= next_y < coarse_height:
+                yield next_x, next_y
+            step_x, step_y = step_y, -step_x
+
+    def reconstruct_coarse_path(self, goal_index, node_lookup):
+        path_nodes = []
+        current_index = goal_index
+
+        while current_index != -1:
+            current_node = node_lookup[current_index]
+            path_nodes.append((current_node.x, current_node.y))
+            current_index = current_node.parent_index
+
+        path_nodes.reverse()
+        return path_nodes
+
+    def append_coarse_centers(self, center_sequence, coarse_path, coarse_step_cells):
+        for coarse_x, coarse_y in coarse_path:
+            center_x, center_y = self.coarse_center(coarse_x, coarse_y, coarse_step_cells)
+            linear_index = self.to_index(center_x, center_y)
+            if not center_sequence or center_sequence[-1] != linear_index:
+                center_sequence.append(linear_index)
+
+    def coarse_center(self, coarse_x, coarse_y, coarse_step_cells):
+        anchor_x = coarse_x * coarse_step_cells
+        anchor_y = coarse_y * coarse_step_cells
+        block_width = min(coarse_step_cells, self.map_width - anchor_x)
+        block_height = min(coarse_step_cells, self.map_height - anchor_y)
+        return (
+            anchor_x + max(0, block_width - 1) // 2,
+            anchor_y + max(0, block_height - 1) // 2,
+        )
 
     def plan_safe_path(self, start_x, start_y, goal_x, goal_y):
         if not self.in_bounds(start_x, start_y) or not self.in_bounds(goal_x, goal_y):
@@ -416,7 +521,7 @@ class StcPlannerNode:
         return 0
 
     def heuristic(self, grid_x, grid_y, goal_x, goal_y):
-        # 关键步骤：安全连接统一使用曼哈顿启发式，匹配 4 邻域搜索并避免不必要的斜穿。
+        # 关键步骤：细栅格安全连接统一使用曼哈顿启发式，匹配 4 邻域搜索并避免不必要的斜穿。
         return abs(goal_x - grid_x) + abs(goal_y - grid_y)
 
     def compute_waypoint_yaw(self, path_indices, waypoint_index):

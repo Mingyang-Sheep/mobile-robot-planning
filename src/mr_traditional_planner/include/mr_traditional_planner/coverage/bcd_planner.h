@@ -1,6 +1,8 @@
 #ifndef MR_TRADITIONAL_PLANNER_COVERAGE_BCD_PLANNER_H_
 #define MR_TRADITIONAL_PLANNER_COVERAGE_BCD_PLANNER_H_
 
+#include "mr_traditional_planner/planner_plugin.h"
+
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <move_base_msgs/MoveBaseAction.h>
@@ -11,6 +13,7 @@
 #include <tf/transform_listener.h>
 
 #include <cstdint>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -18,9 +21,10 @@
 namespace mr_traditional_planner {
 namespace coverage {
 
-class BcdPlanner {
+class BcdPlanner : public PlannerPlugin {
  public:
   BcdPlanner();
+  void initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) override;
 
  private:
   struct Segment {
@@ -68,6 +72,7 @@ class BcdPlanner {
   void executeCoveragePath(const std::vector<int>& path_indices);
 
   ros::NodeHandle nh_;
+  ros::NodeHandle private_nh_;
   ros::Subscriber map_sub_;
   ros::Subscriber goal_sub_;
   ros::Publisher path_pub_;
@@ -84,6 +89,8 @@ class BcdPlanner {
   double sweep_spacing_;
   double goal_timeout_;
   bool is_executing_;
+  std::string map_frame_;
+  std::string robot_frame_;
   std::vector<std::uint8_t> obstacle_grid_;
   std::vector<std::pair<int, int>> inflation_offsets_;
 };

@@ -69,83 +69,50 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/astar_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/astar_planner_cpp")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libmr_traditional_planner_plugins.so" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libmr_traditional_planner_plugins.so")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/astar_planner_cpp"
+         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libmr_traditional_planner_plugins.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE EXECUTABLE FILES "/home/lmy/mobile_robot_benchmark/devel/lib/mr_traditional_planner/astar_planner_cpp")
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/astar_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/astar_planner_cpp")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libmr_traditional_planner_plugins.so" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libmr_traditional_planner_plugins.so")
     file(RPATH_CHANGE
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/astar_planner_cpp"
+         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libmr_traditional_planner_plugins.so"
          OLD_RPATH "/opt/ros/noetic/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/astar_planner_cpp")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/libmr_traditional_planner_plugins.so")
     endif()
   endif()
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/dijkstra_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/dijkstra_planner_cpp")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/planner_plugin_node" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/planner_plugin_node")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/dijkstra_planner_cpp"
+         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/planner_plugin_node"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE EXECUTABLE FILES "/home/lmy/mobile_robot_benchmark/devel/lib/mr_traditional_planner/dijkstra_planner_cpp")
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/dijkstra_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/dijkstra_planner_cpp")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE EXECUTABLE FILES "/home/lmy/mobile_robot_benchmark/devel/lib/mr_traditional_planner/planner_plugin_node")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/planner_plugin_node" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/planner_plugin_node")
     file(RPATH_CHANGE
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/dijkstra_planner_cpp"
+         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/planner_plugin_node"
          OLD_RPATH "/opt/ros/noetic/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/dijkstra_planner_cpp")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/planner_plugin_node")
     endif()
   endif()
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/bcd_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/bcd_planner_cpp")
-    file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/bcd_planner_cpp"
-         RPATH "")
-  endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE EXECUTABLE FILES "/home/lmy/mobile_robot_benchmark/devel/lib/mr_traditional_planner/bcd_planner_cpp")
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/bcd_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/bcd_planner_cpp")
-    file(RPATH_CHANGE
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/bcd_planner_cpp"
-         OLD_RPATH "/opt/ros/noetic/lib:"
-         NEW_RPATH "")
-    if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/bcd_planner_cpp")
-    endif()
-  endif()
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/stc_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/stc_planner_cpp")
-    file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/stc_planner_cpp"
-         RPATH "")
-  endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE EXECUTABLE FILES "/home/lmy/mobile_robot_benchmark/devel/lib/mr_traditional_planner/stc_planner_cpp")
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/stc_planner_cpp" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/stc_planner_cpp")
-    file(RPATH_CHANGE
-         FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/stc_planner_cpp"
-         OLD_RPATH "/opt/ros/noetic/lib:"
-         NEW_RPATH "")
-    if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner/stc_planner_cpp")
-    endif()
-  endif()
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/mr_traditional_planner" TYPE FILE FILES "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/planner_plugins.xml")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)

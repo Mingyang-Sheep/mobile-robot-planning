@@ -241,10 +241,8 @@ mr_navigation/clean:
 # Directory level rules for directory mr_traditional_planner
 
 # Recursive "all" directory target.
-mr_traditional_planner/all: mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all
-mr_traditional_planner/all: mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all
-mr_traditional_planner/all: mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all
-mr_traditional_planner/all: mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all
+mr_traditional_planner/all: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all
+mr_traditional_planner/all: mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all
 
 .PHONY : mr_traditional_planner/all
 
@@ -265,7 +263,6 @@ mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/std_msgs_generat
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/clean
-mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_py.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_lisp.dir/clean
@@ -274,11 +271,9 @@ mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/tf_generate_mess
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/clean
-mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean
-mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_py.dir/clean
@@ -303,16 +298,17 @@ mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/move_base_msgs_g
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_eus.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/clean
+mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_py.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/tf_generate_messages_lisp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/clean
-mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/clean
 mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/clean
+mr_traditional_planner/clean: mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/clean
 
 .PHONY : mr_traditional_planner/clean
 
@@ -459,7 +455,7 @@ gtest/googlemock/CMakeFiles/gmock_main.dir/all: gtest/googlemock/CMakeFiles/gmoc
 gtest/googlemock/CMakeFiles/gmock_main.dir/all: gtest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f gtest/googlemock/CMakeFiles/gmock_main.dir/build.make gtest/googlemock/CMakeFiles/gmock_main.dir/depend
 	$(MAKE) -f gtest/googlemock/CMakeFiles/gmock_main.dir/build.make gtest/googlemock/CMakeFiles/gmock_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=9,10 "Built target gmock_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=3,4 "Built target gmock_main"
 .PHONY : gtest/googlemock/CMakeFiles/gmock_main.dir/all
 
 # Build rule for subdir invocation for target.
@@ -486,7 +482,7 @@ gtest/googlemock/CMakeFiles/gmock_main.dir/clean:
 gtest/googlemock/CMakeFiles/gmock.dir/all: gtest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f gtest/googlemock/CMakeFiles/gmock.dir/build.make gtest/googlemock/CMakeFiles/gmock.dir/depend
 	$(MAKE) -f gtest/googlemock/CMakeFiles/gmock.dir/build.make gtest/googlemock/CMakeFiles/gmock.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=7,8 "Built target gmock"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=1,2 "Built target gmock"
 .PHONY : gtest/googlemock/CMakeFiles/gmock.dir/all
 
 # Build rule for subdir invocation for target.
@@ -513,7 +509,7 @@ gtest/googlemock/CMakeFiles/gmock.dir/clean:
 gtest/googletest/CMakeFiles/gtest_main.dir/all: gtest/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) -f gtest/googletest/CMakeFiles/gtest_main.dir/build.make gtest/googletest/CMakeFiles/gtest_main.dir/depend
 	$(MAKE) -f gtest/googletest/CMakeFiles/gtest_main.dir/build.make gtest/googletest/CMakeFiles/gtest_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=13,14 "Built target gtest_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=7,8 "Built target gtest_main"
 .PHONY : gtest/googletest/CMakeFiles/gtest_main.dir/all
 
 # Build rule for subdir invocation for target.
@@ -540,7 +536,7 @@ gtest/googletest/CMakeFiles/gtest_main.dir/clean:
 gtest/googletest/CMakeFiles/gtest.dir/all:
 	$(MAKE) -f gtest/googletest/CMakeFiles/gtest.dir/build.make gtest/googletest/CMakeFiles/gtest.dir/depend
 	$(MAKE) -f gtest/googletest/CMakeFiles/gtest.dir/build.make gtest/googletest/CMakeFiles/gtest.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=11,12 "Built target gtest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=5,6 "Built target gtest"
 .PHONY : gtest/googletest/CMakeFiles/gtest.dir/all
 
 # Build rule for subdir invocation for target.
@@ -885,88 +881,6 @@ mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/clean
 .PHONY : mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/clean
 
 #=============================================================================
-# Target rules for target mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir
-
-# All Build rule for target.
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_maps/CMakeFiles/_catkin_empty_exported_target.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/depend
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=15,16 "Built target stc_planner_cpp"
-.PHONY : mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all
-
-# Build rule for subdir invocation for target.
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 0
-.PHONY : mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/rule
-
-# Convenience name for target.
-stc_planner_cpp: mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/rule
-
-.PHONY : stc_planner_cpp
-
-# clean rule for target.
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/clean:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/clean
-.PHONY : mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/clean
-
-#=============================================================================
 # Target rules for target mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir
 
 # All Build rule for target.
@@ -1183,88 +1097,6 @@ mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/clean:
 .PHONY : mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/clean
 
 #=============================================================================
-# Target rules for target mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir
-
-# All Build rule for target.
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_maps/CMakeFiles/_catkin_empty_exported_target.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/depend
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=1,2 "Built target astar_planner_cpp"
-.PHONY : mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all
-
-# Build rule for subdir invocation for target.
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 0
-.PHONY : mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/rule
-
-# Convenience name for target.
-astar_planner_cpp: mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/rule
-
-.PHONY : astar_planner_cpp
-
-# clean rule for target.
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/clean:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/clean
-.PHONY : mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/clean
-
-#=============================================================================
 # Target rules for target mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir
 
 # All Build rule for target.
@@ -1344,88 +1176,6 @@ nav_msgs_generate_messages_cpp: mr_traditional_planner/CMakeFiles/nav_msgs_gener
 mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean:
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build.make mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean
 .PHONY : mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/clean
-
-#=============================================================================
-# Target rules for target mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir
-
-# All Build rule for target.
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_maps/CMakeFiles/_catkin_empty_exported_target.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/depend
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=5,6 "Built target dijkstra_planner_cpp"
-.PHONY : mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all
-
-# Build rule for subdir invocation for target.
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 0
-.PHONY : mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/rule
-
-# Convenience name for target.
-dijkstra_planner_cpp: mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/rule
-
-.PHONY : dijkstra_planner_cpp
-
-# clean rule for target.
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/clean:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/clean
-.PHONY : mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/clean
 
 #=============================================================================
 # Target rules for target mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir
@@ -2076,6 +1826,88 @@ mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/clea
 .PHONY : mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/clean
 
 #=============================================================================
+# Target rules for target mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir
+
+# All Build rule for target.
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_maps/CMakeFiles/_catkin_empty_exported_target.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/depend
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=9,10,11,12,13 "Built target mr_traditional_planner_plugins"
+.PHONY : mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all
+
+# Build rule for subdir invocation for target.
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 5
+	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 0
+.PHONY : mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule
+
+# Convenience name for target.
+mr_traditional_planner_plugins: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule
+
+.PHONY : mr_traditional_planner_plugins
+
+# clean rule for target.
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/clean:
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/clean
+.PHONY : mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/clean
+
+#=============================================================================
 # Target rules for target mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir
 
 # All Build rule for target.
@@ -2182,88 +2014,6 @@ tf_generate_messages_nodejs: mr_traditional_planner/CMakeFiles/tf_generate_messa
 mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/clean:
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/build.make mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/clean
 .PHONY : mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/clean
-
-#=============================================================================
-# Target rules for target mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir
-
-# All Build rule for target.
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_maps/CMakeFiles/_catkin_empty_exported_target.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_py.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/all
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/depend
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=3,4 "Built target bcd_planner_cpp"
-.PHONY : mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all
-
-# Build rule for subdir invocation for target.
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 0
-.PHONY : mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/rule
-
-# Convenience name for target.
-bcd_planner_cpp: mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/rule
-
-.PHONY : bcd_planner_cpp
-
-# clean rule for target.
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/clean:
-	$(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/clean
-.PHONY : mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/clean
 
 #=============================================================================
 # Target rules for target mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir
@@ -2399,6 +2149,88 @@ tf2_msgs_generate_messages_nodejs: mr_traditional_planner/CMakeFiles/tf2_msgs_ge
 mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/clean:
 	$(MAKE) -f mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build.make mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/clean
 .PHONY : mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/clean
+
+#=============================================================================
+# Target rules for target mr_traditional_planner/CMakeFiles/planner_plugin_node.dir
+
+# All Build rule for target.
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_maps/CMakeFiles/_catkin_empty_exported_target.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/rosgraph_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/roscpp_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/actionlib_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_eus.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_py.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_cpp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/sensor_msgs_generate_messages_nodejs.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_lisp.dir/all
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all: mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/all
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/depend
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=14,15 "Built target planner_plugin_node"
+.PHONY : mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all
+
+# Build rule for subdir invocation for target.
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles 0
+.PHONY : mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/rule
+
+# Convenience name for target.
+planner_plugin_node: mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/rule
+
+.PHONY : planner_plugin_node
+
+# clean rule for target.
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/clean:
+	$(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/clean
+.PHONY : mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

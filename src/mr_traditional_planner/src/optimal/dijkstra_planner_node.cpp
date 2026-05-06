@@ -1,5 +1,7 @@
 #include "mr_traditional_planner/optimal/dijkstra_planner.h"
 
+#include <pluginlib/class_list_macros.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -34,13 +36,31 @@ DijkstraPlanner::DijkstraPlanner()
       resolution_(0.0),
       origin_x_(0.0),
       origin_y_(0.0),
-      robot_radius_(0.15) {
+      robot_radius_(0.15),
+      map_frame_("map"),
+      robot_frame_("base_footprint") {}
+
+void DijkstraPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) {
+  nh_ = nh;
+  private_nh_ = private_nh;
+
+  std::string map_topic;
+  std::string goal_topic;
+  std::string path_topic;
+  private_nh_.param<std::string>("map_topic", map_topic, std::string("/map"));
+  private_nh_.param<std::string>("goal_topic", goal_topic, std::string("/move_base_simple/goal"));
+  private_nh_.param<std::string>("path_topic", path_topic,
+                                 std::string("/mr_traditional_planner/optimal_path"));
+  private_nh_.param<double>("robot_radius", robot_radius_, robot_radius_);
+  private_nh_.param<std::string>("map_frame", map_frame_, map_frame_);
+  private_nh_.param<std::string>("robot_frame", robot_frame_, robot_frame_);
+
   // 最优路径类算法统一监听静态地图输入。
-  map_sub_ = nh_.subscribe("/map", 1, &DijkstraPlanner::mapCallback, this);
+  map_sub_ = nh_.subscribe(map_topic, 1, &DijkstraPlanner::mapCallback, this);
   // 最优路径类算法统一监听 RViz 2D Goal 目标点输入。
-  goal_sub_ = nh_.subscribe("/move_base_simple/goal", 1, &DijkstraPlanner::goalCallback, this);
+  goal_sub_ = nh_.subscribe(goal_topic, 1, &DijkstraPlanner::goalCallback, this);
   // 统一输出最优路径消息。
-  path_pub_ = nh_.advertise<nav_msgs::Path>("/mr_traditional_planner/optimal_path", 1, true);
+  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic, 1, true);
 }
 
 void DijkstraPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
@@ -61,8 +81,8 @@ void DijkstraPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg
     return;
   }
 
-  if (!msg->header.frame_id.empty() && msg->header.frame_id != "map") {
-    ROS_WARN_STREAM("Dijkstra C++: 仅支持 map 坐标系目标点，当前收到的是 "
+  if (!msg->header.frame_id.empty() && msg->header.frame_id != map_frame_) {
+    ROS_WARN_STREAM("Dijkstra C++: 仅支持 " << map_frame_ << " 坐标系目标点，当前收到的是 "
                     << msg->header.frame_id << "。");
     return;
   }
@@ -153,10 +173,11 @@ bool DijkstraPlanner::lookupStartPose(double& start_world_x, double& start_world
   tf::StampedTransform transform;
 
   try {
-    tf_listener_.waitForTransform("map", "base_footprint", ros::Time(0), ros::Duration(0.2));
-    tf_listener_.lookupTransform("map", "base_footprint", ros::Time(0), transform);
+    tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
+    tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
   } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("Dijkstra C++: 获取 map -> base_footprint 失败，停止规划。" << ex.what());
+    ROS_WARN_STREAM("Dijkstra C++: 获取 " << map_frame_ << " -> " << robot_frame_
+                                          << " 失败，停止规划。" << ex.what());
     return false;
   }
 
@@ -282,7 +303,7 @@ std::vector<int> DijkstraPlanner::reconstructPath(
 void DijkstraPlanner::publishPath(const std::vector<int>& path_indices) const {
   nav_msgs::Path path_msg;
   path_msg.header.stamp = ros::Time::now();
-  path_msg.header.frame_id = "map";
+  path_msg.header.frame_id = map_frame_;
 
   path_msg.poses.reserve(path_indices.size());
   for (const int linear_index : path_indices) {
@@ -306,9 +327,5 @@ void DijkstraPlanner::publishPath(const std::vector<int>& path_indices) const {
 }  // namespace optimal
 }  // namespace mr_traditional_planner
 
-int main(int argc, char** argv) {
-  ros::init(argc, argv, "dijkstra_planner_cpp");
-  mr_traditional_planner::optimal::DijkstraPlanner planner;
-  ros::spin();
-  return 0;
-}
+PLUGINLIB_EXPORT_CLASS(mr_traditional_planner::optimal::DijkstraPlanner,
+                       mr_traditional_planner::PlannerPlugin)

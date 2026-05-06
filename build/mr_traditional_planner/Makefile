@@ -89,17 +89,6 @@ rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
 
-# Special rule for the target test
-test:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
-	/usr/bin/ctest --force-new-ctest-process $(ARGS)
-.PHONY : test
-
-# Special rule for the target test
-test/fast: test
-
-.PHONY : test/fast
-
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
@@ -123,6 +112,17 @@ install/local/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
 	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
+
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+
+.PHONY : test/fast
 
 # Special rule for the target edit_cache
 edit_cache:
@@ -333,21 +333,6 @@ actionlib_msgs_generate_messages_cpp/fast:
 .PHONY : actionlib_msgs_generate_messages_cpp/fast
 
 # Convenience name for target.
-mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/rule:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/rule
-.PHONY : mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/rule
-
-# Convenience name for target.
-stc_planner_cpp: mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/rule
-
-.PHONY : stc_planner_cpp
-
-# fast build rule for target.
-stc_planner_cpp/fast:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build
-.PHONY : stc_planner_cpp/fast
-
-# Convenience name for target.
 mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/rule:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/rule
 .PHONY : mr_traditional_planner/CMakeFiles/roscpp_generate_messages_py.dir/rule
@@ -468,21 +453,6 @@ actionlib_generate_messages_py/fast:
 .PHONY : actionlib_generate_messages_py/fast
 
 # Convenience name for target.
-mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/rule:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/rule
-.PHONY : mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/rule
-
-# Convenience name for target.
-astar_planner_cpp: mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/rule
-
-.PHONY : astar_planner_cpp
-
-# fast build rule for target.
-astar_planner_cpp/fast:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build
-.PHONY : astar_planner_cpp/fast
-
-# Convenience name for target.
 mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/rule:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/rule
 .PHONY : mr_traditional_planner/CMakeFiles/actionlib_generate_messages_nodejs.dir/rule
@@ -526,21 +496,6 @@ nav_msgs_generate_messages_cpp: mr_traditional_planner/CMakeFiles/nav_msgs_gener
 nav_msgs_generate_messages_cpp/fast:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build.make mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_cpp.dir/build
 .PHONY : nav_msgs_generate_messages_cpp/fast
-
-# Convenience name for target.
-mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/rule:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/rule
-.PHONY : mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/rule
-
-# Convenience name for target.
-dijkstra_planner_cpp: mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/rule
-
-.PHONY : dijkstra_planner_cpp
-
-# fast build rule for target.
-dijkstra_planner_cpp/fast:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build
-.PHONY : dijkstra_planner_cpp/fast
 
 # Convenience name for target.
 mr_traditional_planner/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule:
@@ -903,6 +858,21 @@ move_base_msgs_generate_messages_lisp/fast:
 .PHONY : move_base_msgs_generate_messages_lisp/fast
 
 # Convenience name for target.
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule
+.PHONY : mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule
+
+# Convenience name for target.
+mr_traditional_planner_plugins: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/rule
+
+.PHONY : mr_traditional_planner_plugins
+
+# fast build rule for target.
+mr_traditional_planner_plugins/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build
+.PHONY : mr_traditional_planner_plugins/fast
+
+# Convenience name for target.
 mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/rule:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/rule
 .PHONY : mr_traditional_planner/CMakeFiles/move_base_msgs_generate_messages_nodejs.dir/rule
@@ -961,21 +931,6 @@ tf_generate_messages_nodejs: mr_traditional_planner/CMakeFiles/tf_generate_messa
 tf_generate_messages_nodejs/fast:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/build.make mr_traditional_planner/CMakeFiles/tf_generate_messages_nodejs.dir/build
 .PHONY : tf_generate_messages_nodejs/fast
-
-# Convenience name for target.
-mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/rule:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/rule
-.PHONY : mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/rule
-
-# Convenience name for target.
-bcd_planner_cpp: mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/rule
-
-.PHONY : bcd_planner_cpp
-
-# fast build rule for target.
-bcd_planner_cpp/fast:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build
-.PHONY : bcd_planner_cpp/fast
 
 # Convenience name for target.
 mr_traditional_planner/CMakeFiles/nav_msgs_generate_messages_nodejs.dir/rule:
@@ -1052,13 +1007,28 @@ tf2_msgs_generate_messages_nodejs/fast:
 	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build.make mr_traditional_planner/CMakeFiles/tf2_msgs_generate_messages_nodejs.dir/build
 .PHONY : tf2_msgs_generate_messages_nodejs/fast
 
+# Convenience name for target.
+mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/rule
+.PHONY : mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/rule
+
+# Convenience name for target.
+planner_plugin_node: mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/rule
+
+.PHONY : planner_plugin_node
+
+# fast build rule for target.
+planner_plugin_node/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build
+.PHONY : planner_plugin_node/fast
+
 src/coverage/bcd_planner_node.o: src/coverage/bcd_planner_node.cpp.o
 
 .PHONY : src/coverage/bcd_planner_node.o
 
 # target to build an object file
 src/coverage/bcd_planner_node.cpp.o:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/src/coverage/bcd_planner_node.cpp.o
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o
 .PHONY : src/coverage/bcd_planner_node.cpp.o
 
 src/coverage/bcd_planner_node.i: src/coverage/bcd_planner_node.cpp.i
@@ -1067,7 +1037,7 @@ src/coverage/bcd_planner_node.i: src/coverage/bcd_planner_node.cpp.i
 
 # target to preprocess a source file
 src/coverage/bcd_planner_node.cpp.i:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/src/coverage/bcd_planner_node.cpp.i
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.i
 .PHONY : src/coverage/bcd_planner_node.cpp.i
 
 src/coverage/bcd_planner_node.s: src/coverage/bcd_planner_node.cpp.s
@@ -1076,7 +1046,7 @@ src/coverage/bcd_planner_node.s: src/coverage/bcd_planner_node.cpp.s
 
 # target to generate assembly for a file
 src/coverage/bcd_planner_node.cpp.s:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/bcd_planner_cpp.dir/src/coverage/bcd_planner_node.cpp.s
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.s
 .PHONY : src/coverage/bcd_planner_node.cpp.s
 
 src/coverage/stc_planner_node.o: src/coverage/stc_planner_node.cpp.o
@@ -1085,7 +1055,7 @@ src/coverage/stc_planner_node.o: src/coverage/stc_planner_node.cpp.o
 
 # target to build an object file
 src/coverage/stc_planner_node.cpp.o:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/src/coverage/stc_planner_node.cpp.o
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o
 .PHONY : src/coverage/stc_planner_node.cpp.o
 
 src/coverage/stc_planner_node.i: src/coverage/stc_planner_node.cpp.i
@@ -1094,7 +1064,7 @@ src/coverage/stc_planner_node.i: src/coverage/stc_planner_node.cpp.i
 
 # target to preprocess a source file
 src/coverage/stc_planner_node.cpp.i:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/src/coverage/stc_planner_node.cpp.i
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.i
 .PHONY : src/coverage/stc_planner_node.cpp.i
 
 src/coverage/stc_planner_node.s: src/coverage/stc_planner_node.cpp.s
@@ -1103,7 +1073,7 @@ src/coverage/stc_planner_node.s: src/coverage/stc_planner_node.cpp.s
 
 # target to generate assembly for a file
 src/coverage/stc_planner_node.cpp.s:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/stc_planner_cpp.dir/src/coverage/stc_planner_node.cpp.s
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.s
 .PHONY : src/coverage/stc_planner_node.cpp.s
 
 src/optimal/astar_planner_node.o: src/optimal/astar_planner_node.cpp.o
@@ -1112,7 +1082,7 @@ src/optimal/astar_planner_node.o: src/optimal/astar_planner_node.cpp.o
 
 # target to build an object file
 src/optimal/astar_planner_node.cpp.o:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/src/optimal/astar_planner_node.cpp.o
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o
 .PHONY : src/optimal/astar_planner_node.cpp.o
 
 src/optimal/astar_planner_node.i: src/optimal/astar_planner_node.cpp.i
@@ -1121,7 +1091,7 @@ src/optimal/astar_planner_node.i: src/optimal/astar_planner_node.cpp.i
 
 # target to preprocess a source file
 src/optimal/astar_planner_node.cpp.i:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/src/optimal/astar_planner_node.cpp.i
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.i
 .PHONY : src/optimal/astar_planner_node.cpp.i
 
 src/optimal/astar_planner_node.s: src/optimal/astar_planner_node.cpp.s
@@ -1130,7 +1100,7 @@ src/optimal/astar_planner_node.s: src/optimal/astar_planner_node.cpp.s
 
 # target to generate assembly for a file
 src/optimal/astar_planner_node.cpp.s:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/astar_planner_cpp.dir/src/optimal/astar_planner_node.cpp.s
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.s
 .PHONY : src/optimal/astar_planner_node.cpp.s
 
 src/optimal/dijkstra_planner_node.o: src/optimal/dijkstra_planner_node.cpp.o
@@ -1139,7 +1109,7 @@ src/optimal/dijkstra_planner_node.o: src/optimal/dijkstra_planner_node.cpp.o
 
 # target to build an object file
 src/optimal/dijkstra_planner_node.cpp.o:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/src/optimal/dijkstra_planner_node.cpp.o
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o
 .PHONY : src/optimal/dijkstra_planner_node.cpp.o
 
 src/optimal/dijkstra_planner_node.i: src/optimal/dijkstra_planner_node.cpp.i
@@ -1148,7 +1118,7 @@ src/optimal/dijkstra_planner_node.i: src/optimal/dijkstra_planner_node.cpp.i
 
 # target to preprocess a source file
 src/optimal/dijkstra_planner_node.cpp.i:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/src/optimal/dijkstra_planner_node.cpp.i
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.i
 .PHONY : src/optimal/dijkstra_planner_node.cpp.i
 
 src/optimal/dijkstra_planner_node.s: src/optimal/dijkstra_planner_node.cpp.s
@@ -1157,8 +1127,35 @@ src/optimal/dijkstra_planner_node.s: src/optimal/dijkstra_planner_node.cpp.s
 
 # target to generate assembly for a file
 src/optimal/dijkstra_planner_node.cpp.s:
-	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/build.make mr_traditional_planner/CMakeFiles/dijkstra_planner_cpp.dir/src/optimal/dijkstra_planner_node.cpp.s
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.s
 .PHONY : src/optimal/dijkstra_planner_node.cpp.s
+
+src/planner_plugin_node.o: src/planner_plugin_node.cpp.o
+
+.PHONY : src/planner_plugin_node.o
+
+# target to build an object file
+src/planner_plugin_node.cpp.o:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/src/planner_plugin_node.cpp.o
+.PHONY : src/planner_plugin_node.cpp.o
+
+src/planner_plugin_node.i: src/planner_plugin_node.cpp.i
+
+.PHONY : src/planner_plugin_node.i
+
+# target to preprocess a source file
+src/planner_plugin_node.cpp.i:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/src/planner_plugin_node.cpp.i
+.PHONY : src/planner_plugin_node.cpp.i
+
+src/planner_plugin_node.s: src/planner_plugin_node.cpp.s
+
+.PHONY : src/planner_plugin_node.s
+
+# target to generate assembly for a file
+src/planner_plugin_node.cpp.s:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/build.make mr_traditional_planner/CMakeFiles/planner_plugin_node.dir/src/planner_plugin_node.cpp.s
+.PHONY : src/planner_plugin_node.cpp.s
 
 # Help Target
 help:
@@ -1169,7 +1166,6 @@ help:
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... test"
 	@echo "... geometry_msgs_generate_messages_eus"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... rosgraph_msgs_generate_messages_nodejs"
@@ -1181,7 +1177,6 @@ help:
 	@echo "... std_msgs_generate_messages_cpp"
 	@echo "... tf2_msgs_generate_messages_cpp"
 	@echo "... actionlib_msgs_generate_messages_cpp"
-	@echo "... stc_planner_cpp"
 	@echo "... roscpp_generate_messages_py"
 	@echo "... install/strip"
 	@echo "... move_base_msgs_generate_messages_py"
@@ -1191,11 +1186,9 @@ help:
 	@echo "... rosgraph_msgs_generate_messages_lisp"
 	@echo "... actionlib_msgs_generate_messages_eus"
 	@echo "... actionlib_generate_messages_py"
-	@echo "... astar_planner_cpp"
 	@echo "... actionlib_generate_messages_nodejs"
 	@echo "... rosgraph_msgs_generate_messages_eus"
 	@echo "... nav_msgs_generate_messages_cpp"
-	@echo "... dijkstra_planner_cpp"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... geometry_msgs_generate_messages_cpp"
 	@echo "... tf2_msgs_generate_messages_py"
@@ -1206,6 +1199,7 @@ help:
 	@echo "... tf_generate_messages_cpp"
 	@echo "... actionlib_generate_messages_eus"
 	@echo "... rosgraph_msgs_generate_messages_cpp"
+	@echo "... test"
 	@echo "... roscpp_generate_messages_nodejs"
 	@echo "... tf_generate_messages_py"
 	@echo "... actionlib_msgs_generate_messages_nodejs"
@@ -1221,17 +1215,18 @@ help:
 	@echo "... sensor_msgs_generate_messages_eus"
 	@echo "... sensor_msgs_generate_messages_lisp"
 	@echo "... move_base_msgs_generate_messages_lisp"
+	@echo "... mr_traditional_planner_plugins"
 	@echo "... move_base_msgs_generate_messages_nodejs"
 	@echo "... nav_msgs_generate_messages_py"
 	@echo "... tf_generate_messages_lisp"
 	@echo "... tf_generate_messages_nodejs"
-	@echo "... bcd_planner_cpp"
 	@echo "... nav_msgs_generate_messages_nodejs"
 	@echo "... sensor_msgs_generate_messages_cpp"
 	@echo "... edit_cache"
 	@echo "... sensor_msgs_generate_messages_nodejs"
 	@echo "... tf2_msgs_generate_messages_lisp"
 	@echo "... tf2_msgs_generate_messages_nodejs"
+	@echo "... planner_plugin_node"
 	@echo "... src/coverage/bcd_planner_node.o"
 	@echo "... src/coverage/bcd_planner_node.i"
 	@echo "... src/coverage/bcd_planner_node.s"
@@ -1244,6 +1239,9 @@ help:
 	@echo "... src/optimal/dijkstra_planner_node.o"
 	@echo "... src/optimal/dijkstra_planner_node.i"
 	@echo "... src/optimal/dijkstra_planner_node.s"
+	@echo "... src/planner_plugin_node.o"
+	@echo "... src/planner_plugin_node.i"
+	@echo "... src/planner_plugin_node.s"
 .PHONY : help
 
 
