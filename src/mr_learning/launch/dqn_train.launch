@@ -1,0 +1,22 @@
+<launch>
+  <!-- One-command DQN training entry. -->
+  <arg name="stage" default="1"/>
+  <arg name="model" default="turtlebot3_burger"/>
+  <arg name="episodes" default="3000"/>
+  <arg name="max_steps" default="6000"/>
+  <arg name="load_model" default="false"/>
+
+  <!-- Gazebo + robot. -->
+  <include file="$(find mr_learning)/launch/learning_env.launch">
+    <arg name="stage" value="$(arg stage)"/>
+    <arg name="model" value="$(arg model)"/>
+  </include>
+
+  <!-- DQN training node. -->
+  <node pkg="mr_learning" type="dqn_train.py" name="dqn_train" output="screen">
+    <param name="stage" value="$(arg stage)" type="string"/>
+    <param name="episodes" value="$(arg episodes)" type="int"/>
+    <param name="max_steps" value="$(arg max_steps)" type="int"/>
+    <param name="load_model" value="$(arg load_model)" type="bool"/>
+  </node>
+</launch>

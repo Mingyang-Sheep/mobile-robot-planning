@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 import heapq
 import math
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
 
 import rospy
 import tf
@@ -33,17 +38,10 @@ class DijkstraPlannerNode:
         )
 
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
+        self.grid_map = None
         self.latest_goal = None
 
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
-
         self.robot_radius = 0.15
-        self.inflation_offsets = []
         self.obstacle_set = set()
 
         # 与 A* / C++ Dijkstra 严格对齐的 8 邻域扩展顺序和步进代价。
@@ -60,18 +58,13 @@ class DijkstraPlannerNode:
         ]
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
-        self.build_obstacle_lookup()
+        self.grid_map = GridMap(msg)
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
     def goal_callback(self, msg):
         self.latest_goal = msg
 
-        if self.latest_map is None:
+        if self.grid_map is None:
             rospy.logwarn("Dijkstra Python: /map 尚未收到，无法开始规划。")
             return
 
@@ -86,20 +79,20 @@ class DijkstraPlannerNode:
             return
 
         # 关键步骤：严格按公式 index_x = int((world_x - origin_x) / resolution) 做世界坐标到栅格坐标映射。
-        start_x, start_y = self.world_to_grid(start_world[0], start_world[1])
+        start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
         # 关键步骤：终点同样使用完全一致的公式映射到 OccupancyGrid 的栅格索引。
-        goal_x, goal_y = self.world_to_grid(msg.pose.position.x, msg.pose.position.y)
+        goal_x, goal_y = self.grid_map.world_to_grid(msg.pose.position.x, msg.pose.position.y)
 
-        if not self.in_bounds(start_x, start_y):
+        if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("Dijkstra Python: 起点超出地图范围，停止规划。")
             return
 
-        if not self.in_bounds(goal_x, goal_y):
+        if not self.grid_map.in_bounds(goal_x, goal_y):
             rospy.logwarn("Dijkstra Python: 终点超出地图范围，停止规划。")
             return
 
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
+        start_index = self.grid_map.to_index(start_x, start_y)
+        goal_index = self.grid_map.to_index(goal_x, goal_y)
 
         if start_index in self.obstacle_set:
             rospy.logwarn("Dijkstra Python: 起点位于障碍物膨胀区内，停止规划。")
@@ -129,39 +122,9 @@ class DijkstraPlannerNode:
             rospy.logwarn("Dijkstra Python: 获取 map -> base_footprint 失败，停止规划。%s", exc)
             return None
 
-    def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
-        if self.latest_map is None or self.resolution <= 0.0:
-            return
-
-        self.precompute_inflation_offsets()
-
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            # 与 C++ 版严格一致：未知栅格和占用概率 >= 50 的栅格都按障碍处理。
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                # 与 C++ 版严格一致：用欧式距离判断该偏移是否落在机器人半径膨胀圈内。
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
-
     def plan_path(self, start_x, start_y, goal_x, goal_y):
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
+        start_index = self.grid_map.to_index(start_x, start_y)
+        goal_index = self.grid_map.to_index(goal_x, goal_y)
 
         node_lookup = {
             start_index: Node(start_x, start_y, 0.0, 0.0, -1),
@@ -185,10 +148,10 @@ class DijkstraPlannerNode:
                 next_x = current_node.x + step_x
                 next_y = current_node.y + step_y
 
-                if not self.in_bounds(next_x, next_y):
+                if not self.grid_map.in_bounds(next_x, next_y):
                     continue
 
-                next_index = self.to_index(next_x, next_y)
+                next_index = self.grid_map.to_index(next_x, next_y)
                 if next_index in self.obstacle_set or next_index in closed_set:
                     continue
 
@@ -220,11 +183,11 @@ class DijkstraPlannerNode:
         path_msg.header.frame_id = "map"
 
         for linear_index in path_indices:
-            grid_x = linear_index % self.map_width
-            grid_y = linear_index // self.map_width
+            grid_x = linear_index % self.grid_map.width
+            grid_y = linear_index // self.grid_map.width
 
             # 关键步骤：将离散栅格索引还原为世界坐标时，取栅格中心点而不是左下角顶点。
-            world_x, world_y = self.grid_to_world(grid_x, grid_y)
+            world_x, world_y = self.grid_map.grid_to_world(grid_x, grid_y)
 
             pose = PoseStamped()
             pose.header = path_msg.header
@@ -234,22 +197,6 @@ class DijkstraPlannerNode:
             path_msg.poses.append(pose)
 
         self.path_pub.publish(path_msg)
-
-    def world_to_grid(self, world_x, world_y):
-        grid_x = int((world_x - self.origin_x) / self.resolution)
-        grid_y = int((world_y - self.origin_y) / self.resolution)
-        return grid_x, grid_y
-
-    def grid_to_world(self, grid_x, grid_y):
-        world_x = self.origin_x + (grid_x + 0.5) * self.resolution
-        world_y = self.origin_y + (grid_y + 0.5) * self.resolution
-        return world_x, world_y
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
 
 
 if __name__ == "__main__":

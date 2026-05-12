@@ -2,4 +2,4 @@
 source_root_dir = '/home/lmy/mobile_robot_benchmark/src'
 whitelisted_packages = ''.split(';') if '' != '' else []
 blacklisted_packages = ''.split(';') if '' != '' else []
-underlay_workspaces = '/opt/ros/noetic'.split(';') if '/opt/ros/noetic' != '' else []
+underlay_workspaces = '/home/lmy/mobile_robot_sim_ws/devel;/opt/ros/noetic'.split(';') if '/home/lmy/mobile_robot_sim_ws/devel;/opt/ros/noetic' != '' else []

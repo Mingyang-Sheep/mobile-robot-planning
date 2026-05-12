@@ -1,0 +1,7 @@
+set(mr_learning_SETUP_PY_SETUP_MODULE "setuptools")
+set(mr_learning_SETUP_PY_VERSION "0.1.0")
+set(mr_learning_SETUP_PY_SCRIPTS "")
+set(mr_learning_SETUP_PY_PACKAGES "mr_learning")
+set(mr_learning_SETUP_PY_PACKAGE_DIRS "src/mr_learning")
+set(mr_learning_SETUP_PY_MODULES "")
+set(mr_learning_SETUP_PY_MODULE_DIRS "")

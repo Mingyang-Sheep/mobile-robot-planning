@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 import math
+import os
+import sys
 
 import rospy
 import tf
 from geometry_msgs.msg import PoseStamped, Twist
 from nav_msgs.msg import OccupancyGrid, Odometry, Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import normalize_angle, GridMap, build_obstacle_set
 
 
 class DwaState:
@@ -63,26 +68,15 @@ class DynamicWindowApproachPlannerNode:
         )
 
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
+        self.grid_map = None
         self.latest_odom = None
         self.latest_goal = None
         self.goal_active = False
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
-        self.inflation_offsets = []
         self.obstacle_set = set()
         self.obstacle_points = []
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
+        self.grid_map = GridMap(msg)
         self.build_obstacle_lookup()
 
     def odom_callback(self, msg):
@@ -104,7 +98,7 @@ class DynamicWindowApproachPlannerNode:
         if not self.goal_active:
             return
 
-        if self.latest_map is None:
+        if self.grid_map is None:
             rospy.logwarn_throttle(1.0, "DWA Python: /map has not been received yet.")
             self.publish_stop()
             return
@@ -173,39 +167,23 @@ class DynamicWindowApproachPlannerNode:
             return None
 
     def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
+        self.obstacle_set = set()
         self.obstacle_points = []
-        if self.latest_map is None or self.resolution <= 0.0:
+        if self.grid_map is None or self.grid_map.resolution <= 0.0:
             return
 
-        self.precompute_inflation_offsets()
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
+        gm = self.grid_map
         for linear_index in self.obstacle_set:
-            grid_x = linear_index % self.map_width
-            grid_y = linear_index // self.map_width
+            grid_x = linear_index % gm.width
+            grid_y = linear_index // gm.width
             self.obstacle_points.append(
                 (
-                    self.origin_x + (grid_x + 0.5) * self.resolution,
-                    self.origin_y + (grid_y + 0.5) * self.resolution,
+                    gm.origin_x + (grid_x + 0.5) * gm.resolution,
+                    gm.origin_y + (grid_y + 0.5) * gm.resolution,
                 )
             )
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
 
     def calc_dynamic_window(self, state):
         return (
@@ -263,7 +241,7 @@ class DynamicWindowApproachPlannerNode:
         return trajectory
 
     def motion(self, state, velocity, yaw_rate, dt):
-        next_yaw = self.normalize_angle(state.yaw + yaw_rate * dt)
+        next_yaw = normalize_angle(state.yaw + yaw_rate * dt)
         return DwaState(
             state.x + velocity * math.cos(next_yaw) * dt,
             state.y + velocity * math.sin(next_yaw) * dt,
@@ -277,7 +255,7 @@ class DynamicWindowApproachPlannerNode:
         dx = self.latest_goal.pose.position.x - final_state.x
         dy = self.latest_goal.pose.position.y - final_state.y
         goal_angle = math.atan2(dy, dx)
-        return abs(self.normalize_angle(goal_angle - final_state.yaw))
+        return abs(normalize_angle(goal_angle - final_state.yaw))
 
     def calc_obstacle_cost(self, trajectory):
         min_distance = float("inf")
@@ -321,23 +299,8 @@ class DynamicWindowApproachPlannerNode:
         self.path_pub.publish(path_msg)
 
     def is_world_point_free(self, world_x, world_y):
-        grid_x, grid_y = self.world_to_grid(world_x, world_y)
-        return self.in_bounds(grid_x, grid_y) and self.to_index(grid_x, grid_y) not in self.obstacle_set
-
-    def world_to_grid(self, world_x, world_y):
-        return int((world_x - self.origin_x) / self.resolution), int(
-            (world_y - self.origin_y) / self.resolution
-        )
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
-
-    @staticmethod
-    def normalize_angle(angle):
-        return math.atan2(math.sin(angle), math.cos(angle))
+        grid_x, grid_y = self.grid_map.world_to_grid(world_x, world_y)
+        return self.grid_map.in_bounds(grid_x, grid_y) and self.grid_map.to_index(grid_x, grid_y) not in self.obstacle_set
 
 
 if __name__ == "__main__":

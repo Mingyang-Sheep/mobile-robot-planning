@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import heapq
 import math
+import os
+import sys
 
 import actionlib
 import rospy
@@ -9,6 +11,9 @@ from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import OccupancyGrid, Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import GridMap, build_obstacle_set, manhattan_distance, sign
 
 
 class GridNode:
@@ -34,37 +39,23 @@ class Segment:
 
 class BcdPlannerNode:
     def __init__(self):
-        # 全覆盖算法统一监听地图输入。
         self.map_sub = rospy.Subscriber("/map", OccupancyGrid, self.map_callback, queue_size=1)
-        # 与 A* 完全对齐：覆盖算法也统一使用 RViz 的 2D Nav Goal 作为触发入口。
         self.goal_sub = rospy.Subscriber(
             "/move_base_simple/goal", PoseStamped, self.goal_callback, queue_size=1
         )
-        # 全覆盖路径统一输出到固定 Path 话题。
         self.path_pub = rospy.Publisher(
             "/mr_traditional_planner/coverage_path", Path, queue_size=1, latch=True
         )
-        # 统一以 /move_base 为动作客户端接口，覆盖算法只负责编排 Waypoints。
         self.move_base_client = actionlib.SimpleActionClient("/move_base", MoveBaseAction)
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
+        self.grid_map = None
 
-        # 0.15m 与前面 A* / Dijkstra 保持一致，保证覆盖路径和最优路径共用同一套碰撞边界。
         self.robot_radius = 0.15
-        # 0.2m 是牛耕式相邻扫掠线的间距，直接决定覆盖密度和路径长度。
         self.sweep_spacing = 0.2
-        # 单个 waypoint 超时后直接跳过，避免某个坏点拖死整条覆盖链路。
         self.goal_timeout = 30.0
-        self.inflation_offsets = []
         self.obstacle_set = set()
         self.is_executing = False
 
-        # 覆盖算法的安全连接统一采用 4 邻域 A*，避免对角穿角导致的碰撞风险。
         self.motion_model = [
             (1, 0, 1.0),
             (0, 1, 1.0),
@@ -73,13 +64,8 @@ class BcdPlannerNode:
         ]
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
-        self.build_obstacle_lookup()
+        self.grid_map = GridMap(msg)
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
     def goal_callback(self, msg):
         if msg.header.frame_id and msg.header.frame_id != "map":
@@ -95,7 +81,7 @@ class BcdPlannerNode:
             rospy.logwarn("BCD Python: 当前仍在执行覆盖任务，忽略重复触发。")
             return
 
-        if self.latest_map is None:
+        if self.grid_map is None:
             rospy.logwarn("BCD Python: /map 尚未收到，无法开始覆盖规划。")
             return
 
@@ -103,13 +89,13 @@ class BcdPlannerNode:
         if start_world is None:
             return
 
-        # 关键步骤：覆盖规划沿用与 A* 完全相同的 world -> grid 映射公式。
-        start_x, start_y = self.world_to_grid(start_world[0], start_world[1])
-        if not self.in_bounds(start_x, start_y):
+        gm = self.grid_map
+        start_x, start_y = gm.world_to_grid(start_world[0], start_world[1])
+        if not gm.in_bounds(start_x, start_y):
             rospy.logwarn("BCD Python: 清扫起点超出地图范围，停止执行。")
             return
 
-        start_index = self.to_index(start_x, start_y)
+        start_index = gm.to_index(start_x, start_y)
         if start_index in self.obstacle_set:
             rospy.logwarn("BCD Python: 清扫起点位于障碍物膨胀区内，停止执行。")
             return
@@ -126,7 +112,6 @@ class BcdPlannerNode:
             if not self.wait_for_move_base_server():
                 return
 
-            # RViz 的 2D Nav Goal 在这里仅作为统一触发入口，不保留其原始单点导航目标。
             self.move_base_client.cancel_all_goals()
             self.execute_coverage_path(path_indices)
         finally:
@@ -152,45 +137,15 @@ class BcdPlannerNode:
             rospy.logwarn("BCD Python: 等待 /move_base Action Server 启动。")
         return False
 
-    def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
-        if self.latest_map is None or self.resolution <= 0.0:
-            return
-
-        self.precompute_inflation_offsets()
-
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            # 与 A* / Dijkstra 保持一致：未知区与占用概率 >= 50 的栅格都视为障碍。
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                # 关键步骤：仍使用欧式距离做圆形膨胀，保证与前面最优路径算法的碰撞边界一致。
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
-
     def build_coverage_path(self, start_x, start_y):
-        if self.latest_map is None or self.resolution <= 0.0:
+        gm = self.grid_map
+        if gm is None or gm.resolution <= 0.0:
             return []
 
-        # 0.2m 的扫掠间距先转成栅格步长，再在离散网格上生成弓字形路径。
-        sweep_step_cells = max(1, int(round(self.sweep_spacing / self.resolution)))
-        sampled_rows = list(range(0, self.map_height, sweep_step_cells))
-        if not sampled_rows or sampled_rows[-1] != self.map_height - 1:
-            sampled_rows.append(self.map_height - 1)
+        sweep_step_cells = max(1, int(round(self.sweep_spacing / gm.resolution)))
+        sampled_rows = list(range(0, gm.height, sweep_step_cells))
+        if not sampled_rows or sampled_rows[-1] != gm.height - 1:
+            sampled_rows.append(gm.height - 1)
 
         all_segments = []
         cells = {}
@@ -206,7 +161,6 @@ class BcdPlannerNode:
                     if self.segments_overlap(previous_segment, segment):
                         parent_cell_ids.add(previous_segment.cell_id)
 
-                # 简化版 BCD：若扫掠线拓扑发生分裂或合并，则开启新 Cell；否则沿用唯一父 Cell。
                 if len(parent_cell_ids) == 1:
                     segment.cell_id = next(iter(parent_cell_ids))
                 else:
@@ -236,8 +190,8 @@ class BcdPlannerNode:
         while cell_paths:
             candidates = []
             for cell_id, cell_path in cell_paths.items():
-                entry_x, entry_y = self.index_to_grid(cell_path[0])
-                exit_x, exit_y = self.index_to_grid(cell_path[-1])
+                entry_x, entry_y = gm.index_to_grid(cell_path[0])
+                exit_x, exit_y = gm.index_to_grid(cell_path[-1])
 
                 candidates.append((math.hypot(entry_x - current_x, entry_y - current_y), cell_id, False))
                 candidates.append((math.hypot(exit_x - current_x, exit_y - current_y), cell_id, True))
@@ -248,7 +202,7 @@ class BcdPlannerNode:
             for _, cell_id, reverse_cell in candidates:
                 cell_path = cell_paths[cell_id]
                 ordered_cell_path = list(reversed(cell_path)) if reverse_cell else cell_path
-                entry_x, entry_y = self.index_to_grid(ordered_cell_path[0])
+                entry_x, entry_y = gm.index_to_grid(ordered_cell_path[0])
                 connector = self.plan_safe_path(current_x, current_y, entry_x, entry_y)
                 if connector:
                     selected = (cell_id, connector, ordered_cell_path)
@@ -263,23 +217,24 @@ class BcdPlannerNode:
             self.append_indices(dense_path, ordered_cell_path)
             cell_paths.pop(cell_id)
 
-            current_x, current_y = self.index_to_grid(dense_path[-1])
+            current_x, current_y = gm.index_to_grid(dense_path[-1])
 
         return self.compress_path(dense_path)
 
     def extract_free_segments(self, row_y):
+        gm = self.grid_map
         segments = []
         grid_x = 0
 
-        while grid_x < self.map_width:
-            while grid_x < self.map_width and self.is_obstacle(grid_x, row_y):
+        while grid_x < gm.width:
+            while grid_x < gm.width and gm.is_obstacle(grid_x, row_y, self.obstacle_set):
                 grid_x += 1
 
-            if grid_x >= self.map_width:
+            if grid_x >= gm.width:
                 break
 
             segment_start = grid_x
-            while grid_x + 1 < self.map_width and not self.is_obstacle(grid_x + 1, row_y):
+            while grid_x + 1 < gm.width and not gm.is_obstacle(grid_x + 1, row_y, self.obstacle_set):
                 grid_x += 1
 
             segments.append(Segment(row_y, segment_start, grid_x))
@@ -302,8 +257,9 @@ class BcdPlannerNode:
                 continue
 
             if dense_path:
-                current_x, current_y = self.index_to_grid(dense_path[-1])
-                segment_start_x, segment_start_y = self.index_to_grid(segment_path[0])
+                gm = self.grid_map
+                current_x, current_y = gm.index_to_grid(dense_path[-1])
+                segment_start_x, segment_start_y = gm.index_to_grid(segment_path[0])
                 connector = self.plan_safe_path(
                     current_x, current_y, segment_start_x, segment_start_y
                 )
@@ -317,6 +273,7 @@ class BcdPlannerNode:
         return dense_path
 
     def trace_scan_segment(self, segment, left_to_right):
+        gm = self.grid_map
         traced_indices = []
         start_x = segment.x_start if left_to_right else segment.x_end
         end_x = segment.x_end if left_to_right else segment.x_start
@@ -324,11 +281,10 @@ class BcdPlannerNode:
         grid_x = start_x
 
         while True:
-            # 关键步骤：牛耕扫描段沿着整条线逐栅格检查，一旦撞到障碍立即截断，不允许穿墙。
-            if self.is_obstacle(grid_x, segment.y):
+            if gm.is_obstacle(grid_x, segment.y, self.obstacle_set):
                 break
 
-            traced_indices.append(self.to_index(grid_x, segment.y))
+            traced_indices.append(gm.to_index(grid_x, segment.y))
             if grid_x == end_x:
                 break
             grid_x += step_x
@@ -336,11 +292,12 @@ class BcdPlannerNode:
         return traced_indices
 
     def plan_safe_path(self, start_x, start_y, goal_x, goal_y):
-        if not self.in_bounds(start_x, start_y) or not self.in_bounds(goal_x, goal_y):
+        gm = self.grid_map
+        if not gm.in_bounds(start_x, start_y) or not gm.in_bounds(goal_x, goal_y):
             return []
 
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
+        start_index = gm.to_index(start_x, start_y)
+        goal_index = gm.to_index(goal_x, goal_y)
 
         if start_index in self.obstacle_set or goal_index in self.obstacle_set:
             return []
@@ -348,7 +305,7 @@ class BcdPlannerNode:
         if start_index == goal_index:
             return [start_index]
 
-        start_h = self.heuristic(start_x, start_y, goal_x, goal_y)
+        start_h = manhattan_distance(start_x, start_y, goal_x, goal_y)
         node_lookup = {start_index: GridNode(start_x, start_y, 0.0, start_h, -1)}
         closed_set = set()
         open_heap = [(start_h, start_h, start_index)]
@@ -369,15 +326,15 @@ class BcdPlannerNode:
                 next_x = current_node.x + step_x
                 next_y = current_node.y + step_y
 
-                if not self.in_bounds(next_x, next_y):
+                if not gm.in_bounds(next_x, next_y):
                     continue
 
-                next_index = self.to_index(next_x, next_y)
+                next_index = gm.to_index(next_x, next_y)
                 if next_index in self.obstacle_set or next_index in closed_set:
                     continue
 
                 tentative_g = current_node.g + step_cost
-                heuristic_cost = self.heuristic(next_x, next_y, goal_x, goal_y)
+                heuristic_cost = manhattan_distance(next_x, next_y, goal_x, goal_y)
 
                 existing_node = node_lookup.get(next_index)
                 if existing_node is not None and tentative_g >= existing_node.g:
@@ -410,13 +367,14 @@ class BcdPlannerNode:
         if len(dense_path) < 3:
             return list(dense_path)
 
+        gm = self.grid_map
         compressed_path = [dense_path[0]]
         previous_direction = None
 
         for waypoint_index in range(1, len(dense_path)):
-            prev_x, prev_y = self.index_to_grid(dense_path[waypoint_index - 1])
-            curr_x, curr_y = self.index_to_grid(dense_path[waypoint_index])
-            direction = (self.sign(curr_x - prev_x), self.sign(curr_y - prev_y))
+            prev_x, prev_y = gm.index_to_grid(dense_path[waypoint_index - 1])
+            curr_x, curr_y = gm.index_to_grid(dense_path[waypoint_index])
+            direction = (sign(curr_x - prev_x), sign(curr_y - prev_y))
 
             if previous_direction is None:
                 previous_direction = direction
@@ -431,26 +389,15 @@ class BcdPlannerNode:
 
         return compressed_path
 
-    def sign(self, value):
-        if value > 0:
-            return 1
-        if value < 0:
-            return -1
-        return 0
-
-    def heuristic(self, grid_x, grid_y, goal_x, goal_y):
-        # 关键步骤：安全连接统一使用曼哈顿启发式，匹配 4 邻域搜索并避免不必要的斜穿。
-        return abs(goal_x - grid_x) + abs(goal_y - grid_y)
-
     def publish_path(self, path_indices):
+        gm = self.grid_map
         path_msg = Path()
         path_msg.header.stamp = rospy.Time.now()
         path_msg.header.frame_id = "map"
 
         for waypoint_index, linear_index in enumerate(path_indices):
-            grid_x, grid_y = self.index_to_grid(linear_index)
-            # 关键步骤：发布可视化路径时仍取栅格中心点，保持与 A* / Dijkstra 一致的索引还原逻辑。
-            world_x, world_y = self.grid_to_world(grid_x, grid_y)
+            grid_x, grid_y = gm.index_to_grid(linear_index)
+            world_x, world_y = gm.grid_to_world(grid_x, grid_y)
             yaw = self.compute_waypoint_yaw(path_indices, waypoint_index)
             quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
 
@@ -467,9 +414,10 @@ class BcdPlannerNode:
         self.path_pub.publish(path_msg)
 
     def execute_coverage_path(self, path_indices):
+        gm = self.grid_map
         for waypoint_index, linear_index in enumerate(path_indices):
-            grid_x, grid_y = self.index_to_grid(linear_index)
-            world_x, world_y = self.grid_to_world(grid_x, grid_y)
+            grid_x, grid_y = gm.index_to_grid(linear_index)
+            world_x, world_y = gm.grid_to_world(grid_x, grid_y)
             yaw = self.compute_waypoint_yaw(path_indices, waypoint_index)
             quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
 
@@ -501,6 +449,7 @@ class BcdPlannerNode:
         if len(path_indices) < 2:
             return 0.0
 
+        gm = self.grid_map
         from_index = path_indices[waypoint_index]
         to_index = path_indices[waypoint_index]
 
@@ -509,35 +458,11 @@ class BcdPlannerNode:
         else:
             from_index = path_indices[waypoint_index - 1]
 
-        from_grid_x, from_grid_y = self.index_to_grid(from_index)
-        to_grid_x, to_grid_y = self.index_to_grid(to_index)
-        from_world_x, from_world_y = self.grid_to_world(from_grid_x, from_grid_y)
-        to_world_x, to_world_y = self.grid_to_world(to_grid_x, to_grid_y)
+        from_grid_x, from_grid_y = gm.index_to_grid(from_index)
+        to_grid_x, to_grid_y = gm.index_to_grid(to_index)
+        from_world_x, from_world_y = gm.grid_to_world(from_grid_x, from_grid_y)
+        to_world_x, to_world_y = gm.grid_to_world(to_grid_x, to_grid_y)
         return math.atan2(to_world_y - from_world_y, to_world_x - from_world_x)
-
-    def world_to_grid(self, world_x, world_y):
-        grid_x = int((world_x - self.origin_x) / self.resolution)
-        grid_y = int((world_y - self.origin_y) / self.resolution)
-        return grid_x, grid_y
-
-    def grid_to_world(self, grid_x, grid_y):
-        world_x = self.origin_x + (grid_x + 0.5) * self.resolution
-        world_y = self.origin_y + (grid_y + 0.5) * self.resolution
-        return world_x, world_y
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def index_to_grid(self, linear_index):
-        return linear_index % self.map_width, linear_index // self.map_width
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
-
-    def is_obstacle(self, grid_x, grid_y):
-        if not self.in_bounds(grid_x, grid_y):
-            return True
-        return self.to_index(grid_x, grid_y) in self.obstacle_set
 
 
 if __name__ == "__main__":

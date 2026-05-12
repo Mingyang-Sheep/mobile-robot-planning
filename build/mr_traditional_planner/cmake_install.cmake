@@ -53,6 +53,10 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/python_planner_node.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE PROGRAM FILES "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/catkin_generated/installspace/astar_planner_py.py")
 endif()
 
@@ -148,5 +152,13 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
     "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/launch"
     "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/utils"
     USE_SOURCE_PERMISSIONS)
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/mr_traditional_planner" TYPE DIRECTORY FILES
+    "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/optimal"
+    "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/coverage"
+    "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/utils"
+    USE_SOURCE_PERMISSIONS FILES_MATCHING REGEX "/[^/]*\\.py$")
 endif()
 

@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 import heapq
 import math
+import os
+import sys
 
 import rospy
 import tf
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
 
 
 class SearchState:
@@ -38,28 +43,17 @@ class DStarPlannerNode:
         )
 
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
-        self.inflation_offsets = []
+        self.grid_map = None
         self.obstacle_set = set()
         self.search_states = []
         self.open_heap = []
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
-        self.build_obstacle_lookup()
+        self.grid_map = GridMap(msg)
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
     def goal_callback(self, msg):
-        if self.latest_map is None:
+        if self.grid_map is None:
             rospy.logwarn("D* Python: /map 尚未收到，无法开始规划。")
             return
 
@@ -75,19 +69,19 @@ class DStarPlannerNode:
         if start_world is None:
             return
 
-        start_x, start_y = self.world_to_grid(start_world[0], start_world[1])
-        goal_x, goal_y = self.world_to_grid(msg.pose.position.x, msg.pose.position.y)
+        start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
+        goal_x, goal_y = self.grid_map.world_to_grid(msg.pose.position.x, msg.pose.position.y)
 
-        if not self.in_bounds(start_x, start_y):
+        if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("D* Python: 起点超出地图范围，停止规划。")
             return
 
-        if not self.in_bounds(goal_x, goal_y):
+        if not self.grid_map.in_bounds(goal_x, goal_y):
             rospy.logwarn("D* Python: 终点超出地图范围，停止规划。")
             return
 
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
+        start_index = self.grid_map.to_index(start_x, start_y)
+        goal_index = self.grid_map.to_index(goal_x, goal_y)
         if start_index in self.obstacle_set:
             rospy.logwarn("D* Python: 起点位于障碍物膨胀区内，停止规划。")
             return
@@ -126,40 +120,17 @@ class DStarPlannerNode:
             )
             return None
 
-    def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
-        if self.latest_map is None or self.resolution <= 0.0:
-            return
-
-        self.precompute_inflation_offsets()
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
-
     def plan_path(self, start_x, start_y, goal_x, goal_y):
-        map_size = self.map_width * self.map_height
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
+        gm = self.grid_map
+        map_size = gm.width * gm.height
+        start_index = gm.to_index(start_x, start_y)
+        goal_index = gm.to_index(goal_x, goal_y)
         if start_index == goal_index:
             return [start_index]
 
         self.search_states = []
         for linear_index in range(map_size):
-            grid_x, grid_y = self.index_to_grid(linear_index)
+            grid_x, grid_y = gm.index_to_grid(linear_index)
             self.search_states.append(SearchState(grid_x, grid_y))
         self.open_heap = []
 
@@ -274,7 +245,8 @@ class DStarPlannerNode:
         return -1.0
 
     def neighbors(self, linear_index):
-        grid_x, grid_y = self.index_to_grid(linear_index)
+        gm = self.grid_map
+        grid_x, grid_y = gm.index_to_grid(linear_index)
         result = []
         for offset_y in (-1, 0, 1):
             for offset_x in (-1, 0, 1):
@@ -282,24 +254,26 @@ class DStarPlannerNode:
                     continue
                 next_x = grid_x + offset_x
                 next_y = grid_y + offset_y
-                if self.in_bounds(next_x, next_y):
-                    result.append(self.to_index(next_x, next_y))
+                if gm.in_bounds(next_x, next_y):
+                    result.append(gm.to_index(next_x, next_y))
         return result
 
     def move_cost(self, from_index, to_index):
-        from_x, from_y = self.index_to_grid(from_index)
-        to_x, to_y = self.index_to_grid(to_index)
+        gm = self.grid_map
+        from_x, from_y = gm.index_to_grid(from_index)
+        to_x, to_y = gm.index_to_grid(to_index)
         if from_index in self.obstacle_set or to_index in self.obstacle_set:
             return float("inf")
         return math.hypot(from_x - to_x, from_y - to_y)
 
     def publish_path(self, path_indices):
+        gm = self.grid_map
         path_msg = Path()
         path_msg.header.stamp = rospy.Time.now()
         path_msg.header.frame_id = self.map_frame
         for linear_index in path_indices:
-            grid_x, grid_y = self.index_to_grid(linear_index)
-            world_x, world_y = self.grid_to_world(grid_x, grid_y)
+            grid_x, grid_y = gm.index_to_grid(linear_index)
+            world_x, world_y = gm.grid_to_world(grid_x, grid_y)
             pose = PoseStamped()
             pose.header = path_msg.header
             pose.pose.position.x = world_x
@@ -311,26 +285,6 @@ class DStarPlannerNode:
     @staticmethod
     def nearly_equal(lhs, rhs):
         return abs(lhs - rhs) <= 1.0e-9
-
-    def world_to_grid(self, world_x, world_y):
-        return int((world_x - self.origin_x) / self.resolution), int(
-            (world_y - self.origin_y) / self.resolution
-        )
-
-    def grid_to_world(self, grid_x, grid_y):
-        return (
-            self.origin_x + (grid_x + 0.5) * self.resolution,
-            self.origin_y + (grid_y + 0.5) * self.resolution,
-        )
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def index_to_grid(self, linear_index):
-        return linear_index % self.map_width, linear_index // self.map_width
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
 
 
 if __name__ == "__main__":

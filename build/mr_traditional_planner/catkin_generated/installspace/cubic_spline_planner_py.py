@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 import bisect
 import math
+import os
+import sys
 
 import rospy
 import tf
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
 
 
 class CubicSpline1D:
@@ -113,26 +118,15 @@ class CubicSplinePlannerNode:
         self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
 
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
-        self.inflation_offsets = []
+        self.grid_map = None
         self.obstacle_set = set()
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
-        self.build_obstacle_lookup()
+        self.grid_map = GridMap(msg)
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
     def goal_callback(self, msg):
-        if self.collision_check and self.latest_map is None:
+        if self.collision_check and self.grid_map is None:
             rospy.logwarn("CubicSpline Python: /map has not been received yet.")
             return
 
@@ -217,30 +211,6 @@ class CubicSplinePlannerNode:
             )
             return None
 
-    def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
-        if self.latest_map is None or self.resolution <= 0.0:
-            return
-
-        self.precompute_inflation_offsets()
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
-
     def build_goal_anchors(self, start_x, start_y, start_yaw, goal_x, goal_y, goal_yaw):
         path_length = math.hypot(goal_x - start_x, goal_y - start_y)
         if path_length < 1.0e-6:
@@ -284,10 +254,10 @@ class CubicSplinePlannerNode:
         return all(self.is_world_point_free(world_x, world_y) for world_x, world_y in path_points)
 
     def is_world_point_free(self, world_x, world_y):
-        if self.latest_map is None:
+        if self.grid_map is None:
             return True
-        grid_x, grid_y = self.world_to_grid(world_x, world_y)
-        return self.in_bounds(grid_x, grid_y) and self.to_index(grid_x, grid_y) not in self.obstacle_set
+        grid_x, grid_y = self.grid_map.world_to_grid(world_x, world_y)
+        return self.grid_map.in_bounds(grid_x, grid_y) and self.grid_map.to_index(grid_x, grid_y) not in self.obstacle_set
 
     def publish_path(self, path_points):
         path_msg = Path()
@@ -332,17 +302,6 @@ class CubicSplinePlannerNode:
             pose_msg.pose.orientation.w,
         )
         return tf.transformations.euler_from_quaternion(quaternion)[2]
-
-    def world_to_grid(self, world_x, world_y):
-        return int((world_x - self.origin_x) / self.resolution), int(
-            (world_y - self.origin_y) / self.resolution
-        )
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
 
 
 if __name__ == "__main__":

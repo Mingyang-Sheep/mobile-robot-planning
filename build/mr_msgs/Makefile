@@ -56,18 +56,6 @@ CMAKE_BINARY_DIR = /home/lmy/mobile_robot_benchmark/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
-
-# Special rule for the target install/strip
-install/strip/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip/fast
-
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
@@ -79,28 +67,6 @@ install/local/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
 	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local/fast
-
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install
-
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
-
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -135,6 +101,40 @@ test/fast: test
 
 .PHONY : test/fast
 
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
 # The main all target
 all: cmake_check_build_system
 	cd /home/lmy/mobile_robot_benchmark/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/lmy/mobile_robot_benchmark/build/CMakeFiles /home/lmy/mobile_robot_benchmark/build/mr_msgs/CMakeFiles/progress.marks
@@ -167,19 +167,291 @@ depend:
 	cd /home/lmy/mobile_robot_benchmark/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_genpy.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_genpy.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_genpy.dir/rule
+
+# Convenience name for target.
+mr_msgs_genpy: mr_msgs/CMakeFiles/mr_msgs_genpy.dir/rule
+
+.PHONY : mr_msgs_genpy
+
+# fast build rule for target.
+mr_msgs_genpy/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_genpy.dir/build.make mr_msgs/CMakeFiles/mr_msgs_genpy.dir/build
+.PHONY : mr_msgs_genpy/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_generate_messages_py.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_generate_messages_py.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_generate_messages_py.dir/rule
+
+# Convenience name for target.
+mr_msgs_generate_messages_py: mr_msgs/CMakeFiles/mr_msgs_generate_messages_py.dir/rule
+
+.PHONY : mr_msgs_generate_messages_py
+
+# fast build rule for target.
+mr_msgs_generate_messages_py/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_generate_messages_py.dir/build.make mr_msgs/CMakeFiles/mr_msgs_generate_messages_py.dir/build
+.PHONY : mr_msgs_generate_messages_py/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_gennodejs.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_gennodejs.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_gennodejs.dir/rule
+
+# Convenience name for target.
+mr_msgs_gennodejs: mr_msgs/CMakeFiles/mr_msgs_gennodejs.dir/rule
+
+.PHONY : mr_msgs_gennodejs
+
+# fast build rule for target.
+mr_msgs_gennodejs/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_gennodejs.dir/build.make mr_msgs/CMakeFiles/mr_msgs_gennodejs.dir/build
+.PHONY : mr_msgs_gennodejs/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_generate_messages_nodejs.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_generate_messages_nodejs.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_generate_messages_nodejs.dir/rule
+
+# Convenience name for target.
+mr_msgs_generate_messages_nodejs: mr_msgs/CMakeFiles/mr_msgs_generate_messages_nodejs.dir/rule
+
+.PHONY : mr_msgs_generate_messages_nodejs
+
+# fast build rule for target.
+mr_msgs_generate_messages_nodejs/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_generate_messages_nodejs.dir/build.make mr_msgs/CMakeFiles/mr_msgs_generate_messages_nodejs.dir/build
+.PHONY : mr_msgs_generate_messages_nodejs/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule
+.PHONY : mr_msgs/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule
+
+# Convenience name for target.
+std_msgs_generate_messages_cpp: mr_msgs/CMakeFiles/std_msgs_generate_messages_cpp.dir/rule
+
+.PHONY : std_msgs_generate_messages_cpp
+
+# fast build rule for target.
+std_msgs_generate_messages_cpp/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/std_msgs_generate_messages_cpp.dir/build.make mr_msgs/CMakeFiles/std_msgs_generate_messages_cpp.dir/build
+.PHONY : std_msgs_generate_messages_cpp/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/std_msgs_generate_messages_eus.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/std_msgs_generate_messages_eus.dir/rule
+.PHONY : mr_msgs/CMakeFiles/std_msgs_generate_messages_eus.dir/rule
+
+# Convenience name for target.
+std_msgs_generate_messages_eus: mr_msgs/CMakeFiles/std_msgs_generate_messages_eus.dir/rule
+
+.PHONY : std_msgs_generate_messages_eus
+
+# fast build rule for target.
+std_msgs_generate_messages_eus/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/std_msgs_generate_messages_eus.dir/build.make mr_msgs/CMakeFiles/std_msgs_generate_messages_eus.dir/build
+.PHONY : std_msgs_generate_messages_eus/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
+.PHONY : mr_msgs/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
+
+# Convenience name for target.
+std_msgs_generate_messages_lisp: mr_msgs/CMakeFiles/std_msgs_generate_messages_lisp.dir/rule
+
+.PHONY : std_msgs_generate_messages_lisp
+
+# fast build rule for target.
+std_msgs_generate_messages_lisp/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/std_msgs_generate_messages_lisp.dir/build.make mr_msgs/CMakeFiles/std_msgs_generate_messages_lisp.dir/build
+.PHONY : std_msgs_generate_messages_lisp/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/std_msgs_generate_messages_nodejs.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/std_msgs_generate_messages_nodejs.dir/rule
+.PHONY : mr_msgs/CMakeFiles/std_msgs_generate_messages_nodejs.dir/rule
+
+# Convenience name for target.
+std_msgs_generate_messages_nodejs: mr_msgs/CMakeFiles/std_msgs_generate_messages_nodejs.dir/rule
+
+.PHONY : std_msgs_generate_messages_nodejs
+
+# fast build rule for target.
+std_msgs_generate_messages_nodejs/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build.make mr_msgs/CMakeFiles/std_msgs_generate_messages_nodejs.dir/build
+.PHONY : std_msgs_generate_messages_nodejs/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/_mr_msgs_generate_messages_check_deps_PlannerResult.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/_mr_msgs_generate_messages_check_deps_PlannerResult.dir/rule
+.PHONY : mr_msgs/CMakeFiles/_mr_msgs_generate_messages_check_deps_PlannerResult.dir/rule
+
+# Convenience name for target.
+_mr_msgs_generate_messages_check_deps_PlannerResult: mr_msgs/CMakeFiles/_mr_msgs_generate_messages_check_deps_PlannerResult.dir/rule
+
+.PHONY : _mr_msgs_generate_messages_check_deps_PlannerResult
+
+# fast build rule for target.
+_mr_msgs_generate_messages_check_deps_PlannerResult/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/_mr_msgs_generate_messages_check_deps_PlannerResult.dir/build.make mr_msgs/CMakeFiles/_mr_msgs_generate_messages_check_deps_PlannerResult.dir/build
+.PHONY : _mr_msgs_generate_messages_check_deps_PlannerResult/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_generate_messages_lisp.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_generate_messages_lisp.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_generate_messages_lisp.dir/rule
+
+# Convenience name for target.
+mr_msgs_generate_messages_lisp: mr_msgs/CMakeFiles/mr_msgs_generate_messages_lisp.dir/rule
+
+.PHONY : mr_msgs_generate_messages_lisp
+
+# fast build rule for target.
+mr_msgs_generate_messages_lisp/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_generate_messages_lisp.dir/build.make mr_msgs/CMakeFiles/mr_msgs_generate_messages_lisp.dir/build
+.PHONY : mr_msgs_generate_messages_lisp/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/std_msgs_generate_messages_py.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/std_msgs_generate_messages_py.dir/rule
+.PHONY : mr_msgs/CMakeFiles/std_msgs_generate_messages_py.dir/rule
+
+# Convenience name for target.
+std_msgs_generate_messages_py: mr_msgs/CMakeFiles/std_msgs_generate_messages_py.dir/rule
+
+.PHONY : std_msgs_generate_messages_py
+
+# fast build rule for target.
+std_msgs_generate_messages_py/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/std_msgs_generate_messages_py.dir/build.make mr_msgs/CMakeFiles/std_msgs_generate_messages_py.dir/build
+.PHONY : std_msgs_generate_messages_py/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_generate_messages.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_generate_messages.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_generate_messages.dir/rule
+
+# Convenience name for target.
+mr_msgs_generate_messages: mr_msgs/CMakeFiles/mr_msgs_generate_messages.dir/rule
+
+.PHONY : mr_msgs_generate_messages
+
+# fast build rule for target.
+mr_msgs_generate_messages/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_generate_messages.dir/build.make mr_msgs/CMakeFiles/mr_msgs_generate_messages.dir/build
+.PHONY : mr_msgs_generate_messages/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_geneus.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_geneus.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_geneus.dir/rule
+
+# Convenience name for target.
+mr_msgs_geneus: mr_msgs/CMakeFiles/mr_msgs_geneus.dir/rule
+
+.PHONY : mr_msgs_geneus
+
+# fast build rule for target.
+mr_msgs_geneus/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_geneus.dir/build.make mr_msgs/CMakeFiles/mr_msgs_geneus.dir/build
+.PHONY : mr_msgs_geneus/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_genlisp.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_genlisp.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_genlisp.dir/rule
+
+# Convenience name for target.
+mr_msgs_genlisp: mr_msgs/CMakeFiles/mr_msgs_genlisp.dir/rule
+
+.PHONY : mr_msgs_genlisp
+
+# fast build rule for target.
+mr_msgs_genlisp/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_genlisp.dir/build.make mr_msgs/CMakeFiles/mr_msgs_genlisp.dir/build
+.PHONY : mr_msgs_genlisp/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_generate_messages_cpp.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_generate_messages_cpp.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_generate_messages_cpp.dir/rule
+
+# Convenience name for target.
+mr_msgs_generate_messages_cpp: mr_msgs/CMakeFiles/mr_msgs_generate_messages_cpp.dir/rule
+
+.PHONY : mr_msgs_generate_messages_cpp
+
+# fast build rule for target.
+mr_msgs_generate_messages_cpp/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_generate_messages_cpp.dir/build.make mr_msgs/CMakeFiles/mr_msgs_generate_messages_cpp.dir/build
+.PHONY : mr_msgs_generate_messages_cpp/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_gencpp.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_gencpp.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_gencpp.dir/rule
+
+# Convenience name for target.
+mr_msgs_gencpp: mr_msgs/CMakeFiles/mr_msgs_gencpp.dir/rule
+
+.PHONY : mr_msgs_gencpp
+
+# fast build rule for target.
+mr_msgs_gencpp/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_gencpp.dir/build.make mr_msgs/CMakeFiles/mr_msgs_gencpp.dir/build
+.PHONY : mr_msgs_gencpp/fast
+
+# Convenience name for target.
+mr_msgs/CMakeFiles/mr_msgs_generate_messages_eus.dir/rule:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f CMakeFiles/Makefile2 mr_msgs/CMakeFiles/mr_msgs_generate_messages_eus.dir/rule
+.PHONY : mr_msgs/CMakeFiles/mr_msgs_generate_messages_eus.dir/rule
+
+# Convenience name for target.
+mr_msgs_generate_messages_eus: mr_msgs/CMakeFiles/mr_msgs_generate_messages_eus.dir/rule
+
+.PHONY : mr_msgs_generate_messages_eus
+
+# fast build rule for target.
+mr_msgs_generate_messages_eus/fast:
+	cd /home/lmy/mobile_robot_benchmark/build && $(MAKE) -f mr_msgs/CMakeFiles/mr_msgs_generate_messages_eus.dir/build.make mr_msgs/CMakeFiles/mr_msgs_generate_messages_eus.dir/build
+.PHONY : mr_msgs_generate_messages_eus/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/strip"
 	@echo "... install/local"
-	@echo "... install"
-	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... test"
+	@echo "... mr_msgs_genpy"
+	@echo "... mr_msgs_generate_messages_py"
+	@echo "... mr_msgs_gennodejs"
+	@echo "... mr_msgs_generate_messages_nodejs"
+	@echo "... install/strip"
+	@echo "... std_msgs_generate_messages_cpp"
+	@echo "... install"
+	@echo "... std_msgs_generate_messages_eus"
+	@echo "... list_install_components"
+	@echo "... std_msgs_generate_messages_lisp"
+	@echo "... std_msgs_generate_messages_nodejs"
+	@echo "... _mr_msgs_generate_messages_check_deps_PlannerResult"
+	@echo "... mr_msgs_generate_messages_lisp"
+	@echo "... std_msgs_generate_messages_py"
+	@echo "... mr_msgs_generate_messages"
+	@echo "... mr_msgs_geneus"
+	@echo "... mr_msgs_genlisp"
+	@echo "... mr_msgs_generate_messages_cpp"
+	@echo "... mr_msgs_gencpp"
+	@echo "... mr_msgs_generate_messages_eus"
 .PHONY : help
 
 

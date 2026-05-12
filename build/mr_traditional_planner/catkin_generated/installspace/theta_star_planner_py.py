@@ -7,6 +7,11 @@ import tf
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Path
 
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
+
 
 class ThetaStarNode:
     __slots__ = ("x", "y", "g", "h", "parent_index")
@@ -35,13 +40,7 @@ class ThetaStarPlannerNode:
         self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
 
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
-        self.inflation_offsets = []
+        self.grid_map = None
         self.obstacle_set = set()
 
         diagonal_cost = math.sqrt(2.0)
@@ -57,16 +56,11 @@ class ThetaStarPlannerNode:
         ]
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
-        self.build_obstacle_lookup()
+        self.grid_map = GridMap(msg)
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
     def goal_callback(self, msg):
-        if self.latest_map is None:
+        if self.grid_map is None:
             rospy.logwarn("Theta* Python: /map has not been received yet.")
             return
 
@@ -82,18 +76,18 @@ class ThetaStarPlannerNode:
         if start_world is None:
             return
 
-        start_x, start_y = self.world_to_grid(start_world[0], start_world[1])
-        goal_x, goal_y = self.world_to_grid(msg.pose.position.x, msg.pose.position.y)
+        start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
+        goal_x, goal_y = self.grid_map.world_to_grid(msg.pose.position.x, msg.pose.position.y)
 
-        if not self.in_bounds(start_x, start_y):
+        if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("Theta* Python: start is outside the map.")
             return
-        if not self.in_bounds(goal_x, goal_y):
+        if not self.grid_map.in_bounds(goal_x, goal_y):
             rospy.logwarn("Theta* Python: goal is outside the map.")
             return
 
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
+        start_index = self.grid_map.to_index(start_x, start_y)
+        goal_index = self.grid_map.to_index(goal_x, goal_y)
         if start_index in self.obstacle_set:
             rospy.logwarn("Theta* Python: start is inside an inflated obstacle.")
             return
@@ -131,34 +125,10 @@ class ThetaStarPlannerNode:
             )
             return None
 
-    def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
-        if self.latest_map is None or self.resolution <= 0.0:
-            return
-
-        self.precompute_inflation_offsets()
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
-
     def plan_path(self, start_x, start_y, goal_x, goal_y):
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
-        start_h = self.heuristic(start_x, start_y, goal_x, goal_y)
+        start_index = self.grid_map.to_index(start_x, start_y)
+        goal_index = self.grid_map.to_index(goal_x, goal_y)
+        start_h = euclidean_distance(start_x, start_y, goal_x, goal_y)
 
         node_lookup = {start_index: ThetaStarNode(start_x, start_y, 0.0, start_h, -1)}
         closed_set = set()
@@ -178,10 +148,10 @@ class ThetaStarPlannerNode:
             for step_x, step_y, step_cost in self.motion_model:
                 next_x = current_node.x + step_x
                 next_y = current_node.y + step_y
-                if not self.in_bounds(next_x, next_y):
+                if not self.grid_map.in_bounds(next_x, next_y):
                     continue
 
-                next_index = self.to_index(next_x, next_y)
+                next_index = self.grid_map.to_index(next_x, next_y)
                 if next_index in self.obstacle_set or next_index in closed_set:
                     continue
 
@@ -200,7 +170,7 @@ class ThetaStarPlannerNode:
                 if existing_node is not None and tentative_g >= existing_node.g:
                     continue
 
-                heuristic_cost = self.heuristic(next_x, next_y, goal_x, goal_y)
+                heuristic_cost = euclidean_distance(next_x, next_y, goal_x, goal_y)
                 node_lookup[next_index] = ThetaStarNode(
                     next_x, next_y, tentative_g, heuristic_cost, parent_index
                 )
@@ -212,7 +182,7 @@ class ThetaStarPlannerNode:
         return []
 
     def line_of_sight(self, from_index, to_x, to_y):
-        x0, y0 = self.index_to_grid(from_index)
+        x0, y0 = self.grid_map.index_to_grid(from_index)
         x1 = to_x
         y1 = to_y
         dx = abs(x1 - x0)
@@ -222,7 +192,7 @@ class ThetaStarPlannerNode:
         error = dx - dy
 
         while True:
-            if self.to_index(x0, y0) in self.obstacle_set:
+            if self.grid_map.to_index(x0, y0) in self.obstacle_set:
                 return False
             if x0 == x1 and y0 == y1:
                 return True
@@ -251,8 +221,8 @@ class ThetaStarPlannerNode:
         path_msg.header.frame_id = self.map_frame
 
         for linear_index in path_indices:
-            grid_x, grid_y = self.index_to_grid(linear_index)
-            world_x, world_y = self.grid_to_world(grid_x, grid_y)
+            grid_x, grid_y = self.grid_map.index_to_grid(linear_index)
+            world_x, world_y = self.grid_map.grid_to_world(grid_x, grid_y)
 
             pose = PoseStamped()
             pose.header = path_msg.header
@@ -262,30 +232,6 @@ class ThetaStarPlannerNode:
             path_msg.poses.append(pose)
 
         self.path_pub.publish(path_msg)
-
-    @staticmethod
-    def heuristic(x, y, goal_x, goal_y):
-        return math.hypot(goal_x - x, goal_y - y)
-
-    def world_to_grid(self, world_x, world_y):
-        return int((world_x - self.origin_x) / self.resolution), int(
-            (world_y - self.origin_y) / self.resolution
-        )
-
-    def grid_to_world(self, grid_x, grid_y):
-        return (
-            self.origin_x + (grid_x + 0.5) * self.resolution,
-            self.origin_y + (grid_y + 0.5) * self.resolution,
-        )
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def index_to_grid(self, linear_index):
-        return linear_index % self.map_width, linear_index // self.map_width
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
 
 
 if __name__ == "__main__":
