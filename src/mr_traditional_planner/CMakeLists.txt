@@ -59,8 +59,9 @@ target_link_libraries(planner_plugin_node
 add_dependencies(mr_traditional_planner_plugins ${catkin_EXPORTED_TARGETS})
 add_dependencies(planner_plugin_node ${catkin_EXPORTED_TARGETS})
 
-# 预先接入 Python 节点安装流程，后续补算法实现时不需要再改构建骨架。
+# Python 节点和包安装。
 catkin_install_python(PROGRAMS
+  scripts/python_planner_node.py
   scripts/optimal/astar_planner_py.py
   scripts/optimal/dijkstra_planner_py.py
   scripts/optimal/dstar_planner_py.py
@@ -90,4 +91,11 @@ install(FILES planner_plugins.xml
 install(DIRECTORY include launch scripts/utils
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   USE_SOURCE_PERMISSIONS
+)
+
+# Install Python packages so python_planner_node.py can import them at runtime.
+install(DIRECTORY scripts/optimal scripts/coverage scripts/utils
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  USE_SOURCE_PERMISSIONS
+  FILES_MATCHING PATTERN "*.py"
 )

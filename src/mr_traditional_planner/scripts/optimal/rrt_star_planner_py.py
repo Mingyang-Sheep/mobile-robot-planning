@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 import math
+import os
 import random
+import sys
 
 import rospy
 import tf
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
 
 
 class RRTStarNode:
@@ -43,26 +48,15 @@ class RRTStarPlannerNode:
         self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
 
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
-        self.inflation_offsets = []
+        self.grid_map = None
         self.obstacle_set = set()
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
-        self.build_obstacle_lookup()
+        self.grid_map = GridMap(msg)
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
     def goal_callback(self, msg):
-        if self.latest_map is None:
+        if self.grid_map is None:
             rospy.logwarn("RRT* Python: /map has not been received yet.")
             return
 
@@ -118,32 +112,8 @@ class RRTStarPlannerNode:
             )
             return None
 
-    def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
-        if self.latest_map is None or self.resolution <= 0.0:
-            return
-
-        self.precompute_inflation_offsets()
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
-
     def plan_path(self, start_x, start_y, goal_x, goal_y):
-        if self.distance(start_x, start_y, goal_x, goal_y) <= self.path_resolution and self.is_segment_free(
+        if euclidean_distance(start_x, start_y, goal_x, goal_y) <= self.path_resolution and self.is_segment_free(
             start_x, start_y, goal_x, goal_y
         ):
             return [(start_x, start_y), (goal_x, goal_y)]
@@ -161,7 +131,7 @@ class RRTStarPlannerNode:
                 continue
 
             new_node.parent_index = nearest_index
-            new_node.cost = nearest_node.cost + self.distance(
+            new_node.cost = nearest_node.cost + euclidean_distance(
                 nearest_node.x, nearest_node.y, new_node.x, new_node.y
             )
             near_indices = self.near_node_indices(nodes, new_node)
@@ -185,15 +155,16 @@ class RRTStarPlannerNode:
         if self.random.randint(0, 100) < self.goal_sample_rate:
             return RRTStarNode(goal_x, goal_y)
 
-        max_x = self.origin_x + self.map_width * self.resolution
-        max_y = self.origin_y + self.map_height * self.resolution
+        gm = self.grid_map
+        max_x = gm.origin_x + gm.width * gm.resolution
+        max_y = gm.origin_y + gm.height * gm.resolution
         return RRTStarNode(
-            self.random.uniform(self.origin_x, max_x),
-            self.random.uniform(self.origin_y, max_y),
+            self.random.uniform(gm.origin_x, max_x),
+            self.random.uniform(gm.origin_y, max_y),
         )
 
     def steer(self, from_node, to_node):
-        node_distance = self.distance(from_node.x, from_node.y, to_node.x, to_node.y)
+        node_distance = euclidean_distance(from_node.x, from_node.y, to_node.x, to_node.y)
         if node_distance <= self.expand_distance:
             return RRTStarNode(to_node.x, to_node.y)
 
@@ -232,7 +203,7 @@ class RRTStarPlannerNode:
             if not self.is_segment_free(near_node.x, near_node.y, new_node.x, new_node.y):
                 continue
 
-            candidate_cost = near_node.cost + self.distance(
+            candidate_cost = near_node.cost + euclidean_distance(
                 near_node.x, near_node.y, new_node.x, new_node.y
             )
             if candidate_cost < new_node.cost:
@@ -249,7 +220,7 @@ class RRTStarPlannerNode:
             if not self.is_segment_free(new_node.x, new_node.y, near_node.x, near_node.y):
                 continue
 
-            candidate_cost = new_node.cost + self.distance(
+            candidate_cost = new_node.cost + euclidean_distance(
                 new_node.x, new_node.y, near_node.x, near_node.y
             )
             if candidate_cost < near_node.cost:
@@ -263,7 +234,7 @@ class RRTStarPlannerNode:
             if node.parent_index != parent_index:
                 continue
 
-            node.cost = parent_node.cost + self.distance(
+            node.cost = parent_node.cost + euclidean_distance(
                 parent_node.x, parent_node.y, node.x, node.y
             )
             self.propagate_cost_to_children(nodes, index)
@@ -272,7 +243,7 @@ class RRTStarPlannerNode:
         best_index = -1
         best_cost = float("inf")
         for index, node in enumerate(nodes):
-            goal_distance = self.distance(node.x, node.y, goal_x, goal_y)
+            goal_distance = euclidean_distance(node.x, node.y, goal_x, goal_y)
             if goal_distance > self.expand_distance:
                 continue
             if not self.is_segment_free(node.x, node.y, goal_x, goal_y):
@@ -298,12 +269,12 @@ class RRTStarPlannerNode:
     def is_world_point_free(self, world_x, world_y):
         if not self.world_in_bounds(world_x, world_y):
             return False
-        grid_x, grid_y = self.world_to_grid(world_x, world_y)
-        return self.to_index(grid_x, grid_y) not in self.obstacle_set
+        grid_x, grid_y = self.grid_map.world_to_grid(world_x, world_y)
+        return self.grid_map.to_index(grid_x, grid_y) not in self.obstacle_set
 
     def is_segment_free(self, from_x, from_y, to_x, to_y):
-        segment_length = self.distance(from_x, from_y, to_x, to_y)
-        collision_step = max(1.0e-6, min(self.path_resolution, self.resolution * 0.5))
+        segment_length = euclidean_distance(from_x, from_y, to_x, to_y)
+        collision_step = max(1.0e-6, min(self.path_resolution, self.grid_map.resolution * 0.5))
         steps = max(1, int(math.ceil(segment_length / collision_step)))
 
         for step in range(steps + 1):
@@ -330,25 +301,11 @@ class RRTStarPlannerNode:
         self.path_pub.publish(path_msg)
 
     def world_in_bounds(self, world_x, world_y):
+        gm = self.grid_map
         return (
-            self.origin_x <= world_x < self.origin_x + self.map_width * self.resolution
-            and self.origin_y <= world_y < self.origin_y + self.map_height * self.resolution
+            gm.origin_x <= world_x < gm.origin_x + gm.width * gm.resolution
+            and gm.origin_y <= world_y < gm.origin_y + gm.height * gm.resolution
         )
-
-    def world_to_grid(self, world_x, world_y):
-        return int((world_x - self.origin_x) / self.resolution), int(
-            (world_y - self.origin_y) / self.resolution
-        )
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
-
-    @staticmethod
-    def distance(from_x, from_y, to_x, to_y):
-        return math.hypot(to_x - from_x, to_y - from_y)
 
 
 if __name__ == "__main__":

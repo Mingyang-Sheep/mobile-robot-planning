@@ -2,6 +2,8 @@
 from collections import deque
 import heapq
 import math
+import os
+import sys
 
 import actionlib
 import rospy
@@ -10,6 +12,9 @@ from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import OccupancyGrid, Path
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils.math_utils import GridMap, build_obstacle_set, manhattan_distance, sign
 
 
 class GridNode:
@@ -47,12 +52,7 @@ class StcPlannerNode:
         # 统一以 /move_base 为动作客户端接口，覆盖算法只负责编排 Waypoints。
         self.move_base_client = actionlib.SimpleActionClient("/move_base", MoveBaseAction)
         self.tf_listener = tf.TransformListener()
-        self.latest_map = None
-        self.map_width = 0
-        self.map_height = 0
-        self.resolution = 0.0
-        self.origin_x = 0.0
-        self.origin_y = 0.0
+        self.grid_map = None
 
         # 0.15m 与其它传统算法保持一致，确保所有算法共用同一套碰撞边界。
         self.robot_radius = 0.15
@@ -60,7 +60,6 @@ class StcPlannerNode:
         self.tree_spacing = 0.2
         # 单个 waypoint 超时后直接跳过，避免整条覆盖链路被单点卡住。
         self.goal_timeout = 30.0
-        self.inflation_offsets = []
         self.obstacle_set = set()
         self.is_executing = False
 
@@ -73,13 +72,8 @@ class StcPlannerNode:
         ]
 
     def map_callback(self, msg):
-        self.latest_map = msg
-        self.map_width = msg.info.width
-        self.map_height = msg.info.height
-        self.resolution = msg.info.resolution
-        self.origin_x = msg.info.origin.position.x
-        self.origin_y = msg.info.origin.position.y
-        self.build_obstacle_lookup()
+        self.grid_map = GridMap(msg)
+        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
 
     def goal_callback(self, msg):
         if msg.header.frame_id and msg.header.frame_id != "map":
@@ -95,7 +89,7 @@ class StcPlannerNode:
             rospy.logwarn("STC Python: 当前仍在执行覆盖任务，忽略重复触发。")
             return
 
-        if self.latest_map is None:
+        if self.grid_map is None:
             rospy.logwarn("STC Python: /map 尚未收到，无法开始覆盖规划。")
             return
 
@@ -104,12 +98,12 @@ class StcPlannerNode:
             return
 
         # 关键步骤：STC 规划也沿用与 A* 完全一致的 world -> grid 映射公式。
-        start_x, start_y = self.world_to_grid(start_world[0], start_world[1])
-        if not self.in_bounds(start_x, start_y):
+        start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
+        if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("STC Python: 清扫起点超出地图范围，停止执行。")
             return
 
-        start_index = self.to_index(start_x, start_y)
+        start_index = self.grid_map.to_index(start_x, start_y)
         if start_index in self.obstacle_set:
             rospy.logwarn("STC Python: 清扫起点位于障碍物膨胀区内，停止执行。")
             return
@@ -160,42 +154,12 @@ class StcPlannerNode:
             rospy.logwarn("STC Python: 等待 /move_base Action Server 启动。")
         return False
 
-    def build_obstacle_lookup(self):
-        self.obstacle_set.clear()
-        if self.latest_map is None or self.resolution <= 0.0:
-            return
-
-        self.precompute_inflation_offsets()
-
-        for linear_index, occupancy in enumerate(self.latest_map.data):
-            # 与 A* / Dijkstra / BCD 保持一致：未知区与占用概率 >= 50 的栅格都视为障碍。
-            if occupancy < 0 or occupancy >= 50:
-                obstacle_x = linear_index % self.map_width
-                obstacle_y = linear_index // self.map_width
-
-                for offset_x, offset_y in self.inflation_offsets:
-                    inflated_x = obstacle_x + offset_x
-                    inflated_y = obstacle_y + offset_y
-
-                    if self.in_bounds(inflated_x, inflated_y):
-                        self.obstacle_set.add(self.to_index(inflated_x, inflated_y))
-
-    def precompute_inflation_offsets(self):
-        self.inflation_offsets = []
-        inflation_radius_in_cells = int(math.ceil(self.robot_radius / self.resolution))
-
-        for offset_y in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-            for offset_x in range(-inflation_radius_in_cells, inflation_radius_in_cells + 1):
-                # 关键步骤：仍使用欧式距离做圆形膨胀，确保所有传统算法的碰撞边界一致。
-                if math.hypot(offset_x, offset_y) * self.resolution <= self.robot_radius:
-                    self.inflation_offsets.append((offset_x, offset_y))
-
     def build_coverage_path(self, start_x, start_y):
-        if self.latest_map is None or self.resolution <= 0.0:
+        if self.grid_map is None or self.grid_map.resolution <= 0.0:
             return []
 
         # 0.2m 统一换算为 STC 粗栅格步长，贴近旧 spiral_stc 的缩放网格思路。
-        coarse_step_cells = max(1, int(round(self.tree_spacing / self.resolution)))
+        coarse_step_cells = max(1, int(round(self.tree_spacing / self.grid_map.resolution)))
         free_grid = self.build_free_coarse_grid(coarse_step_cells)
         if not free_grid or not free_grid[0]:
             return []
@@ -238,33 +202,33 @@ class StcPlannerNode:
         current_x, current_y = start_x, start_y
 
         for linear_index in center_sequence:
-            target_x, target_y = self.index_to_grid(linear_index)
+            target_x, target_y = self.grid_map.index_to_grid(linear_index)
             connector = self.plan_safe_path(current_x, current_y, target_x, target_y)
             if not connector:
                 rospy.logwarn("STC Python: 无法安全连接到下一个生成树节点，跳过该节点。")
                 continue
 
             self.append_indices(dense_path, connector)
-            current_x, current_y = self.index_to_grid(dense_path[-1])
+            current_x, current_y = self.grid_map.index_to_grid(dense_path[-1])
 
         return dense_path
 
     def build_free_coarse_grid(self, coarse_step_cells):
-        coarse_width = int(math.ceil(float(self.map_width) / coarse_step_cells))
-        coarse_height = int(math.ceil(float(self.map_height) / coarse_step_cells))
+        coarse_width = int(math.ceil(float(self.grid_map.width) / coarse_step_cells))
+        coarse_height = int(math.ceil(float(self.grid_map.height) / coarse_step_cells))
         free_grid = [[False for _ in range(coarse_width)] for _ in range(coarse_height)]
 
         for coarse_y in range(coarse_height):
             for coarse_x in range(coarse_width):
                 anchor_x = coarse_x * coarse_step_cells
                 anchor_y = coarse_y * coarse_step_cells
-                end_x = min(anchor_x + coarse_step_cells, self.map_width)
-                end_y = min(anchor_y + coarse_step_cells, self.map_height)
+                end_x = min(anchor_x + coarse_step_cells, self.grid_map.width)
+                end_y = min(anchor_y + coarse_step_cells, self.grid_map.height)
                 is_free = True
 
                 for grid_y in range(anchor_y, end_y):
                     for grid_x in range(anchor_x, end_x):
-                        if self.is_obstacle(grid_x, grid_y):
+                        if self.grid_map.is_obstacle(grid_x, grid_y, self.obstacle_set):
                             is_free = False
                             break
                     if not is_free:
@@ -403,26 +367,26 @@ class StcPlannerNode:
     def append_coarse_centers(self, center_sequence, coarse_path, coarse_step_cells):
         for coarse_x, coarse_y in coarse_path:
             center_x, center_y = self.coarse_center(coarse_x, coarse_y, coarse_step_cells)
-            linear_index = self.to_index(center_x, center_y)
+            linear_index = self.grid_map.to_index(center_x, center_y)
             if not center_sequence or center_sequence[-1] != linear_index:
                 center_sequence.append(linear_index)
 
     def coarse_center(self, coarse_x, coarse_y, coarse_step_cells):
         anchor_x = coarse_x * coarse_step_cells
         anchor_y = coarse_y * coarse_step_cells
-        block_width = min(coarse_step_cells, self.map_width - anchor_x)
-        block_height = min(coarse_step_cells, self.map_height - anchor_y)
+        block_width = min(coarse_step_cells, self.grid_map.width - anchor_x)
+        block_height = min(coarse_step_cells, self.grid_map.height - anchor_y)
         return (
             anchor_x + max(0, block_width - 1) // 2,
             anchor_y + max(0, block_height - 1) // 2,
         )
 
     def plan_safe_path(self, start_x, start_y, goal_x, goal_y):
-        if not self.in_bounds(start_x, start_y) or not self.in_bounds(goal_x, goal_y):
+        if not self.grid_map.in_bounds(start_x, start_y) or not self.grid_map.in_bounds(goal_x, goal_y):
             return []
 
-        start_index = self.to_index(start_x, start_y)
-        goal_index = self.to_index(goal_x, goal_y)
+        start_index = self.grid_map.to_index(start_x, start_y)
+        goal_index = self.grid_map.to_index(goal_x, goal_y)
 
         if start_index in self.obstacle_set or goal_index in self.obstacle_set:
             return []
@@ -430,7 +394,7 @@ class StcPlannerNode:
         if start_index == goal_index:
             return [start_index]
 
-        start_h = self.heuristic(start_x, start_y, goal_x, goal_y)
+        start_h = manhattan_distance(start_x, start_y, goal_x, goal_y)
         node_lookup = {start_index: GridNode(start_x, start_y, 0.0, start_h, -1)}
         closed_set = set()
         open_heap = [(start_h, start_h, start_index)]
@@ -451,15 +415,15 @@ class StcPlannerNode:
                 next_x = current_node.x + step_x
                 next_y = current_node.y + step_y
 
-                if not self.in_bounds(next_x, next_y):
+                if not self.grid_map.in_bounds(next_x, next_y):
                     continue
 
-                next_index = self.to_index(next_x, next_y)
+                next_index = self.grid_map.to_index(next_x, next_y)
                 if next_index in self.obstacle_set or next_index in closed_set:
                     continue
 
                 tentative_g = current_node.g + step_cost
-                heuristic_cost = self.heuristic(next_x, next_y, goal_x, goal_y)
+                heuristic_cost = manhattan_distance(next_x, next_y, goal_x, goal_y)
 
                 existing_node = node_lookup.get(next_index)
                 if existing_node is not None and tentative_g >= existing_node.g:
@@ -496,9 +460,9 @@ class StcPlannerNode:
         previous_direction = None
 
         for waypoint_index in range(1, len(dense_path)):
-            prev_x, prev_y = self.index_to_grid(dense_path[waypoint_index - 1])
-            curr_x, curr_y = self.index_to_grid(dense_path[waypoint_index])
-            direction = (self.sign(curr_x - prev_x), self.sign(curr_y - prev_y))
+            prev_x, prev_y = self.grid_map.index_to_grid(dense_path[waypoint_index - 1])
+            curr_x, curr_y = self.grid_map.index_to_grid(dense_path[waypoint_index])
+            direction = (sign(curr_x - prev_x), sign(curr_y - prev_y))
 
             if previous_direction is None:
                 previous_direction = direction
@@ -513,17 +477,6 @@ class StcPlannerNode:
 
         return compressed_path
 
-    def sign(self, value):
-        if value > 0:
-            return 1
-        if value < 0:
-            return -1
-        return 0
-
-    def heuristic(self, grid_x, grid_y, goal_x, goal_y):
-        # 关键步骤：细栅格安全连接统一使用曼哈顿启发式，匹配 4 邻域搜索并避免不必要的斜穿。
-        return abs(goal_x - grid_x) + abs(goal_y - grid_y)
-
     def compute_waypoint_yaw(self, path_indices, waypoint_index):
         if len(path_indices) < 2:
             return 0.0
@@ -536,10 +489,10 @@ class StcPlannerNode:
         else:
             from_index = path_indices[waypoint_index - 1]
 
-        from_grid_x, from_grid_y = self.index_to_grid(from_index)
-        to_grid_x, to_grid_y = self.index_to_grid(to_index)
-        from_world_x, from_world_y = self.grid_to_world(from_grid_x, from_grid_y)
-        to_world_x, to_world_y = self.grid_to_world(to_grid_x, to_grid_y)
+        from_grid_x, from_grid_y = self.grid_map.index_to_grid(from_index)
+        to_grid_x, to_grid_y = self.grid_map.index_to_grid(to_index)
+        from_world_x, from_world_y = self.grid_map.grid_to_world(from_grid_x, from_grid_y)
+        to_world_x, to_world_y = self.grid_map.grid_to_world(to_grid_x, to_grid_y)
         return math.atan2(to_world_y - from_world_y, to_world_x - from_world_x)
 
     def publish_path(self, path_indices):
@@ -548,9 +501,9 @@ class StcPlannerNode:
         path_msg.header.frame_id = "map"
 
         for waypoint_index, linear_index in enumerate(path_indices):
-            grid_x, grid_y = self.index_to_grid(linear_index)
+            grid_x, grid_y = self.grid_map.index_to_grid(linear_index)
             # 关键步骤：发布可视化路径时仍取栅格中心点，保持与其它传统算法一致的坐标定义。
-            world_x, world_y = self.grid_to_world(grid_x, grid_y)
+            world_x, world_y = self.grid_map.grid_to_world(grid_x, grid_y)
             yaw = self.compute_waypoint_yaw(path_indices, waypoint_index)
             quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
 
@@ -568,8 +521,8 @@ class StcPlannerNode:
 
     def execute_coverage_path(self, path_indices):
         for waypoint_index, linear_index in enumerate(path_indices):
-            grid_x, grid_y = self.index_to_grid(linear_index)
-            world_x, world_y = self.grid_to_world(grid_x, grid_y)
+            grid_x, grid_y = self.grid_map.index_to_grid(linear_index)
+            world_x, world_y = self.grid_map.grid_to_world(grid_x, grid_y)
             yaw = self.compute_waypoint_yaw(path_indices, waypoint_index)
             quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
 
@@ -596,30 +549,6 @@ class StcPlannerNode:
                     waypoint_index,
                     self.move_base_client.get_state(),
                 )
-
-    def world_to_grid(self, world_x, world_y):
-        grid_x = int((world_x - self.origin_x) / self.resolution)
-        grid_y = int((world_y - self.origin_y) / self.resolution)
-        return grid_x, grid_y
-
-    def grid_to_world(self, grid_x, grid_y):
-        world_x = self.origin_x + (grid_x + 0.5) * self.resolution
-        world_y = self.origin_y + (grid_y + 0.5) * self.resolution
-        return world_x, world_y
-
-    def to_index(self, grid_x, grid_y):
-        return grid_y * self.map_width + grid_x
-
-    def index_to_grid(self, linear_index):
-        return linear_index % self.map_width, linear_index // self.map_width
-
-    def in_bounds(self, grid_x, grid_y):
-        return 0 <= grid_x < self.map_width and 0 <= grid_y < self.map_height
-
-    def is_obstacle(self, grid_x, grid_y):
-        if not self.in_bounds(grid_x, grid_y):
-            return True
-        return self.to_index(grid_x, grid_y) in self.obstacle_set
 
 
 if __name__ == "__main__":

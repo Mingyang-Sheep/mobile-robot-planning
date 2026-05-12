@@ -1,11 +1,17 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(mr_msgs)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+  message_generation
+  std_msgs
+)
 
-catkin_package()
+add_message_files(FILES
+  PlannerResult.msg
+)
 
-install(DIRECTORY msg
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  USE_SOURCE_PERMISSIONS
+generate_messages(DEPENDENCIES std_msgs)
+
+catkin_package(
+  CATKIN_DEPENDS message_runtime std_msgs
 )

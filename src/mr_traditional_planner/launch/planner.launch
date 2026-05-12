@@ -1,5 +1,5 @@
 <launch>
-  <!-- 统一切换入口：C++ 通过 pluginlib 参数加载，Python 保持脚本入口兼容。 -->
+  <!-- 统一切换入口：C++ 和 Python 均通过参数动态加载算法模块。 -->
   <arg name="algorithm" default="astar"/>
   <arg name="impl" default="cpp"/>
   <arg name="planner_plugin" default=""/>
@@ -11,27 +11,10 @@
     </node>
   </group>
 
-  <include if="$(eval arg('algorithm') == 'astar' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/astar_py.launch"/>
-
-  <include if="$(eval arg('algorithm') == 'dijkstra' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/dijkstra_py.launch"/>
-  <include if="$(eval arg('algorithm') == 'dstar' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/dstar_py.launch"/>
-  <include if="$(eval arg('algorithm') == 'dstar_lite' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/dstar_lite_py.launch"/>
-  <include if="$(eval arg('algorithm') == 'theta_star' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/theta_star_py.launch"/>
-  <include if="$(eval arg('algorithm') == 'rrt_star' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/rrt_star_py.launch"/>
-  <include if="$(eval arg('algorithm') == 'dwa' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/dwa_py.launch"/>
-  <include if="$(eval arg('algorithm') == 'cubic_spline' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/cubic_spline_py.launch"/>
-
-  <include if="$(eval arg('algorithm') == 'bcd' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/bcd_py.launch"/>
-
-  <include if="$(eval arg('algorithm') == 'stc' and arg('impl') == 'py')"
-           file="$(find mr_traditional_planner)/launch/stc_py.launch"/>
+  <group if="$(eval arg('impl') == 'py')">
+    <node pkg="mr_traditional_planner" type="python_planner_node.py"
+          name="python_planner_node" output="screen">
+      <param name="algorithm" value="$(arg algorithm)"/>
+    </node>
+  </group>
 </launch>
