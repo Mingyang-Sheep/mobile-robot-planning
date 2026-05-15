@@ -528,6 +528,12 @@ mr_navigation_BINARY_DIR:STATIC=/home/lmy/mobile_robot_benchmark/build/mr_naviga
 mr_navigation_SOURCE_DIR:STATIC=/home/lmy/mobile_robot_benchmark/src/mr_navigation
 
 //Value Computed by CMake
+mr_slam_BINARY_DIR:STATIC=/home/lmy/mobile_robot_benchmark/build/mr_slam
+
+//Value Computed by CMake
+mr_slam_SOURCE_DIR:STATIC=/home/lmy/mobile_robot_benchmark/src/mr_slam
+
+//Value Computed by CMake
 mr_traditional_planner_BINARY_DIR:STATIC=/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner
 
 //Value Computed by CMake
@@ -744,7 +750,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=11
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=12
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

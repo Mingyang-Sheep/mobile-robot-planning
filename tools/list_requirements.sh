@@ -13,6 +13,7 @@ SYSTEM_PACKAGES=(
   git
   python3
   python3-pip
+  python3-numpy
   python3-rosdep
   python3-catkin-pkg
   python3-empy
@@ -32,13 +33,27 @@ ROS_PACKAGES=(
   ros-noetic-dwa-local-planner
   ros-noetic-actionlib
   ros-noetic-actionlib-msgs
+  ros-noetic-gazebo-msgs
   ros-noetic-geometry-msgs
+  ros-noetic-message-generation
+  ros-noetic-message-runtime
   ros-noetic-move-base-msgs
   ros-noetic-nav-msgs
+  ros-noetic-pluginlib
   ros-noetic-roscpp
   ros-noetic-rospy
+  ros-noetic-sensor-msgs
+  ros-noetic-std-msgs
+  ros-noetic-std-srvs
   ros-noetic-tf
+  ros-noetic-gmapping
+  ros-noetic-hector-mapping
   ros-noetic-rviz
+)
+
+PYTHON_MODULES=(
+  numpy
+  torch
 )
 
 GAZEBO_PLUGINS=(
@@ -85,6 +100,15 @@ ros_package_status() {
     printf '  [OK] %s\n' "${pkg}"
   else
     printf '  [MISSING] %s\n' "${pkg}"
+  fi
+}
+
+python_module_status() {
+  local module="$1"
+  if python3 -c "import importlib.util, sys; sys.exit(0 if importlib.util.find_spec('${module}') else 1)" >/dev/null 2>&1; then
+    printf '  [OK] %s\n' "${module}"
+  else
+    printf '  [MISSING] %s\n' "${module}"
   fi
 }
 
@@ -138,9 +162,12 @@ print_install_examples() {
 
   2. 安装系统工具
      sudo apt-get update
-     sudo apt-get install -y build-essential cmake git python3 python3-pip python3-rosdep python3-catkin-pkg python3-empy
+     sudo apt-get install -y build-essential cmake git python3 python3-pip python3-numpy python3-rosdep python3-catkin-pkg python3-empy
 
-  3. 安装 ROS / Gazebo 依赖
+  3. 安装 Python 训练依赖
+     python3 -m pip install --user torch
+
+  4. 安装 ROS / Gazebo 依赖
      sudo apt-get install -y \
        ros-noetic-desktop-full \
        ros-noetic-xacro \
@@ -155,15 +182,29 @@ print_install_examples() {
        ros-noetic-dwa-local-planner \
        ros-noetic-actionlib \
        ros-noetic-actionlib-msgs \
+       ros-noetic-gazebo-msgs \
        ros-noetic-geometry-msgs \
+       ros-noetic-message-generation \
+       ros-noetic-message-runtime \
        ros-noetic-move-base-msgs \
        ros-noetic-nav-msgs \
+       ros-noetic-pluginlib \
        ros-noetic-roscpp \
        ros-noetic-rospy \
+       ros-noetic-sensor-msgs \
+       ros-noetic-std-msgs \
+       ros-noetic-std-srvs \
        ros-noetic-tf \
+       ros-noetic-gmapping \
+       ros-noetic-hector-mapping \
        ros-noetic-rviz
 
-  4. 构建工作区
+  5. 用 rosdep 复核 package.xml 依赖
+     source /opt/ros/noetic/setup.bash
+     cd /home/lmy/mobile_robot_benchmark
+     rosdep install --from-paths src --ignore-src -r -y
+
+  6. 构建工作区
      source /opt/ros/noetic/setup.bash
      cd /home/lmy/mobile_robot_benchmark
      catkin_make
@@ -193,6 +234,9 @@ print_repo_requirements() {
   print_section "ROS / Gazebo 层依赖"
   print_list "${ROS_PACKAGES[@]}"
 
+  print_section "Python 模块依赖"
+  print_list "${PYTHON_MODULES[@]}"
+
   print_section "Gazebo 必需插件"
   print_list "${GAZEBO_PLUGINS[@]}"
 
@@ -217,11 +261,20 @@ print_repo_requirements() {
     rviz \
     actionlib \
     actionlib_msgs \
+    gazebo_msgs \
     geometry_msgs \
+    message_generation \
+    message_runtime \
     move_base_msgs \
     nav_msgs \
+    pluginlib \
     roscpp \
     rospy \
+    sensor_msgs \
+    std_msgs \
+    std_srvs \
+    gmapping \
+    hector_mapping \
     tf
 }
 
@@ -229,6 +282,7 @@ run_quick_checks() {
   print_section "基础命令检查"
   command_status bash
   command_status python3
+  command_status pip3
   command_status git
   command_status cmake
   command_status roscore
@@ -254,12 +308,25 @@ run_quick_checks() {
   ros_package_status rviz
   ros_package_status actionlib
   ros_package_status actionlib_msgs
+  ros_package_status gazebo_msgs
   ros_package_status geometry_msgs
+  ros_package_status message_generation
+  ros_package_status message_runtime
   ros_package_status move_base_msgs
   ros_package_status nav_msgs
+  ros_package_status pluginlib
   ros_package_status roscpp
   ros_package_status rospy
+  ros_package_status sensor_msgs
+  ros_package_status std_msgs
+  ros_package_status std_srvs
+  ros_package_status gmapping
+  ros_package_status hector_mapping
   ros_package_status tf
+
+  print_section "Python 模块检查"
+  python_module_status numpy
+  python_module_status torch
 
   print_section "Gazebo 插件库检查"
   plugin_status libgazebo_ros_diff_drive.so
@@ -271,6 +338,7 @@ run_quick_checks() {
   file_status "${SRC_ROOT}/mr_gazebo"
   file_status "${SRC_ROOT}/mr_maps"
   file_status "${SRC_ROOT}/mr_navigation"
+  file_status "${SRC_ROOT}/mr_slam"
   file_status "${SRC_ROOT}/mr_traditional_planner"
   file_status "${GAZEBO_MODELS_DIR}"
   file_status "${GAZEBO_WORLDS_DIR}"
@@ -280,6 +348,11 @@ run_quick_checks() {
   file_status "${SRC_ROOT}/mr_gazebo/launch/spawn_navigation_world.launch"
   file_status "${SRC_ROOT}/mr_navigation/launch/navigation.launch"
   file_status "${SRC_ROOT}/mr_navigation/launch/navigation_sim.launch"
+  file_status "${SRC_ROOT}/mr_slam/launch/slam.launch"
+  file_status "${SRC_ROOT}/mr_slam/launch/gmapping.launch"
+  file_status "${SRC_ROOT}/mr_slam/launch/hector.launch"
+  file_status "${SRC_ROOT}/mr_slam/config/gmapping_params.yaml"
+  file_status "${SRC_ROOT}/mr_slam/config/hector.yaml"
   file_status "${SRC_ROOT}/mr_traditional_planner/launch/planner.launch"
   file_status "${SRC_ROOT}/mr_traditional_planner/launch/planner_sim.launch"
   file_status "${SRC_ROOT}/mr_description/urdf/turtlebot3_burger.urdf.xacro"

@@ -50,6 +50,13 @@
 /home/lmy/mobile_robot_benchmark/build/mr_navigation/CMakeFiles/rebuild_cache.dir
 /home/lmy/mobile_robot_benchmark/build/mr_navigation/CMakeFiles/edit_cache.dir
 /home/lmy/mobile_robot_benchmark/build/mr_navigation/CMakeFiles/test.dir
+/home/lmy/mobile_robot_benchmark/build/mr_slam/CMakeFiles/install/strip.dir
+/home/lmy/mobile_robot_benchmark/build/mr_slam/CMakeFiles/install/local.dir
+/home/lmy/mobile_robot_benchmark/build/mr_slam/CMakeFiles/install.dir
+/home/lmy/mobile_robot_benchmark/build/mr_slam/CMakeFiles/list_install_components.dir
+/home/lmy/mobile_robot_benchmark/build/mr_slam/CMakeFiles/rebuild_cache.dir
+/home/lmy/mobile_robot_benchmark/build/mr_slam/CMakeFiles/edit_cache.dir
+/home/lmy/mobile_robot_benchmark/build/mr_slam/CMakeFiles/test.dir
 /home/lmy/mobile_robot_benchmark/build/mr_msgs/CMakeFiles/install/local.dir
 /home/lmy/mobile_robot_benchmark/build/mr_msgs/CMakeFiles/rebuild_cache.dir
 /home/lmy/mobile_robot_benchmark/build/mr_msgs/CMakeFiles/edit_cache.dir

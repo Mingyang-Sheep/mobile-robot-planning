@@ -56,6 +56,7 @@ CMAKE_BINARY_DIR = /home/lmy/mobile_robot_benchmark/build
 all: gtest/all
 all: mr_maps/all
 all: mr_navigation/all
+all: mr_slam/all
 all: mr_msgs/all
 all: mr_learning/all
 all: mr_traditional_planner/all
@@ -68,6 +69,7 @@ all: mr_gazebo/all
 preinstall: gtest/preinstall
 preinstall: mr_maps/preinstall
 preinstall: mr_navigation/preinstall
+preinstall: mr_slam/preinstall
 preinstall: mr_msgs/preinstall
 preinstall: mr_learning/preinstall
 preinstall: mr_traditional_planner/preinstall
@@ -85,6 +87,7 @@ clean: CMakeFiles/download_extra_data.dir/clean
 clean: gtest/clean
 clean: mr_maps/clean
 clean: mr_navigation/clean
+clean: mr_slam/clean
 clean: mr_msgs/clean
 clean: mr_learning/clean
 clean: mr_traditional_planner/clean
@@ -273,6 +276,24 @@ mr_navigation/preinstall:
 mr_navigation/clean:
 
 .PHONY : mr_navigation/clean
+
+#=============================================================================
+# Directory level rules for directory mr_slam
+
+# Recursive "all" directory target.
+mr_slam/all:
+
+.PHONY : mr_slam/all
+
+# Recursive "preinstall" directory target.
+mr_slam/preinstall:
+
+.PHONY : mr_slam/preinstall
+
+# Recursive "clean" directory target.
+mr_slam/clean:
+
+.PHONY : mr_slam/clean
 
 #=============================================================================
 # Directory level rules for directory mr_traditional_planner

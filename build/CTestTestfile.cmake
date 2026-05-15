@@ -7,6 +7,7 @@
 subdirs("gtest")
 subdirs("mr_maps")
 subdirs("mr_navigation")
+subdirs("mr_slam")
 subdirs("mr_msgs")
 subdirs("mr_learning")
 subdirs("mr_traditional_planner")

@@ -1,0 +1,25 @@
+<launch>
+  <!-- One-command SLAM simulation: Gazebo + robot + SLAM + RViz.
+       Usage: roslaunch mr_slam slam_sim.launch slam_method:=gmapping stage:=1 -->
+  <arg name="slam_method" default="gmapping"/>
+  <arg name="model" default="turtlebot3_burger"/>
+  <arg name="stage" default="1"/>
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="odom_topic" default="/odom"/>
+
+  <!-- Gazebo + robot (reuses mr_gazebo). -->
+  <include file="$(find mr_gazebo)/launch/spawn_robot.launch">
+    <arg name="stage" value="$(arg stage)"/>
+    <arg name="robot_model" value="$(arg model)"/>
+  </include>
+
+  <!-- SLAM. -->
+  <include file="$(find mr_slam)/launch/slam.launch">
+    <arg name="slam_method" value="$(arg slam_method)"/>
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+  </include>
+
+  <!-- RViz with default config. -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mr_navigation)/rviz/navigation.rviz"/>
+</launch>

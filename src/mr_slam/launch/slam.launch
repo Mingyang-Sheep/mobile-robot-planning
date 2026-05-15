@@ -1,0 +1,19 @@
+<launch>
+  <!-- Unified SLAM entry: switch algorithm via slam_method argument.
+       Usage: roslaunch mr_slam slam.launch slam_method:=gmapping
+       Available: gmapping, hector -->
+  <arg name="slam_method" default="gmapping"/>
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="odom_topic" default="/odom"/>
+  <arg name="base_frame" default="base_footprint"/>
+  <arg name="odom_frame" default="odom"/>
+  <arg name="map_frame" default="map"/>
+
+  <include file="$(find mr_slam)/launch/$(arg slam_method).launch">
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="base_frame" value="$(arg base_frame)"/>
+    <arg name="odom_frame" value="$(arg odom_frame)"/>
+    <arg name="map_frame" value="$(arg map_frame)"/>
+  </include>
+</launch>
