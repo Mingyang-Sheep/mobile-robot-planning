@@ -1,2 +1,0 @@
-mr_description:mr_gazebo:mr_learning:mr_maps:mr_msgs:mr_navigation:mr_slam:mr_traditional_planner
--G Ninja -DCATKIN_DEVEL_PREFIX=/home/lmy/mobile_robot_benchmark/devel_isolated -DCMAKE_INSTALL_PREFIX=/home/lmy/mobile_robot_benchmark/install_isolated
