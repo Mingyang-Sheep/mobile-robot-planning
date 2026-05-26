@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<robot name="go2w_description" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find go2w_description)/urdf/go2w_description.urdf"/>
+
+    <link name="base_scan">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.035" length="0.035"/>
+            </geometry>
+            <material name="base_scan_black">
+                <color rgba="0.02 0.02 0.02 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.035" length="0.035"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.02"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="1e-5" ixy="0" ixz="0" iyy="1e-5" iyz="0" izz="1e-5"/>
+        </inertial>
+    </link>
+
+    <joint name="base_scan_joint" type="fixed">
+        <origin xyz="0 0 0.20" rpy="0 0 0"/>
+        <parent link="trunk"/>
+        <child link="base_scan"/>
+    </joint>
+
+    <xacro:include filename="$(find go2w_description)/xacro/gazebo.xacro"/>
+
+</robot>

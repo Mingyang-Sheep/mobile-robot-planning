@@ -4,6 +4,7 @@
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="odom_topic" default="/odom"/>
   <arg name="move_forward_only" default="false"/>
+  <arg name="controller_frequency" default="10.0"/>
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <!-- 专有参数按 model 动态拼接，后续新增 husky 只需补 _husky.yaml。 -->
@@ -14,6 +15,7 @@
     <rosparam file="$(find mr_navigation)/config/global_costmap_params.yaml" command="load"/>
     <rosparam file="$(find mr_navigation)/config/move_base_params.yaml" command="load"/>
     <rosparam file="$(find mr_navigation)/config/dwa_local_planner_params_$(arg model).yaml" command="load"/>
+    <param name="controller_frequency" value="$(arg controller_frequency)"/>
 
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
     <remap from="odom" to="$(arg odom_topic)"/>

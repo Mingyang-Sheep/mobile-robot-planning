@@ -10,10 +10,15 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>gazebo_ros</depend>
+  <depend>gazebo_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>robot_state_publisher</depend>
+  <depend>rospy</depend>
+  <depend>tf</depend>
   <depend>xacro</depend>
 
   <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>go2w_description</exec_depend>
   <exec_depend>mr_description</exec_depend>
 
   <export/>

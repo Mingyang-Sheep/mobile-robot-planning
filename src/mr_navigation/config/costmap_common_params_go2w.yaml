@@ -1,0 +1,28 @@
+# Go2W 仿真激光能参与障碍物写入的最远距离。
+obstacle_range: 4.0
+# 激光射线清障的最远距离，略大于障碍写入距离，避免旧障碍残留。
+raytrace_range: 5.0
+
+# Go2W 轮腿本体按保守外包络定义 footprint，给迷宫贴墙通行留出余量。
+footprint: [[-0.35, -0.22], [-0.35, 0.22], [0.35, 0.22], [0.35, -0.22]]
+
+# 膨胀半径略大于外包络半径，优先避免轮腿贴墙。
+inflation_radius: 0.35
+# 代价值衰减斜率取 4.0，在“离墙更安全”和“窄路还能过”之间折中。
+cost_scaling_factor: 3.0
+
+# 统一使用 ROS costmap 二维代价地图类型，便于不同底盘复用同一导航栈接口。
+map_type: costmap
+# 当前以 Go2W 顶部仿真 2D 激光作为观测源。
+observation_sources: scan
+scan:
+  # 激光参考坐标系由 go2w_description/xacro/robot.xacro 中的 base_scan 固定关节提供。
+  sensor_frame: base_scan
+  # 观测数据类型固定为 LaserScan，兼容 ROS 1 常见 2D 激光雷达。
+  data_type: LaserScan
+  # 激光话题统一对齐到 /scan，保证导航层接口一致。
+  topic: /scan
+  # 开启障碍写入，使局部/全局代价地图都能感知前方障碍。
+  marking: true
+  # 开启清障，使机器人移动后旧障碍能被射线更新清除。
+  clearing: true

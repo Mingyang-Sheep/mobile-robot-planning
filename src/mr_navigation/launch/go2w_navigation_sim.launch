@@ -1,0 +1,183 @@
+<launch>
+  <!-- Go2W RL-SAR navigation entry: maze_2 world + maze_2_hector map. -->
+  <arg name="model" default="go2w"/>
+  <arg name="map_name" default="maze_2_hector"/>
+  <arg name="world_name" default="$(find mr_gazebo)/worlds/maze_2.world"/>
+
+  <arg name="robot_name" default="go2w"/>
+  <arg name="gazebo_model_name" default="$(arg robot_name)_gazebo"/>
+  <arg name="x" default="1.7"/>
+  <arg name="y" default="0.8"/>
+  <arg name="z" default="0.55"/>
+  <arg name="yaw" default="1.5708"/>
+  <arg name="robot_base_height" default="0.34"/>
+
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="rviz" default="true"/>
+
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="odom_topic" default="/odom"/>
+  <arg name="move_base_cmd_vel_topic" default="/move_base_cmd_vel"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="move_forward_only" default="false"/>
+  <arg name="auto_start_rl" default="true"/>
+  <arg name="start_navigation_mode" default="true"/>
+  <arg name="auto_locomotion_delay" default="7.0"/>
+  <arg name="rl_cmd_vel_input_rate" default="20.0"/>
+  <arg name="use_cmd_vel_filter" default="true"/>
+  <arg name="cmd_vel_min_x" default="0.16"/>
+  <arg name="cmd_vel_max_x" default="0.65"/>
+  <arg name="cmd_vel_max_yaw" default="1.00"/>
+  <arg name="cmd_vel_max_acc_x" default="0.60"/>
+  <arg name="cmd_vel_max_acc_yaw" default="1.00"/>
+  <arg name="cmd_vel_max_decel_x" default="1.50"/>
+  <arg name="cmd_vel_max_decel_yaw" default="2.00"/>
+  <arg name="cmd_vel_scale_x" default="1.0"/>
+  <arg name="cmd_vel_scale_yaw" default="1.0"/>
+  <arg name="cmd_vel_rate" default="$(arg rl_cmd_vel_input_rate)"/>
+  <arg name="cmd_vel_timeout" default="0.5"/>
+  <arg name="move_base_controller_frequency" default="$(arg rl_cmd_vel_input_rate)"/>
+  <arg name="turn_in_place_enabled" default="false"/>
+  <arg name="turn_yaw_enter" default="0.55"/>
+  <arg name="turn_yaw_exit" default="0.25"/>
+  <arg name="forward_yaw_limit" default="0.30"/>
+  <arg name="goal_stop_enabled" default="true"/>
+  <arg name="goal_xy_tolerance" default="0.22"/>
+
+  <param name="robot_name" type="str" value="$(arg robot_name)"/>
+  <param name="ros_namespace" type="str" value="/$(arg gazebo_model_name)/"/>
+  <param name="gazebo_model_name" type="str" value="$(arg gazebo_model_name)"/>
+
+  <env name="GAZEBO_MODEL_PATH"
+       value="$(find mr_gazebo)/models:$(env HOME)/.gazebo/models:/usr/share/gazebo-11/models:$(optenv GAZEBO_MODEL_PATH)"/>
+  <env name="GAZEBO_MODEL_DATABASE_URI" value=""/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro --inorder $(find go2w_description)/xacro/robot.xacro"/>
+
+  <node pkg="robot_state_publisher"
+        type="robot_state_publisher"
+        name="robot_state_publisher"
+        output="screen">
+    <param name="publish_frequency" value="100.0"/>
+    <remap from="/joint_states" to="/$(arg gazebo_model_name)/joint_states"/>
+  </node>
+
+  <node pkg="tf"
+        type="static_transform_publisher"
+        name="tf_base_footprint_base"
+        args="0 0 $(arg robot_base_height) 0 0 0 base_footprint base 50"/>
+
+  <node pkg="gazebo_ros"
+        type="spawn_model"
+        name="spawn_go2w"
+        output="screen"
+        args="-urdf
+              -param robot_description
+              -model $(arg gazebo_model_name)
+              -x $(arg x)
+              -y $(arg y)
+              -z $(arg z)
+              -Y $(arg yaw)"/>
+
+  <rosparam file="$(find go2w_description)/config/robot_control.yaml" command="load"/>
+
+  <node pkg="mr_gazebo"
+        type="gazebo_model_odom.py"
+        name="go2w_gazebo_odom"
+        output="screen">
+    <param name="model_name" value="$(arg gazebo_model_name)"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="base_frame" value="base_footprint"/>
+    <param name="odom_topic" value="$(arg odom_topic)"/>
+    <param name="publish_tf" value="true"/>
+    <param name="update_rate" value="30.0"/>
+  </node>
+
+  <node pkg="rl_sar"
+        type="rl_sim"
+        name="rl_sar"
+        output="screen">
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="cmd_vel_input_rate" value="$(arg rl_cmd_vel_input_rate)"/>
+    <param name="auto_start" value="$(arg auto_start_rl)"/>
+    <param name="start_navigation" value="$(arg start_navigation_mode)"/>
+    <param name="auto_locomotion_delay" value="$(arg auto_locomotion_delay)"/>
+  </node>
+
+  <node pkg="mr_navigation"
+        type="cmd_vel_filter.py"
+        name="go2w_cmd_vel_filter"
+        output="screen"
+        if="$(arg use_cmd_vel_filter)">
+    <param name="input_topic" value="$(arg move_base_cmd_vel_topic)"/>
+    <param name="output_topic" value="$(arg cmd_vel_topic)"/>
+    <param name="rate" value="$(arg cmd_vel_rate)"/>
+    <param name="base_frame" value="base_footprint"/>
+    <param name="min_x" value="$(arg cmd_vel_min_x)"/>
+    <param name="max_x" value="$(arg cmd_vel_max_x)"/>
+    <param name="max_y" value="0.0"/>
+    <param name="max_yaw" value="$(arg cmd_vel_max_yaw)"/>
+    <param name="max_acc_x" value="$(arg cmd_vel_max_acc_x)"/>
+    <param name="max_acc_yaw" value="$(arg cmd_vel_max_acc_yaw)"/>
+    <param name="max_decel_x" value="$(arg cmd_vel_max_decel_x)"/>
+    <param name="max_decel_yaw" value="$(arg cmd_vel_max_decel_yaw)"/>
+    <param name="scale_x" value="$(arg cmd_vel_scale_x)"/>
+    <param name="scale_yaw" value="$(arg cmd_vel_scale_yaw)"/>
+    <param name="timeout" value="$(arg cmd_vel_timeout)"/>
+    <param name="turn_in_place_enabled" value="$(arg turn_in_place_enabled)"/>
+    <param name="turn_yaw_enter" value="$(arg turn_yaw_enter)"/>
+    <param name="turn_yaw_exit" value="$(arg turn_yaw_exit)"/>
+    <param name="forward_yaw_limit" value="$(arg forward_yaw_limit)"/>
+    <param name="goal_stop_enabled" value="$(arg goal_stop_enabled)"/>
+    <param name="goal_topic" value="/move_base/current_goal"/>
+    <param name="goal_xy_tolerance" value="$(arg goal_xy_tolerance)"/>
+    <param name="goal_stop_latch" value="true"/>
+  </node>
+
+  <include file="$(find mr_navigation)/launch/navigation.launch" if="$(arg use_cmd_vel_filter)">
+    <arg name="model" value="$(arg model)"/>
+    <arg name="map_name" value="$(arg map_name)"/>
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="cmd_vel_topic" value="$(arg move_base_cmd_vel_topic)"/>
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+    <arg name="controller_frequency" value="$(arg move_base_controller_frequency)"/>
+    <arg name="odom_model_type" value="diff"/>
+    <arg name="initial_pose_x" value="$(arg x)"/>
+    <arg name="initial_pose_y" value="$(arg y)"/>
+    <arg name="initial_pose_a" value="$(arg yaw)"/>
+  </include>
+
+  <include file="$(find mr_navigation)/launch/navigation.launch" unless="$(arg use_cmd_vel_filter)">
+    <arg name="model" value="$(arg model)"/>
+    <arg name="map_name" value="$(arg map_name)"/>
+    <arg name="scan_topic" value="$(arg scan_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+    <arg name="controller_frequency" value="$(arg move_base_controller_frequency)"/>
+    <arg name="odom_model_type" value="diff"/>
+    <arg name="initial_pose_x" value="$(arg x)"/>
+    <arg name="initial_pose_y" value="$(arg y)"/>
+    <arg name="initial_pose_a" value="$(arg yaw)"/>
+  </include>
+
+  <node pkg="rviz"
+        type="rviz"
+        name="rviz"
+        if="$(arg rviz)"
+        args="-d $(find mr_navigation)/rviz/navigation.rviz"/>
+</launch>

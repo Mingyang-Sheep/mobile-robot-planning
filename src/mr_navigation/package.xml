@@ -11,12 +11,17 @@
 
   <exec_depend>amcl</exec_depend>
   <exec_depend>dwa_local_planner</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>go2w_description</exec_depend>
   <exec_depend>map_server</exec_depend>
   <exec_depend>move_base</exec_depend>
   <exec_depend>mr_gazebo</exec_depend>
   <exec_depend>mr_maps</exec_depend>
   <exec_depend>mr_msgs</exec_depend>
   <exec_depend>navfn</exec_depend>
+  <exec_depend>rl_sar</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>tf</exec_depend>
 
   <export/>
 </package>
