@@ -11,8 +11,10 @@ normal ROS package dependencies.
 
 ## Build
 
+The examples below use `<workspace_root>` for the repository root.
+
 ```bash
-cd /home/lmy/mobile_robot_benchmark
+cd <workspace_root>
 source /opt/ros/noetic/setup.bash
 catkin_make
 source devel/setup.bash

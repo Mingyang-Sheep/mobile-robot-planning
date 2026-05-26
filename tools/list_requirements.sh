@@ -203,13 +203,14 @@ print_install_examples() {
        ros-noetic-rviz
 
   5. 用 rosdep 复核 package.xml 依赖
+     # 将 <workspace_root> 替换为当前仓库根目录
      source /opt/ros/noetic/setup.bash
-     cd /home/lmy/mobile_robot_benchmark
+     cd <workspace_root>
      rosdep install --from-paths src --ignore-src -r -y
 
   6. 构建工作区
      source /opt/ros/noetic/setup.bash
-     cd /home/lmy/mobile_robot_benchmark
+     cd <workspace_root>
      catkin_make
      source devel/setup.bash
 EOF

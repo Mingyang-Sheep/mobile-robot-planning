@@ -22,25 +22,28 @@
 
 ## 1. 调试前准备
 
+下面命令中的 `<workspace_root>` 表示本仓库根目录。
+
 先编译并加载工作区环境：
 
 ```bash
-cd /home/lmy/mobile_robot_benchmark
+cd <workspace_root>
 source /opt/ros/noetic/setup.bash
 catkin_make
-source /home/lmy/mobile_robot_benchmark/devel/setup.bash
+source devel/setup.bash
 ```
 
 如果你开了多个终端，每个终端都要重新执行：
 
 ```bash
+cd <workspace_root>
 source /opt/ros/noetic/setup.bash
-source /home/lmy/mobile_robot_benchmark/devel/setup.bash
+source devel/setup.bash
 ```
 
 ## 2. 最短联调路径
 
-最推荐直接使用总入口 [planner_sim.launch](/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/launch/planner_sim.launch)。  
+最推荐直接使用总入口 [planner_sim.launch](launch/planner_sim.launch)。
 它会一次性拉起：
 
 - Gazebo 仿真世界
@@ -101,16 +104,18 @@ roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_tra
 终端 1：只启动导航仿真环境
 
 ```bash
+cd <workspace_root>
 source /opt/ros/noetic/setup.bash
-source /home/lmy/mobile_robot_benchmark/devel/setup.bash
+source devel/setup.bash
 roslaunch mr_navigation navigation_sim.launch
 ```
 
 终端 2：只启动算法
 
 ```bash
+cd <workspace_root>
 source /opt/ros/noetic/setup.bash
-source /home/lmy/mobile_robot_benchmark/devel/setup.bash
+source devel/setup.bash
 roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=cpp
 ```
 
@@ -120,7 +125,7 @@ roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=cpp
 roslaunch mr_traditional_planner planner.launch algorithm:=stc impl:=cpp
 ```
 
-统一切换入口是 [planner.launch](/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/launch/planner.launch)。
+统一切换入口是 [planner.launch](launch/planner.launch)。
 
 ## 4. 不同算法如何触发
 
@@ -134,7 +139,7 @@ roslaunch mr_traditional_planner planner.launch algorithm:=stc impl:=cpp
 - `A* / Dijkstra / D* / D* Lite / Theta* / RRT* / Cubic Spline / DWA` 会把你点击的位置当作真实规划终点
 - `BCD / STC` 只把这次点击当作“开始覆盖”的触发信号，真正的覆盖起点仍然取机器人当前位姿
 
-如果你用的是当前仓库里的 RViz 配置 [navigation.rviz](/home/lmy/mobile_robot_benchmark/src/mr_navigation/rviz/navigation.rviz)，工具栏里显示的就是 `2D Nav Goal`。
+如果你用的是当前仓库里的 RViz 配置 [navigation.rviz](../mr_navigation/rviz/navigation.rviz)，工具栏里显示的就是 `2D Nav Goal`。
 
 ### 4.1 A* / Dijkstra / D* / D* Lite / Theta* / RRT* / Cubic Spline
 
@@ -367,8 +372,8 @@ rostopic echo -n 1 /scan
 
 相关文件：
 
-- [spawn_navigation_world.launch](/home/lmy/mobile_robot_benchmark/src/mr_gazebo/launch/spawn_navigation_world.launch)
-- [navigation_sim.launch](/home/lmy/mobile_robot_benchmark/src/mr_navigation/launch/navigation_sim.launch)
+- [spawn_navigation_world.launch](../mr_gazebo/launch/spawn_navigation_world.launch)
+- [navigation_sim.launch](../mr_navigation/launch/navigation_sim.launch)
 
 ### 6.4 点了 `2D Nav Goal` 但覆盖机器人不动
 
@@ -439,16 +444,16 @@ roslaunch --files mr_traditional_planner planner_sim.launch algorithm:=astar imp
 ### 验证 Python 节点语法
 
 ```bash
-python3 -m py_compile /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/optimal/astar_planner_py.py
-python3 -m py_compile /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/optimal/dijkstra_planner_py.py
-python3 -m py_compile /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/coverage/bcd_planner_py.py
-python3 -m py_compile /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/scripts/coverage/stc_planner_py.py
+python3 -m py_compile src/mr_traditional_planner/scripts/optimal/astar_planner_py.py
+python3 -m py_compile src/mr_traditional_planner/scripts/optimal/dijkstra_planner_py.py
+python3 -m py_compile src/mr_traditional_planner/scripts/coverage/bcd_planner_py.py
+python3 -m py_compile src/mr_traditional_planner/scripts/coverage/stc_planner_py.py
 ```
 
 ### 验证 C++ 构建
 
 ```bash
-cd /home/lmy/mobile_robot_benchmark
+cd <workspace_root>
 source /opt/ros/noetic/setup.bash
 catkin_make --pkg mr_traditional_planner
 ```
@@ -484,8 +489,8 @@ catkin_make --pkg mr_traditional_planner
 
 ## 9. 当前相关入口文件
 
-- [planner_sim.launch](/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/launch/planner_sim.launch)
-- [planner.launch](/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/launch/planner.launch)
-- [navigation_sim.launch](/home/lmy/mobile_robot_benchmark/src/mr_navigation/launch/navigation_sim.launch)
-- [navigation.launch](/home/lmy/mobile_robot_benchmark/src/mr_navigation/launch/navigation.launch)
-- [README.md](/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/README.md)
+- [planner_sim.launch](launch/planner_sim.launch)
+- [planner.launch](launch/planner.launch)
+- [navigation_sim.launch](../mr_navigation/launch/navigation_sim.launch)
+- [navigation.launch](../mr_navigation/launch/navigation.launch)
+- [README.md](README.md)
