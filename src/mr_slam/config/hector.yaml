@@ -28,7 +28,7 @@ map_pub_period: 2
 laser_z_min_value: -0.1
 laser_z_max_value: 0.1
 laser_min_dist: 0.12
-laser_max_dist: 3.5
+laser_max_dist: 10.0
 
 # Advertising config
 advertise_map_service: true

@@ -4,13 +4,37 @@
   <arg name="slam_method" default="gmapping"/>
   <arg name="model" default="turtlebot3_burger"/>
   <arg name="stage" default="1"/>
+  <arg name="world_name" default="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.01"/>
+  <arg name="yaw" default="0.0"/>
+  <arg name="wheel_mu" default="1.0"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="use_rviz" default="true"/>
+  <arg name="rviz_config" default="$(find mr_slam)/rviz/slam.rviz"/>
   <arg name="scan_topic" default="/scan"/>
   <arg name="odom_topic" default="/odom"/>
 
   <!-- Gazebo + robot (reuses mr_gazebo). -->
   <include file="$(find mr_gazebo)/launch/spawn_robot.launch">
     <arg name="stage" value="$(arg stage)"/>
+    <arg name="world_name" value="$(arg world_name)"/>
     <arg name="robot_model" value="$(arg model)"/>
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="z" value="$(arg z)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
+    <arg name="wheel_mu" value="$(arg wheel_mu)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
   </include>
 
   <!-- SLAM. -->
@@ -20,6 +44,6 @@
     <arg name="odom_topic" value="$(arg odom_topic)"/>
   </include>
 
-  <!-- RViz with default config. -->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find mr_navigation)/rviz/navigation.rviz"/>
+  <!-- RViz with a lightweight SLAM-only config. -->
+  <node pkg="rviz" type="rviz" name="rviz" if="$(arg use_rviz)" args="-d $(arg rviz_config)"/>
 </launch>

@@ -56,6 +56,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/mr_slam" TYPE DIRECTORY FILES
     "/home/lmy/mobile_robot_benchmark/src/mr_slam/launch"
     "/home/lmy/mobile_robot_benchmark/src/mr_slam/config"
+    "/home/lmy/mobile_robot_benchmark/src/mr_slam/rviz"
     USE_SOURCE_PERMISSIONS)
 endif()
 

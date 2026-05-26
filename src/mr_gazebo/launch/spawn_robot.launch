@@ -1,5 +1,6 @@
 <launch>
   <arg name="stage" default="1"/>
+  <arg name="world_name" default="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
   <arg name="robot_model" default="turtlebot3_burger"/>
   <arg name="robot_name" default="$(arg robot_model)"/>
 
@@ -7,6 +8,7 @@
   <arg name="y" default="0.0"/>
   <arg name="z" default="0.01"/>
   <arg name="yaw" default="0.0"/>
+  <arg name="wheel_mu" default="1.0"/>
 
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
@@ -17,7 +19,7 @@
   <env name="GAZEBO_MODEL_PATH" value="$(find mr_gazebo)/models:$(optenv GAZEBO_MODEL_PATH)"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
+    <arg name="world_name" value="$(arg world_name)"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
     <arg name="gui" value="$(arg gui)"/>
@@ -26,7 +28,7 @@
   </include>
 
   <param name="robot_description"
-         command="$(find xacro)/xacro $(find mr_description)/urdf/$(arg robot_model).urdf.xacro"/>
+         command="$(find xacro)/xacro $(find mr_description)/urdf/$(arg robot_model).urdf.xacro wheel_mu:=$(arg wheel_mu)"/>
 
   <!-- 裸车仿真同样需要基础 TF 树，否则 base_scan 等固定坐标系不会被发布。 -->
   <node pkg="robot_state_publisher"

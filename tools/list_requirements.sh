@@ -11,6 +11,7 @@ SYSTEM_PACKAGES=(
   build-essential
   cmake
   git
+  gnome-terminal
   python3
   python3-pip
   python3-numpy
@@ -48,6 +49,7 @@ ROS_PACKAGES=(
   ros-noetic-tf
   ros-noetic-gmapping
   ros-noetic-hector-mapping
+  ros-noetic-teleop-twist-keyboard
   ros-noetic-rviz
 )
 
@@ -162,7 +164,7 @@ print_install_examples() {
 
   2. 安装系统工具
      sudo apt-get update
-     sudo apt-get install -y build-essential cmake git python3 python3-pip python3-numpy python3-rosdep python3-catkin-pkg python3-empy
+     sudo apt-get install -y build-essential cmake git gnome-terminal python3 python3-pip python3-numpy python3-rosdep python3-catkin-pkg python3-empy
 
   3. 安装 Python 训练依赖
      python3 -m pip install --user torch
@@ -197,6 +199,7 @@ print_install_examples() {
        ros-noetic-tf \
        ros-noetic-gmapping \
        ros-noetic-hector-mapping \
+       ros-noetic-teleop-twist-keyboard \
        ros-noetic-rviz
 
   5. 用 rosdep 复核 package.xml 依赖
@@ -275,6 +278,7 @@ print_repo_requirements() {
     std_srvs \
     gmapping \
     hector_mapping \
+    teleop_twist_keyboard \
     tf
 }
 
@@ -284,6 +288,7 @@ run_quick_checks() {
   command_status python3
   command_status pip3
   command_status git
+  command_status gnome-terminal
   command_status cmake
   command_status roscore
   command_status roslaunch
@@ -322,6 +327,7 @@ run_quick_checks() {
   ros_package_status std_srvs
   ros_package_status gmapping
   ros_package_status hector_mapping
+  ros_package_status teleop_twist_keyboard
   ros_package_status tf
 
   print_section "Python 模块检查"
@@ -348,16 +354,19 @@ run_quick_checks() {
   file_status "${SRC_ROOT}/mr_gazebo/launch/spawn_navigation_world.launch"
   file_status "${SRC_ROOT}/mr_navigation/launch/navigation.launch"
   file_status "${SRC_ROOT}/mr_navigation/launch/navigation_sim.launch"
+  file_status "${SRC_ROOT}/mr_navigation/launch/teleop_keyboard.launch"
   file_status "${SRC_ROOT}/mr_slam/launch/slam.launch"
   file_status "${SRC_ROOT}/mr_slam/launch/gmapping.launch"
   file_status "${SRC_ROOT}/mr_slam/launch/hector.launch"
   file_status "${SRC_ROOT}/mr_slam/config/gmapping_params.yaml"
   file_status "${SRC_ROOT}/mr_slam/config/hector.yaml"
+  file_status "${SRC_ROOT}/mr_slam/rviz/slam.rviz"
   file_status "${SRC_ROOT}/mr_traditional_planner/launch/planner.launch"
   file_status "${SRC_ROOT}/mr_traditional_planner/launch/planner_sim.launch"
   file_status "${SRC_ROOT}/mr_description/urdf/turtlebot3_burger.urdf.xacro"
   file_status "${SRC_ROOT}/mr_gazebo/worlds/turtlebot3_world.world"
   file_status "${SRC_ROOT}/mr_gazebo/worlds/stage_1.world"
+  file_status "${SRC_ROOT}/mr_gazebo/worlds/maze/maze_1.world"
   file_status "${SRC_ROOT}/mr_maps/maps/turtlebot3_world.yaml"
 }
 

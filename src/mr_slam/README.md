@@ -44,6 +44,15 @@ One-command simulation entry:
 ```bash
 roslaunch mr_slam slam_sim.launch slam_method:=gmapping
 roslaunch mr_slam slam_sim.launch slam_method:=hector
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0 wheel_mu:=1.5
+```
+
+For lower CPU/GPU load while mapping:
+
+```bash
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0 gui:=false
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0 use_rviz:=false
 ```
 
 ## Static Checks

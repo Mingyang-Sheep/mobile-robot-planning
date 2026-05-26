@@ -1,0 +1,44 @@
+<launch>
+  <!-- Generic keyboard teleop entry.
+       Default controls the current TurtleBot3-compatible /cmd_vel topic.
+       For namespaced robots, use robot_namespace:=robot1 cmd_vel_topic:=cmd_vel
+       or pass an absolute cmd_vel_topic such as /robot1/cmd_vel. -->
+  <arg name="robot_namespace" default=""/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+
+  <!-- TurtleBot3 Burger-safe defaults. Tune per robot without editing this file. -->
+  <arg name="speed" default="0.20"/>
+  <arg name="turn" default="1.00"/>
+  <arg name="repeat_rate" default="10.0"/>
+  <arg name="key_timeout" default="0.6"/>
+
+  <!-- teleop_twist_keyboard needs a real keyboard TTY. -->
+  <arg name="terminal_prefix" default="gnome-terminal --"/>
+
+  <node pkg="teleop_twist_keyboard"
+        type="teleop_twist_keyboard.py"
+        name="teleop_keyboard"
+        output="screen"
+        launch-prefix="$(arg terminal_prefix)"
+        if="$(eval arg('robot_namespace') == '')">
+    <param name="speed" value="$(arg speed)"/>
+    <param name="turn" value="$(arg turn)"/>
+    <param name="repeat_rate" value="$(arg repeat_rate)"/>
+    <param name="key_timeout" value="$(arg key_timeout)"/>
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+  </node>
+
+  <group ns="$(arg robot_namespace)" if="$(eval arg('robot_namespace') != '')">
+    <node pkg="teleop_twist_keyboard"
+          type="teleop_twist_keyboard.py"
+          name="teleop_keyboard"
+          output="screen"
+          launch-prefix="$(arg terminal_prefix)">
+      <param name="speed" value="$(arg speed)"/>
+      <param name="turn" value="$(arg turn)"/>
+      <param name="repeat_rate" value="$(arg repeat_rate)"/>
+      <param name="key_timeout" value="$(arg key_timeout)"/>
+      <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+    </node>
+  </group>
+</launch>
