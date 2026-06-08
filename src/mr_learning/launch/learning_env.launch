@@ -1,11 +1,12 @@
 <launch>
   <!-- Learning environment: Gazebo + robot (no move_base / AMCL). -->
   <arg name="stage" default="1"/>
-  <arg name="model" default="turtlebot3_burger"/>
+  <arg name="model" default="burger"/>
+  <arg name="robot_model" default="$(arg model)"/>
 
   <include file="$(find mr_gazebo)/launch/spawn_robot.launch">
     <arg name="stage" value="$(arg stage)"/>
-    <arg name="robot_model" value="$(arg model)"/>
+    <arg name="robot_model" value="$(arg robot_model)"/>
   </include>
 
   <!-- Expose stage number for goal_manager. -->

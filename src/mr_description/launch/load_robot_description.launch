@@ -1,0 +1,22 @@
+<launch>
+  <!-- Central robot model selector.
+       Supported model keys: burger, waffle, waffle_pi.
+       Legacy full names are kept for compatibility: turtlebot3_burger,
+       turtlebot3_waffle, turtlebot3_waffle_pi. -->
+  <arg name="robot_model" default="burger"/>
+  <arg name="wheel_mu" default="1.0"/>
+  <arg name="laser_visual" default="false"/>
+  <arg name="imu_visual" default="false"/>
+
+  <param name="robot_description"
+         if="$(eval arg('robot_model') in ['burger', 'turtlebot3_burger'])"
+         command="$(find xacro)/xacro $(find mr_description)/urdf/project/turtlebot3_burger.simulation.urdf.xacro wheel_mu:=$(arg wheel_mu) laser_visual:=$(arg laser_visual) imu_visual:=$(arg imu_visual)"/>
+
+  <param name="robot_description"
+         if="$(eval arg('robot_model') in ['waffle', 'turtlebot3_waffle'])"
+         command="$(find xacro)/xacro $(find mr_description)/urdf/project/turtlebot3_waffle.simulation.urdf.xacro wheel_mu:=$(arg wheel_mu) laser_visual:=$(arg laser_visual) imu_visual:=$(arg imu_visual)"/>
+
+  <param name="robot_description"
+         if="$(eval arg('robot_model') in ['waffle_pi', 'turtlebot3_waffle_pi'])"
+         command="$(find xacro)/xacro $(find mr_description)/urdf/project/turtlebot3_waffle_pi.simulation.urdf.xacro wheel_mu:=$(arg wheel_mu) laser_visual:=$(arg laser_visual) imu_visual:=$(arg imu_visual)"/>
+</launch>

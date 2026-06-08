@@ -1,7 +1,8 @@
 <launch>
   <!-- One-command DQN training entry. -->
   <arg name="stage" default="1"/>
-  <arg name="model" default="turtlebot3_burger"/>
+  <arg name="model" default="burger"/>
+  <arg name="robot_model" default="$(arg model)"/>
   <arg name="episodes" default="3000"/>
   <arg name="max_steps" default="6000"/>
   <arg name="load_model" default="false"/>
@@ -10,6 +11,7 @@
   <include file="$(find mr_learning)/launch/learning_env.launch">
     <arg name="stage" value="$(arg stage)"/>
     <arg name="model" value="$(arg model)"/>
+    <arg name="robot_model" value="$(arg robot_model)"/>
   </include>
 
   <!-- DQN training node. -->

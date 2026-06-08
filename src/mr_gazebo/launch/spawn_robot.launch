@@ -1,8 +1,8 @@
 <launch>
   <arg name="stage" default="1"/>
   <arg name="world_name" default="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
-  <arg name="robot_model" default="turtlebot3_burger"/>
-  <arg name="robot_name" default="$(arg robot_model)"/>
+  <arg name="robot_model" default="burger"/>
+  <arg name="robot_name" default="$(eval arg('robot_model') if arg('robot_model').startswith('turtlebot3_') else 'turtlebot3_' + arg('robot_model'))"/>
 
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
@@ -16,7 +16,8 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
 
-  <env name="GAZEBO_MODEL_PATH" value="$(find mr_gazebo)/models:$(optenv GAZEBO_MODEL_PATH)"/>
+  <env name="GAZEBO_MODEL_PATH" value="$(find mr_gazebo)/models:$(env HOME)/.gazebo/models:$(optenv GAZEBO_MODEL_PATH)"/>
+  <env name="GAZEBO_MODEL_DATABASE_URI" value=""/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(arg world_name)"/>
@@ -27,8 +28,10 @@
     <arg name="debug" value="$(arg debug)"/>
   </include>
 
-  <param name="robot_description"
-         command="$(find xacro)/xacro $(find mr_description)/urdf/$(arg robot_model).urdf.xacro wheel_mu:=$(arg wheel_mu)"/>
+  <include file="$(find mr_description)/launch/load_robot_description.launch">
+    <arg name="robot_model" value="$(arg robot_model)"/>
+    <arg name="wheel_mu" value="$(arg wheel_mu)"/>
+  </include>
 
   <!-- 裸车仿真同样需要基础 TF 树，否则 base_scan 等固定坐标系不会被发布。 -->
   <node pkg="robot_state_publisher"

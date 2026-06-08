@@ -2,7 +2,8 @@
   <!-- One-command SLAM simulation: Gazebo + robot + SLAM + RViz.
        Usage: roslaunch mr_slam slam_sim.launch slam_method:=gmapping stage:=1 -->
   <arg name="slam_method" default="gmapping"/>
-  <arg name="model" default="turtlebot3_burger"/>
+  <arg name="model" default="burger"/>
+  <arg name="robot_model" default="$(arg model)"/>
   <arg name="stage" default="1"/>
   <arg name="world_name" default="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
   <arg name="x" default="0.0"/>
@@ -24,7 +25,7 @@
   <include file="$(find mr_gazebo)/launch/spawn_robot.launch">
     <arg name="stage" value="$(arg stage)"/>
     <arg name="world_name" value="$(arg world_name)"/>
-    <arg name="robot_model" value="$(arg model)"/>
+    <arg name="robot_model" value="$(arg robot_model)"/>
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="z" value="$(arg z)"/>

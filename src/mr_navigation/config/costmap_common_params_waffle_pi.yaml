@@ -1,0 +1,17 @@
+# Waffle Pi 与 Waffle 底盘尺寸一致，导航 footprint 保持一致以便对比实验。
+obstacle_range: 3.0
+raytrace_range: 3.5
+
+footprint: [[-0.140, -0.153], [-0.140, 0.153], [0.140, 0.153], [0.140, -0.153]]
+
+inflation_radius: 0.28
+cost_scaling_factor: 4.0
+
+map_type: costmap
+observation_sources: scan
+scan:
+  sensor_frame: base_scan
+  data_type: LaserScan
+  topic: /scan
+  marking: true
+  clearing: true

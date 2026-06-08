@@ -1,6 +1,7 @@
 <launch>
   <!-- model 是多底盘入口，负责把导航层绑定到对应的底盘专有参数文件。 -->
   <arg name="model" default="burger"/>
+  <arg name="robot_model" default="$(arg model)"/>
   <!-- map_name 是导航地图入口，当前默认使用官方提供的 turtlebot3_world 地图。 -->
   <arg name="map_name" default="turtlebot3_world"/>
   <arg name="scan_topic" default="/scan"/>
@@ -25,6 +26,7 @@
 
   <include file="$(find mr_navigation)/launch/move_base.launch">
     <arg name="model" value="$(arg model)"/>
+    <arg name="robot_model" value="$(arg robot_model)"/>
     <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
     <arg name="odom_topic" value="$(arg odom_topic)"/>
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>

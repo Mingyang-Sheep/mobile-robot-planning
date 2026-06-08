@@ -1,0 +1,17 @@
+# Waffle 车体近似为 0.266m x 0.266m 的方形底盘，footprint 略放大以覆盖轮距外沿。
+obstacle_range: 3.0
+raytrace_range: 3.5
+
+footprint: [[-0.140, -0.153], [-0.140, 0.153], [0.140, 0.153], [0.140, -0.153]]
+
+inflation_radius: 0.28
+cost_scaling_factor: 4.0
+
+map_type: costmap
+observation_sources: scan
+scan:
+  sensor_frame: base_scan
+  data_type: LaserScan
+  topic: /scan
+  marking: true
+  clearing: true
