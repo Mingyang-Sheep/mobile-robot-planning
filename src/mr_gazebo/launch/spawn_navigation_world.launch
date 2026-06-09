@@ -1,7 +1,7 @@
 <launch>
   <!-- 标准导航联调入口：加载官方 turtlebot3_world 仿真世界。 -->
   <arg name="robot_model" default="burger"/>
-  <arg name="robot_name" default="$(eval arg('robot_model') if arg('robot_model').startswith('turtlebot3_') else 'turtlebot3_' + arg('robot_model'))"/>
+  <arg name="robot_name" default="$(eval arg('robot_model') if arg('robot_model').startswith('turtlebot3_') or arg('robot_model').startswith('wpb_home') else 'turtlebot3_' + arg('robot_model'))"/>
 
   <!-- 固定起点对齐官方 turtlebot3_world.launch 与对应地图 YAML。 -->
   <arg name="x" default="-2.0"/>
@@ -9,6 +9,12 @@
   <arg name="z" default="0.01"/>
   <arg name="yaw" default="0.0"/>
   <arg name="wheel_mu" default="1.0"/>
+  <arg name="laser_visual" default="false"/>
+  <arg name="camera_visual" default="false"/>
+  <arg name="imu_visual" default="false"/>
+  <arg name="enable_laser" default="true"/>
+  <arg name="enable_camera" default="true"/>
+  <arg name="enable_imu" default="true"/>
 
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
@@ -32,6 +38,12 @@
   <include file="$(find mr_description)/launch/load_robot_description.launch">
     <arg name="robot_model" value="$(arg robot_model)"/>
     <arg name="wheel_mu" value="$(arg wheel_mu)"/>
+    <arg name="laser_visual" value="$(arg laser_visual)"/>
+    <arg name="camera_visual" value="$(arg camera_visual)"/>
+    <arg name="imu_visual" value="$(arg imu_visual)"/>
+    <arg name="enable_laser" value="$(arg enable_laser)"/>
+    <arg name="enable_camera" value="$(arg enable_camera)"/>
+    <arg name="enable_imu" value="$(arg enable_imu)"/>
   </include>
 
   <!-- 发布 base_footprint -> base_link -> base_scan 等机器人 TF，保证 AMCL 和 costmap 能消费激光数据。 -->
@@ -42,10 +54,25 @@
     <param name="publish_frequency" value="30.0"/>
   </node>
 
+  <!-- Gazebo drops WPB Kinect links from SDF because the official URDF models
+       them as massless non-fixed joints. Publish stable simulation camera TF
+       without modifying the upstream URDF files. -->
+  <node pkg="tf"
+        type="static_transform_publisher"
+        name="wpb_kinect_dock_tf"
+        if="$(eval arg('robot_model').startswith('wpb_home'))"
+        args="0.145 -0.013 1.37 0 0 0 base_link kinect2_dock 100"/>
+
+  <node pkg="tf"
+        type="static_transform_publisher"
+        name="wpb_kinect_ir_tf"
+        if="$(eval arg('robot_model').startswith('wpb_home'))"
+        args="0 0 0 0 0.5 0 kinect2_dock kinect2_ir_optical_frame 100"/>
+
   <node pkg="gazebo_ros"
         type="spawn_model"
         name="spawn_navigation_robot"
-        if="$(eval float(arg('z')) >= 0.0)"
+        if="$(eval float(arg('z')) >= 0.0 and not arg('robot_model').startswith('wpb_home'))"
         args="-urdf
               -param robot_description
               -model $(arg robot_name)
@@ -57,7 +84,31 @@
   <node pkg="gazebo_ros"
         type="spawn_model"
         name="spawn_navigation_robot"
-        if="$(eval float(arg('z')) &lt; 0.0)"
+        if="$(eval float(arg('z')) &lt; 0.0 and not arg('robot_model').startswith('wpb_home'))"
+        args="-urdf
+              -param robot_description
+              -model $(arg robot_name)
+              -x $(arg x)
+              -y $(arg y)
+              -z 0.0
+              -Y $(arg yaw)"/>
+
+  <node pkg="gazebo_ros"
+        type="spawn_model"
+        name="spawn_navigation_robot"
+        if="$(eval float(arg('z')) >= 0.0 and arg('robot_model').startswith('wpb_home'))"
+        args="-urdf
+              -param robot_description
+              -model $(arg robot_name)
+              -x $(arg x)
+              -y $(arg y)
+              -z $(arg z)
+              -Y $(arg yaw)"/>
+
+  <node pkg="gazebo_ros"
+        type="spawn_model"
+        name="spawn_navigation_robot"
+        if="$(eval float(arg('z')) &lt; 0.0 and arg('robot_model').startswith('wpb_home'))"
         args="-urdf
               -param robot_description
               -model $(arg robot_name)

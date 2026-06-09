@@ -24,6 +24,8 @@ ROS_PACKAGES=(
   ros-noetic-desktop-full
   ros-noetic-xacro
   ros-noetic-urdf
+  ros-noetic-joint-state-publisher
+  ros-noetic-joint-state-publisher-gui
   ros-noetic-robot-state-publisher
   ros-noetic-gazebo-ros
   ros-noetic-gazebo-plugins
@@ -61,7 +63,10 @@ PYTHON_MODULES=(
 GAZEBO_PLUGINS=(
   libgazebo_ros_diff_drive.so
   libgazebo_ros_imu.so
+  libgazebo_ros_imu_sensor.so
   libgazebo_ros_laser.so
+  libgazebo_ros_depth_camera.so
+  libgazebo_ros_openni_kinect.so
 )
 
 GAZEBO_BUILTIN_MODELS=(
@@ -174,6 +179,8 @@ print_install_examples() {
        ros-noetic-desktop-full \
        ros-noetic-xacro \
        ros-noetic-urdf \
+       ros-noetic-joint-state-publisher \
+       ros-noetic-joint-state-publisher-gui \
        ros-noetic-robot-state-publisher \
        ros-noetic-gazebo-ros \
        ros-noetic-gazebo-plugins \
@@ -255,6 +262,8 @@ print_repo_requirements() {
     gazebo_ros \
     gazebo_plugins \
     robot_state_publisher \
+    joint_state_publisher \
+    joint_state_publisher_gui \
     xacro \
     urdf \
     map_server \
@@ -304,6 +313,8 @@ run_quick_checks() {
   ros_package_status gazebo_ros
   ros_package_status gazebo_plugins
   ros_package_status robot_state_publisher
+  ros_package_status joint_state_publisher
+  ros_package_status joint_state_publisher_gui
   ros_package_status xacro
   ros_package_status urdf
   ros_package_status map_server
@@ -338,7 +349,10 @@ run_quick_checks() {
   print_section "Gazebo 插件库检查"
   plugin_status libgazebo_ros_diff_drive.so
   plugin_status libgazebo_ros_imu.so
+  plugin_status libgazebo_ros_imu_sensor.so
   plugin_status libgazebo_ros_laser.so
+  plugin_status libgazebo_ros_depth_camera.so
+  plugin_status libgazebo_ros_openni_kinect.so
 
   print_section "仓库关键目录检查"
   file_status "${SRC_ROOT}/mr_description"
@@ -353,8 +367,11 @@ run_quick_checks() {
   print_section "仓库关键文件检查"
   file_status "${SRC_ROOT}/mr_gazebo/launch/spawn_robot.launch"
   file_status "${SRC_ROOT}/mr_gazebo/launch/spawn_navigation_world.launch"
+  file_status "${SRC_ROOT}/mr_gazebo/worlds/empty.world"
   file_status "${SRC_ROOT}/mr_navigation/launch/navigation.launch"
   file_status "${SRC_ROOT}/mr_navigation/launch/navigation_sim.launch"
+  file_status "${SRC_ROOT}/mr_navigation/launch/simulation.launch"
+  file_status "${SRC_ROOT}/mr_navigation/launch/slam_sim.launch"
   file_status "${SRC_ROOT}/mr_navigation/launch/teleop_keyboard.launch"
   file_status "${SRC_ROOT}/mr_slam/launch/slam.launch"
   file_status "${SRC_ROOT}/mr_slam/launch/gmapping.launch"
@@ -365,6 +382,7 @@ run_quick_checks() {
   file_status "${SRC_ROOT}/mr_traditional_planner/launch/planner.launch"
   file_status "${SRC_ROOT}/mr_traditional_planner/launch/planner_sim.launch"
   file_status "${SRC_ROOT}/mr_description/launch/load_robot_description.launch"
+  file_status "${SRC_ROOT}/mr_description/launch/wpb_home_description.launch"
   file_status "${SRC_ROOT}/mr_description/urdf/common_properties.urdf"
   file_status "${SRC_ROOT}/mr_description/urdf/turtlebot3_burger.urdf"
   file_status "${SRC_ROOT}/mr_description/urdf/turtlebot3_burger.urdf.xacro"
@@ -379,12 +397,32 @@ run_quick_checks() {
   file_status "${SRC_ROOT}/mr_description/meshes/bases/waffle_base.stl"
   file_status "${SRC_ROOT}/mr_description/meshes/bases/waffle_pi_base.stl"
   file_status "${SRC_ROOT}/mr_description/rviz/model.rviz"
+  file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/wpb_home.urdf"
+  file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/wpb_home_mani.urdf"
+  file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/simulation/wpb_home_sim.urdf.xacro"
+  file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/simulation/wpb_home_mani_sim.urdf.xacro"
+  file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/simulation/wpb_home_gazebo_plugins.xacro"
+  file_status "${SRC_ROOT}/mr_description/urdf/generated"
+  file_status "${SRC_ROOT}/mr_description/meshes/wpb_home/wpb_home.dae"
+  file_status "${SRC_ROOT}/mr_description/meshes/wpb_home/wpb_home_mani.dae"
+  file_status "${SRC_ROOT}/mr_description/meshes/wpb_home/forearm.dae"
+  file_status "${SRC_ROOT}/mr_description/meshes/wpb_home/finger.dae"
+  file_status "${SRC_ROOT}/mr_description/rviz/wpb_home/urdf.rviz"
+  file_status "${SRC_ROOT}/mr_description/rviz/wpb_home/sensor.rviz"
+  file_status "${SRC_ROOT}/mr_description/config/wpb_home/wpb_home.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/costmap_common_params_burger.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/costmap_common_params_waffle.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/costmap_common_params_waffle_pi.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/dwa_local_planner_params_burger.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/dwa_local_planner_params_waffle.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/dwa_local_planner_params_waffle_pi.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/costmap_common_params_wpb_home.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/dwa_local_planner_params_wpb_home.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/global_costmap_params_wpb_home.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/local_costmap_params_wpb_home.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/move_base_params_wpb_home.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/amcl_params_wpb_home.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/robot_models.yaml"
   file_status "${SRC_ROOT}/mr_gazebo/worlds/turtlebot3_world.world"
   file_status "${SRC_ROOT}/mr_gazebo/worlds/stage_1.world"
   file_status "${SRC_ROOT}/mr_gazebo/worlds/maze/maze_1.world"

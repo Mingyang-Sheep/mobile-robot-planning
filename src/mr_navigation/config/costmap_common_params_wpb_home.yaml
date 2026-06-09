@@ -1,0 +1,20 @@
+# WPB Home base diameter is about 0.45m in the official collision model
+# (body_link cylinder radius 0.226m). This rectangular footprint is a safe
+# first approximation for navigation and should be refined with real clearance
+# tests in each world.
+obstacle_range: 3.0
+raytrace_range: 3.5
+
+footprint: [[-0.240, -0.250], [-0.240, 0.250], [0.260, 0.250], [0.260, -0.250]]
+
+inflation_radius: 0.35
+cost_scaling_factor: 3.0
+
+map_type: costmap
+observation_sources: scan
+scan:
+  sensor_frame: laser
+  data_type: LaserScan
+  topic: /scan
+  marking: true
+  clearing: true

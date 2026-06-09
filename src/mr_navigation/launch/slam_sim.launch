@@ -1,6 +1,5 @@
 <launch>
-  <!-- One-command SLAM simulation: Gazebo + robot + SLAM + RViz.
-       Usage: roslaunch mr_slam slam_sim.launch slam_method:=gmapping stage:=1 -->
+  <!-- Navigation package convenience wrapper for the shared SLAM simulation entry. -->
   <arg name="slam_method" default="gmapping"/>
   <arg name="model" default="burger"/>
   <arg name="robot_model" default="$(arg model)"/>
@@ -27,11 +26,12 @@
   <arg name="scan_topic" default="/scan"/>
   <arg name="odom_topic" default="/odom"/>
 
-  <!-- Gazebo + robot (reuses mr_gazebo). -->
-  <include file="$(find mr_gazebo)/launch/spawn_robot.launch">
+  <include file="$(find mr_slam)/launch/slam_sim.launch">
+    <arg name="slam_method" value="$(arg slam_method)"/>
+    <arg name="model" value="$(arg model)"/>
+    <arg name="robot_model" value="$(arg robot_model)"/>
     <arg name="stage" value="$(arg stage)"/>
     <arg name="world_name" value="$(arg world_name)"/>
-    <arg name="robot_model" value="$(arg robot_model)"/>
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="z" value="$(arg z)"/>
@@ -48,15 +48,9 @@
     <arg name="paused" value="$(arg paused)"/>
     <arg name="debug" value="$(arg debug)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
-  </include>
-
-  <!-- SLAM. -->
-  <include file="$(find mr_slam)/launch/slam.launch">
-    <arg name="slam_method" value="$(arg slam_method)"/>
+    <arg name="use_rviz" value="$(arg use_rviz)"/>
+    <arg name="rviz_config" value="$(arg rviz_config)"/>
     <arg name="scan_topic" value="$(arg scan_topic)"/>
     <arg name="odom_topic" value="$(arg odom_topic)"/>
   </include>
-
-  <!-- RViz with a lightweight SLAM-only config. -->
-  <node pkg="rviz" type="rviz" name="rviz" if="$(arg use_rviz)" args="-d $(arg rviz_config)"/>
 </launch>

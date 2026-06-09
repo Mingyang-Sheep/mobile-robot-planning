@@ -1,0 +1,38 @@
+<launch>
+  <!-- Load official WPB Home description resources copied from 6-robot/wpb_home. -->
+  <arg name="model" default="wpb_home"/>
+  <arg name="gui" default="false"/>
+  <arg name="use_rviz" default="true"/>
+  <arg name="rviz_config" default="$(find mr_description)/rviz/wpb_home/urdf.rviz"/>
+
+  <arg name="model_file"
+       default="$(find mr_description)/urdf/wpb_home/$(arg model).urdf"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model_file)"/>
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <node name="joint_state_publisher_gui"
+        pkg="joint_state_publisher_gui"
+        type="joint_state_publisher_gui"
+        if="$(arg gui)">
+    <rosparam command="load" file="$(find mr_description)/config/wpb_home/wpb_home.yaml"/>
+  </node>
+
+  <node name="joint_state_publisher"
+        pkg="joint_state_publisher"
+        type="joint_state_publisher"
+        unless="$(arg gui)">
+    <rosparam command="load" file="$(find mr_description)/config/wpb_home/wpb_home.yaml"/>
+  </node>
+
+  <node name="robot_state_publisher"
+        pkg="robot_state_publisher"
+        type="robot_state_publisher"/>
+
+  <node name="rviz"
+        pkg="rviz"
+        type="rviz"
+        if="$(arg use_rviz)"
+        args="-d $(arg rviz_config)"
+        required="true"/>
+</launch>

@@ -11,6 +11,7 @@
 
   <depend>gazebo_ros</depend>
   <depend>robot_state_publisher</depend>
+  <depend>tf</depend>
   <depend>xacro</depend>
 
   <exec_depend>gazebo_plugins</exec_depend>

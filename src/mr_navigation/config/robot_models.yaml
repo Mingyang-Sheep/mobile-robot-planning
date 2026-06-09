@@ -1,0 +1,64 @@
+# Model registry for humans and future tooling. ROS 1 XML launch files in this
+# workspace still pass arguments explicitly, but every new robot should add one
+# entry here before being wired into Gazebo, SLAM, and Navigation.
+burger:
+  description_package: mr_description
+  xacro: urdf/project/turtlebot3_burger.simulation.urdf.xacro
+  base_frame: base_footprint
+  laser_frame: base_scan
+  odom_frame: odom
+  scan_topic: /scan
+  cmd_vel_topic: /cmd_vel
+  odom_topic: /odom
+  nav_config_key: burger
+
+waffle:
+  description_package: mr_description
+  xacro: urdf/project/turtlebot3_waffle.simulation.urdf.xacro
+  base_frame: base_footprint
+  laser_frame: base_scan
+  odom_frame: odom
+  scan_topic: /scan
+  cmd_vel_topic: /cmd_vel
+  odom_topic: /odom
+  nav_config_key: waffle
+
+waffle_pi:
+  description_package: mr_description
+  xacro: urdf/project/turtlebot3_waffle_pi.simulation.urdf.xacro
+  base_frame: base_footprint
+  laser_frame: base_scan
+  odom_frame: odom
+  scan_topic: /scan
+  cmd_vel_topic: /cmd_vel
+  odom_topic: /odom
+  camera_topic: /camera/rgb/image_raw
+  nav_config_key: waffle_pi
+
+wpb_home:
+  description_package: mr_description
+  xacro: urdf/wpb_home/simulation/wpb_home_sim.urdf.xacro
+  base_frame: base_footprint
+  laser_frame: laser
+  odom_frame: odom
+  scan_topic: /scan
+  cmd_vel_topic: /cmd_vel
+  odom_topic: /odom
+  camera_topic: /camera/rgb/image_raw
+  depth_topic: /camera/depth/image_raw
+  imu_topic: /imu
+  nav_config_key: wpb_home
+
+wpb_home_mani:
+  description_package: mr_description
+  xacro: urdf/wpb_home/simulation/wpb_home_mani_sim.urdf.xacro
+  base_frame: base_footprint
+  laser_frame: laser
+  odom_frame: odom
+  scan_topic: /scan
+  cmd_vel_topic: /cmd_vel
+  odom_topic: /odom
+  camera_topic: /camera/rgb/image_raw
+  depth_topic: /camera/depth/image_raw
+  imu_topic: /imu
+  nav_config_key: wpb_home

@@ -1,11 +1,10 @@
 <launch>
-  <!-- One-command SLAM simulation: Gazebo + robot + SLAM + RViz.
-       Usage: roslaunch mr_slam slam_sim.launch slam_method:=gmapping stage:=1 -->
-  <arg name="slam_method" default="gmapping"/>
+  <!-- Pure Gazebo motion test entry: world + robot, no map/AMCL/move_base. -->
   <arg name="model" default="burger"/>
   <arg name="robot_model" default="$(arg model)"/>
-  <arg name="stage" default="1"/>
-  <arg name="world_name" default="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
+  <arg name="robot_name" default="$(eval arg('robot_model') if arg('robot_model').startswith('turtlebot3_') or arg('robot_model').startswith('wpb_home') else 'turtlebot3_' + arg('robot_model'))"/>
+
+  <arg name="world_name" default="$(find mr_gazebo)/worlds/empty.world"/>
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
   <arg name="z" default="0.01"/>
@@ -17,21 +16,17 @@
   <arg name="enable_laser" default="true"/>
   <arg name="enable_camera" default="true"/>
   <arg name="enable_imu" default="true"/>
+
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
   <arg name="paused" default="false"/>
   <arg name="debug" default="false"/>
   <arg name="use_sim_time" default="true"/>
-  <arg name="use_rviz" default="true"/>
-  <arg name="rviz_config" default="$(find mr_slam)/rviz/slam.rviz"/>
-  <arg name="scan_topic" default="/scan"/>
-  <arg name="odom_topic" default="/odom"/>
 
-  <!-- Gazebo + robot (reuses mr_gazebo). -->
   <include file="$(find mr_gazebo)/launch/spawn_robot.launch">
-    <arg name="stage" value="$(arg stage)"/>
     <arg name="world_name" value="$(arg world_name)"/>
     <arg name="robot_model" value="$(arg robot_model)"/>
+    <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="z" value="$(arg z)"/>
@@ -49,14 +44,4 @@
     <arg name="debug" value="$(arg debug)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
   </include>
-
-  <!-- SLAM. -->
-  <include file="$(find mr_slam)/launch/slam.launch">
-    <arg name="slam_method" value="$(arg slam_method)"/>
-    <arg name="scan_topic" value="$(arg scan_topic)"/>
-    <arg name="odom_topic" value="$(arg odom_topic)"/>
-  </include>
-
-  <!-- RViz with a lightweight SLAM-only config. -->
-  <node pkg="rviz" type="rviz" name="rviz" if="$(arg use_rviz)" args="-d $(arg rviz_config)"/>
 </launch>

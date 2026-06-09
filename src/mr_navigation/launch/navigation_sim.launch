@@ -5,17 +5,25 @@
   <arg name="map_name" default="turtlebot3_world"/>
 
   <!-- 仿真世界默认与导航地图配套使用官方 turtlebot3_world。 -->
-  <arg name="robot_name" default="$(eval arg('robot_model') if arg('robot_model').startswith('turtlebot3_') else 'turtlebot3_' + arg('robot_model'))"/>
+  <arg name="robot_name" default="$(eval arg('robot_model') if arg('robot_model').startswith('turtlebot3_') or arg('robot_model').startswith('wpb_home') else 'turtlebot3_' + arg('robot_model'))"/>
   <arg name="x" default="-2.0"/>
   <arg name="y" default="-0.5"/>
   <arg name="z" default="0.01"/>
   <arg name="yaw" default="0.0"/>
   <arg name="wheel_mu" default="1.0"/>
+  <arg name="laser_visual" default="false"/>
+  <arg name="camera_visual" default="false"/>
+  <arg name="imu_visual" default="false"/>
+  <arg name="enable_laser" default="true"/>
+  <arg name="enable_camera" default="true"/>
+  <arg name="enable_imu" default="true"/>
 
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
   <arg name="paused" default="false"/>
   <arg name="debug" default="false"/>
+  <arg name="use_navigation" default="true"/>
+  <arg name="use_rviz" default="true"/>
 
   <arg name="scan_topic" default="/scan"/>
   <arg name="odom_topic" default="/odom"/>
@@ -31,6 +39,12 @@
     <arg name="z" value="$(arg z)"/>
     <arg name="yaw" value="$(arg yaw)"/>
     <arg name="wheel_mu" value="$(arg wheel_mu)"/>
+    <arg name="laser_visual" value="$(arg laser_visual)"/>
+    <arg name="camera_visual" value="$(arg camera_visual)"/>
+    <arg name="imu_visual" value="$(arg imu_visual)"/>
+    <arg name="enable_laser" value="$(arg enable_laser)"/>
+    <arg name="enable_camera" value="$(arg enable_camera)"/>
+    <arg name="enable_imu" value="$(arg enable_imu)"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="headless" value="$(arg headless)"/>
     <arg name="paused" value="$(arg paused)"/>
@@ -38,7 +52,7 @@
   </include>
 
   <!-- 再启动地图、定位与导航栈，默认初始位姿与仿真出生点保持一致。 -->
-  <include file="$(find mr_navigation)/launch/navigation.launch">
+  <include file="$(find mr_navigation)/launch/navigation.launch" if="$(arg use_navigation)">
     <arg name="model" value="$(arg model)"/>
     <arg name="robot_model" value="$(arg robot_model)"/>
     <arg name="map_name" value="$(arg map_name)"/>
@@ -51,6 +65,6 @@
     <arg name="initial_pose_a" value="$(arg yaw)"/>
   </include>
 
-  <node pkg="rviz" type="rviz" name="rviz" required="true"
+  <node pkg="rviz" type="rviz" name="rviz" required="true" if="$(arg use_rviz)"
         args="-d $(find mr_navigation)/rviz/navigation.rviz"/>
 </launch>

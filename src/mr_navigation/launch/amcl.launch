@@ -1,4 +1,8 @@
 <launch>
+  <arg name="model" default="burger"/>
+  <arg name="robot_model" default="$(arg model)"/>
+  <arg name="model_key" default="$(eval arg('robot_model').replace('turtlebot3_', '', 1) if arg('robot_model').startswith('turtlebot3_') else arg('robot_model'))"/>
+  <arg name="nav_model_key" default="$(eval 'wpb_home' if arg('model_key') == 'wpb_home_mani' else arg('model_key'))"/>
   <arg name="scan_topic" default="/scan"/>
   <arg name="initial_pose_x" default="0.0"/>
   <arg name="initial_pose_y" default="0.0"/>
@@ -38,5 +42,9 @@
     <param name="odom_alpha4" value="0.1"/>
     <param name="odom_frame_id" value="odom"/>
     <param name="base_frame_id" value="base_footprint"/>
+
+    <rosparam command="load"
+              file="$(find mr_navigation)/config/amcl_params_wpb_home.yaml"
+              if="$(eval arg('nav_model_key') == 'wpb_home')"/>
   </node>
 </launch>
