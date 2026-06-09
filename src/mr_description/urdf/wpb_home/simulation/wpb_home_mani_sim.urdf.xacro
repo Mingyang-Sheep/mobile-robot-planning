@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="wpb_home_mani_simulation" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find mr_description)/urdf/wpb_home/wpb_home_mani.urdf"/>
+  <xacro:include filename="$(find mr_description)/urdf/wpb_home/simulation/wpb_home_mani_model.urdf.xacro"/>
   <xacro:include filename="$(find mr_description)/urdf/wpb_home/simulation/wpb_home_gazebo_plugins.xacro"/>
 
   <xacro:wpb_home_simulation_plugins include_mani_joints="true"/>

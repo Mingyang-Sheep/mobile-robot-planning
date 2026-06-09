@@ -255,10 +255,13 @@ src/mr_description/config/wpb_home/wpb_home.yaml
 ```text
 src/mr_description/urdf/wpb_home/simulation/wpb_home_sim.urdf.xacro
 src/mr_description/urdf/wpb_home/simulation/wpb_home_mani_sim.urdf.xacro
+src/mr_description/urdf/wpb_home/simulation/wpb_home_mani_model.urdf.xacro
 src/mr_description/urdf/wpb_home/simulation/wpb_home_gazebo_plugins.xacro
 ```
 
 WPB Home 官方 bringup URDF 和 WPR 官方仿真模型都没有左右轮 joint。WPR 官方仿真使用自定义 `libwpr_plugin.so` 直接控制底盘。本仓库为了避免引入外部自定义插件，在 simulation 层增加隐藏左右轮 joint，并使用 `libgazebo_ros_diff_drive.so` 接入标准 `/cmd_vel`、`/odom`。
+
+`wpb_home_mani` 的官方 bringup URDF 里机械臂和 Kinect 含有无惯性的非固定 link，Gazebo 会在 URDF 转 SDF 时丢弃这些 link。当前仓库保留原始 URDF 不动，另外增加 `wpb_home_mani_model.urdf.xacro` 作为 simulation-only 模型，参考 WPR 官方仿真模型补齐机械臂 inertial/collision，并加入不可见低摩擦 caster 支撑，避免标准 diff-drive 物理轮仿真时底盘俯仰漂移。
 
 新增导航参数：
 
@@ -269,6 +272,12 @@ src/mr_navigation/config/global_costmap_params_wpb_home.yaml
 src/mr_navigation/config/local_costmap_params_wpb_home.yaml
 src/mr_navigation/config/move_base_params_wpb_home.yaml
 src/mr_navigation/config/amcl_params_wpb_home.yaml
+src/mr_navigation/config/costmap_common_params_wpb_home_mani.yaml
+src/mr_navigation/config/dwa_local_planner_params_wpb_home_mani.yaml
+src/mr_navigation/config/global_costmap_params_wpb_home_mani.yaml
+src/mr_navigation/config/local_costmap_params_wpb_home_mani.yaml
+src/mr_navigation/config/move_base_params_wpb_home_mani.yaml
+src/mr_navigation/config/amcl_params_wpb_home_mani.yaml
 src/mr_navigation/config/robot_models.yaml
 ```
 
@@ -279,6 +288,7 @@ roslaunch mr_description wpb_home_description.launch model:=wpb_home
 roslaunch mr_navigation simulation.launch model:=wpb_home robot_model:=wpb_home
 roslaunch mr_navigation slam_sim.launch model:=wpb_home robot_model:=wpb_home
 roslaunch mr_navigation navigation_sim.launch model:=wpb_home robot_model:=wpb_home
+roslaunch mr_navigation navigation_sim.launch robot_model:=wpb_home_mani
 ```
 
-`wpb_home_mani` 导航时复用 `wpb_home` 的底盘 footprint 和 DWA 参数，机械臂 link 只作为上层模型参与显示。
+`wpb_home_mani` 使用独立导航参数，导航 footprint 仍然只按底盘处理，机械臂保持静止并通过 Gazebo joint state publisher 发布 TF。

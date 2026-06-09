@@ -16,6 +16,7 @@
   <xacro:property name="wpb_wheel_radius" value="0.075"/>
   <xacro:property name="wpb_wheel_width" value="0.040"/>
   <xacro:property name="wpb_wheel_separation" value="0.460"/>
+  <xacro:property name="wpb_caster_radius" value="0.030"/>
 
   <xacro:macro name="wpb_home_simulation_plugins" params="include_mani_joints:=false">
     <gazebo reference="body_link">
@@ -112,6 +113,74 @@
         <rosDebugLevel>na</rosDebugLevel>
       </plugin>
     </gazebo>
+
+    <xacro:if value="${include_mani_joints}">
+      <joint name="wpb_front_caster_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="wpb_front_caster_link"/>
+        <origin xyz="0.160 0.0 ${wpb_caster_radius}" rpy="0 0 0"/>
+      </joint>
+
+      <link name="wpb_front_caster_link">
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${wpb_caster_radius}"/>
+          </geometry>
+        </collision>
+        <inertial>
+          <origin xyz="0 0 0"/>
+          <mass value="0.02"/>
+          <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+        </inertial>
+      </link>
+
+      <joint name="wpb_rear_caster_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="wpb_rear_caster_link"/>
+        <origin xyz="-0.160 0.0 ${wpb_caster_radius}" rpy="0 0 0"/>
+      </joint>
+
+      <link name="wpb_rear_caster_link">
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${wpb_caster_radius}"/>
+          </geometry>
+        </collision>
+        <inertial>
+          <origin xyz="0 0 0"/>
+          <mass value="0.02"/>
+          <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+        </inertial>
+      </link>
+
+      <gazebo reference="wpb_front_caster_link">
+        <mu1>0.02</mu1>
+        <mu2>0.02</mu2>
+        <kp>500000.0</kp>
+        <kd>10.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.1</maxVel>
+      </gazebo>
+
+      <gazebo reference="wpb_rear_caster_link">
+        <mu1>0.02</mu1>
+        <mu2>0.02</mu2>
+        <kp>500000.0</kp>
+        <kd>10.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.1</maxVel>
+      </gazebo>
+
+      <gazebo>
+        <plugin name="wpb_home_mani_joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+          <jointName>mani_base, elbow_forearm, forearm_left_finger, forearm_right_finger</jointName>
+          <updateRate>30.0</updateRate>
+          <alwaysOn>true</alwaysOn>
+        </plugin>
+      </gazebo>
+    </xacro:if>
 
     <xacro:if value="$(arg enable_laser)">
       <gazebo reference="laser">

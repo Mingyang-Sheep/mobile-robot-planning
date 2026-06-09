@@ -3,7 +3,7 @@
   <arg name="model" default="burger"/>
   <arg name="robot_model" default="$(arg model)"/>
   <arg name="model_key" default="$(eval arg('robot_model').replace('turtlebot3_', '', 1) if arg('robot_model').startswith('turtlebot3_') else arg('robot_model'))"/>
-  <arg name="nav_model_key" default="$(eval 'wpb_home' if arg('model_key') == 'wpb_home_mani' else arg('model_key'))"/>
+  <arg name="nav_model_key" default="$(arg model_key)"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="odom_topic" default="/odom"/>
   <arg name="move_forward_only" default="false"/>
@@ -16,10 +16,10 @@
     <rosparam file="$(find mr_navigation)/config/local_costmap_params.yaml" command="load"/>
     <rosparam file="$(find mr_navigation)/config/global_costmap_params.yaml" command="load"/>
     <rosparam file="$(find mr_navigation)/config/move_base_params.yaml" command="load"/>
-    <!-- WPB Home 对局部窗口和控制耐心值略有调整；TurtleBot3 保持原通用参数。 -->
-    <rosparam file="$(find mr_navigation)/config/local_costmap_params_wpb_home.yaml" command="load" if="$(eval arg('nav_model_key') == 'wpb_home')"/>
-    <rosparam file="$(find mr_navigation)/config/global_costmap_params_wpb_home.yaml" command="load" if="$(eval arg('nav_model_key') == 'wpb_home')"/>
-    <rosparam file="$(find mr_navigation)/config/move_base_params_wpb_home.yaml" command="load" if="$(eval arg('nav_model_key') == 'wpb_home')"/>
+    <!-- WPB Home 系列对局部窗口和控制耐心值略有调整；TurtleBot3 保持原通用参数。 -->
+    <rosparam file="$(find mr_navigation)/config/local_costmap_params_$(arg nav_model_key).yaml" command="load" if="$(eval arg('nav_model_key') in ['wpb_home', 'wpb_home_mani'])"/>
+    <rosparam file="$(find mr_navigation)/config/global_costmap_params_$(arg nav_model_key).yaml" command="load" if="$(eval arg('nav_model_key') in ['wpb_home', 'wpb_home_mani'])"/>
+    <rosparam file="$(find mr_navigation)/config/move_base_params_$(arg nav_model_key).yaml" command="load" if="$(eval arg('nav_model_key') in ['wpb_home', 'wpb_home_mani'])"/>
     <rosparam file="$(find mr_navigation)/config/dwa_local_planner_params_$(arg nav_model_key).yaml" command="load"/>
 
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>

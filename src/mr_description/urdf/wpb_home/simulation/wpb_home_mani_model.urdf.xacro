@@ -1,0 +1,376 @@
+<?xml version="1.0"?>
+<robot name="wpb_home_mani_navigation_model" xmlns:xacro="http://ros.org/wiki/xacro">
+  <!--
+    Simulation-only WPB Home Mani model.
+
+    The upstream wpb_home_bringup URDF is preserved in urdf/wpb_home/. That
+    file has several massless non-fixed manipulator and Kinect links, which
+    Gazebo drops during URDF -> SDF conversion. This model keeps the official
+    link, joint, and mesh names, and adds the inertial/collision data needed by
+    Gazebo using the official 6-robot/wpr_simulation model as reference.
+  -->
+
+  <material name="black">
+    <color rgba="0.01 0.01 0.01 1"/>
+  </material>
+  <material name="grey">
+    <color rgba="0.2 0.2 0.2 1"/>
+  </material>
+  <material name="blue">
+    <color rgba="0.2 0.2 0.9 1"/>
+  </material>
+  <material name="red">
+    <color rgba="0.9 0.2 0.2 1"/>
+  </material>
+  <material name="TransparentGreen">
+    <color rgba="0.0 1.0 0.0 0.5"/>
+  </material>
+
+  <link name="base_footprint">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.001"/>
+      </geometry>
+      <material name="TransparentGreen"/>
+    </visual>
+  </link>
+
+  <joint name="base_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="body_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://mr_description/meshes/wpb_home/wpb_home_mani.dae" scale="1 1 1"/>
+      </geometry>
+      <origin rpy="1.57 0 1.57" xyz="-0.225 -0.225 0"/>
+    </visual>
+    <collision>
+      <origin xyz="0.001 0 0.065" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.13" radius="0.226"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="25"/>
+      <inertia ixx="4.00538" ixy="0.0" ixz="0.0" iyy="4.00538" iyz="0.0" izz="0.51076"/>
+    </inertial>
+  </link>
+
+  <joint name="base_to_body" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="body_link"/>
+  </joint>
+
+  <link name="base_top_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.33 0.31 0.03"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <joint name="body_to_top" type="fixed">
+    <origin xyz="0.01 0 0.2" rpy="0 0 0"/>
+    <parent link="body_link"/>
+    <child link="base_top_link"/>
+  </joint>
+
+  <link name="body_back_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.03 0.23 1.05"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <joint name="body_to_back" type="fixed">
+    <origin xyz="-0.038 0 0.5" rpy="0 0.31 0"/>
+    <parent link="base_top_link"/>
+    <child link="body_back_link"/>
+  </joint>
+
+  <link name="head_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.28 0.06"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <joint name="body_to_head" type="fixed">
+    <origin xyz="0.155 0 1.17" rpy="0 0.27 0"/>
+    <parent link="base_top_link"/>
+    <child link="head_link"/>
+  </joint>
+
+  <link name="front_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.05 0.77"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="2.8"/>
+      <inertia ixx="0.441687775" ixy="0.0" ixz="0.0" iyy="0.0017366" iyz="0.0" izz="0.441070275"/>
+    </inertial>
+  </link>
+
+  <joint name="body_to_front" type="fixed">
+    <origin xyz="0.1 0 0.41" rpy="0 0 0"/>
+    <parent link="base_top_link"/>
+    <child link="front_link"/>
+  </joint>
+
+  <link name="front_holder_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <joint name="body_to_front_holder" type="fixed">
+    <origin xyz="0.215 0 0.3" rpy="0 0 0"/>
+    <parent link="base_top_link"/>
+    <child link="front_holder_link"/>
+  </joint>
+
+  <link name="laser">
+    <visual>
+      <geometry>
+        <cylinder length="0.001" radius="0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="laser"/>
+  </joint>
+
+  <link name="kinect2_dock">
+    <visual>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="red"/>
+    </visual>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
+    </inertial>
+  </link>
+
+  <joint name="kinect_height" type="fixed">
+    <origin xyz="0.145 -0.013 1.37" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="kinect2_dock"/>
+  </joint>
+
+  <link name="kinect2_ir_optical_frame">
+    <visual>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="blue"/>
+    </visual>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
+    </inertial>
+  </link>
+
+  <joint name="kinect_pitch" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0.5 0"/>
+    <parent link="kinect2_dock"/>
+    <child link="kinect2_ir_optical_frame"/>
+  </joint>
+
+  <link name="kinect2_rgb_optical_frame">
+    <visual>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <material name="blue"/>
+    </visual>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.000001" ixy="0.0" ixz="0.0" iyy="0.000001" iyz="0.0" izz="0.000001"/>
+    </inertial>
+  </link>
+
+  <joint name="kinect_hd_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="kinect2_ir_optical_frame"/>
+    <child link="kinect2_rgb_optical_frame"/>
+  </joint>
+
+  <link name="mani_lift">
+    <visual>
+      <geometry>
+        <box size="0.03 0.04 0.06"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 -0.06"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.03" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.03 0.04 0.06"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.000375" ixy="0.0" ixz="0.0" iyy="0.000208333" iyz="0.0" izz="0.000433333"/>
+    </inertial>
+  </link>
+
+  <joint name="mani_base" type="prismatic">
+    <origin xyz="0.1 0 0.4" rpy="0 -1.5707963 0"/>
+    <parent link="base_link"/>
+    <child link="mani_lift"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="1000.0" lower="0.0" upper="0.7" velocity="0.5"/>
+  </joint>
+
+  <link name="mani_elbow">
+    <visual>
+      <geometry>
+        <cylinder length="0.001" radius="0.001"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0000375" ixy="0.0" ixz="0.0" iyy="0.0000208333" iyz="0.0" izz="0.0000433333"/>
+    </inertial>
+  </link>
+
+  <joint name="lift_elbow" type="fixed">
+    <origin xyz="0 0 -0.08" rpy="0 0 0"/>
+    <parent link="mani_lift"/>
+    <child link="mani_elbow"/>
+  </joint>
+
+  <link name="mani_forearm">
+    <visual>
+      <geometry>
+        <mesh filename="package://mr_description/meshes/wpb_home/forearm.dae" scale="1 1 1"/>
+      </geometry>
+      <origin rpy="-1.5707963 3.1415926 0" xyz="0.365 -0.037 -0.0355"/>
+    </visual>
+    <collision>
+      <origin xyz="0.19 0 -0.01" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.35 0.05 0.03"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.95"/>
+      <inertia ixx="0.121862813" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.121862813"/>
+    </inertial>
+  </link>
+
+  <joint name="elbow_forearm" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="mani_elbow"/>
+    <child link="mani_forearm"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="1000.0" lower="0.0" upper="1.57" velocity="0.5"/>
+  </joint>
+
+  <link name="mani_left_finger">
+    <visual>
+      <geometry>
+        <mesh filename="package://mr_description/meshes/wpb_home/finger.dae" scale="1 1 1"/>
+      </geometry>
+      <origin rpy="-1.57 0 1.57" xyz="0.154 -0.005 0.009"/>
+    </visual>
+    <collision>
+      <origin xyz="0.076 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.01 0.037"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.001" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="forearm_left_finger" type="revolute">
+    <origin xyz="0.32 0.0125 0" rpy="0 0 0"/>
+    <parent link="mani_forearm"/>
+    <child link="mani_left_finger"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="0.0" upper="1.0" velocity="0.5"/>
+  </joint>
+
+  <link name="mani_right_finger">
+    <visual>
+      <geometry>
+        <mesh filename="package://mr_description/meshes/wpb_home/finger.dae" scale="1 1 1"/>
+      </geometry>
+      <origin rpy="1.57 0 -1.57" xyz="0.154 0.005 -0.020"/>
+    </visual>
+    <collision>
+      <origin xyz="0.076 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.01 0.037"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.001" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="forearm_right_finger" type="revolute">
+    <origin xyz="0.32 -0.0125 0" rpy="0 0 0"/>
+    <parent link="mani_forearm"/>
+    <child link="mani_right_finger"/>
+    <axis xyz="0 0 -1"/>
+    <limit effort="1000.0" lower="0.0" upper="1.0" velocity="0.5"/>
+  </joint>
+</robot>

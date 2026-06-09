@@ -47,7 +47,7 @@ wpb_home:
   camera_topic: /camera/rgb/image_raw
   depth_topic: /camera/depth/image_raw
   imu_topic: /imu
-  nav_config_key: wpb_home
+  nav_config_key: wpb_home_mani
 
 wpb_home_mani:
   description_package: mr_description

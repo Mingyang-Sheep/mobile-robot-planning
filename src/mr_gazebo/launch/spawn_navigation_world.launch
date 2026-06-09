@@ -60,13 +60,13 @@
   <node pkg="tf"
         type="static_transform_publisher"
         name="wpb_kinect_dock_tf"
-        if="$(eval arg('robot_model').startswith('wpb_home'))"
+        if="$(eval arg('robot_model') == 'wpb_home')"
         args="0.145 -0.013 1.37 0 0 0 base_link kinect2_dock 100"/>
 
   <node pkg="tf"
         type="static_transform_publisher"
         name="wpb_kinect_ir_tf"
-        if="$(eval arg('robot_model').startswith('wpb_home'))"
+        if="$(eval arg('robot_model') == 'wpb_home')"
         args="0 0 0 0 0.5 0 kinect2_dock kinect2_ir_optical_frame 100"/>
 
   <node pkg="gazebo_ros"

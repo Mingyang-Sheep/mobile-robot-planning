@@ -64,6 +64,7 @@ GAZEBO_PLUGINS=(
   libgazebo_ros_diff_drive.so
   libgazebo_ros_imu.so
   libgazebo_ros_imu_sensor.so
+  libgazebo_ros_joint_state_publisher.so
   libgazebo_ros_laser.so
   libgazebo_ros_depth_camera.so
   libgazebo_ros_openni_kinect.so
@@ -350,6 +351,7 @@ run_quick_checks() {
   plugin_status libgazebo_ros_diff_drive.so
   plugin_status libgazebo_ros_imu.so
   plugin_status libgazebo_ros_imu_sensor.so
+  plugin_status libgazebo_ros_joint_state_publisher.so
   plugin_status libgazebo_ros_laser.so
   plugin_status libgazebo_ros_depth_camera.so
   plugin_status libgazebo_ros_openni_kinect.so
@@ -401,6 +403,7 @@ run_quick_checks() {
   file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/wpb_home_mani.urdf"
   file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/simulation/wpb_home_sim.urdf.xacro"
   file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/simulation/wpb_home_mani_sim.urdf.xacro"
+  file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/simulation/wpb_home_mani_model.urdf.xacro"
   file_status "${SRC_ROOT}/mr_description/urdf/wpb_home/simulation/wpb_home_gazebo_plugins.xacro"
   file_status "${SRC_ROOT}/mr_description/urdf/generated"
   file_status "${SRC_ROOT}/mr_description/meshes/wpb_home/wpb_home.dae"
@@ -422,6 +425,12 @@ run_quick_checks() {
   file_status "${SRC_ROOT}/mr_navigation/config/local_costmap_params_wpb_home.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/move_base_params_wpb_home.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/amcl_params_wpb_home.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/costmap_common_params_wpb_home_mani.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/dwa_local_planner_params_wpb_home_mani.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/global_costmap_params_wpb_home_mani.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/local_costmap_params_wpb_home_mani.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/move_base_params_wpb_home_mani.yaml"
+  file_status "${SRC_ROOT}/mr_navigation/config/amcl_params_wpb_home_mani.yaml"
   file_status "${SRC_ROOT}/mr_navigation/config/robot_models.yaml"
   file_status "${SRC_ROOT}/mr_gazebo/worlds/turtlebot3_world.world"
   file_status "${SRC_ROOT}/mr_gazebo/worlds/stage_1.world"
