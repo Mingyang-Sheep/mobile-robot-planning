@@ -1,4 +1,13 @@
 global_costmap:
+  plugins:
+    - {name: static_layer, type: "costmap_2d::StaticLayer"}
+    - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+    - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+
+  static_layer:
+    map_topic: /map
+    subscribe_to_updates: true
+
   # 全局代价地图工作在 map 坐标系下，用于承载静态地图和全局路径规划。
   global_frame: map
   # 机器人参考系保持通用 base_footprint，不与任何底盘型号耦合。
@@ -10,6 +19,3 @@ global_costmap:
   publish_frequency: 1.0
   # TF 容差保持 0.5s，避免定位与地图更新偶发时间差导致报错。
   transform_tolerance: 0.5
-
-  # 开启静态地图模式，让全局层直接以 map_server 输出的占据栅格为基底。
-  static_map: true

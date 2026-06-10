@@ -11,8 +11,6 @@ inflation_radius: 0.2
 # 代价值衰减斜率取 4.0，在“离墙更安全”和“窄路还能过”之间折中。
 cost_scaling_factor: 4.0
 
-# 统一使用 ROS costmap 二维代价地图类型，便于不同底盘复用同一导航栈接口。
-map_type: costmap
 # 当前仅以激光作为观测源，后续接入其他底盘时可在对应 _model.yaml 中扩展。
 observation_sources: scan
 scan:
@@ -26,3 +24,18 @@ scan:
   marking: true
   # 开启清障，使机器人移动后旧障碍能被射线更新清除。
   clearing: true
+
+obstacle_layer:
+  obstacle_range: 3.0
+  raytrace_range: 3.5
+  observation_sources: scan
+  scan:
+    sensor_frame: base_scan
+    data_type: LaserScan
+    topic: /scan
+    marking: true
+    clearing: true
+
+inflation_layer:
+  inflation_radius: 0.2
+  cost_scaling_factor: 4.0

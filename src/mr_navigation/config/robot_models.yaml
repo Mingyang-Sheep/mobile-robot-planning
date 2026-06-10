@@ -38,20 +38,8 @@ waffle_pi:
 wpb_home:
   description_package: mr_description
   xacro: urdf/wpb_home/simulation/wpb_home_sim.urdf.xacro
-  base_frame: base_footprint
-  laser_frame: laser
-  odom_frame: odom
-  scan_topic: /scan
-  cmd_vel_topic: /cmd_vel
-  odom_topic: /odom
-  camera_topic: /camera/rgb/image_raw
-  depth_topic: /camera/depth/image_raw
-  imu_topic: /imu
-  nav_config_key: wpb_home_mani
-
-wpb_home_mani:
-  description_package: mr_description
-  xacro: urdf/wpb_home/simulation/wpb_home_mani_sim.urdf.xacro
+  navigation_world: mr_gazebo/worlds/turtlebot3_world.world
+  navigation_map: turtlebot3_world
   base_frame: base_footprint
   laser_frame: laser
   odom_frame: odom
@@ -62,3 +50,19 @@ wpb_home_mani:
   depth_topic: /camera/depth/image_raw
   imu_topic: /imu
   nav_config_key: wpb_home
+
+wpb_home_mani:
+  description_package: mr_description
+  xacro: urdf/wpb_home/simulation/wpb_home_mani_sim.urdf.xacro
+  navigation_world: mr_gazebo/worlds/turtlebot3_world.world
+  navigation_map: turtlebot3_world
+  base_frame: base_footprint
+  laser_frame: laser
+  odom_frame: odom
+  scan_topic: /scan
+  cmd_vel_topic: /cmd_vel
+  odom_topic: /odom
+  camera_topic: /camera/rgb/image_raw
+  depth_topic: /camera/depth/image_raw
+  imu_topic: /imu
+  nav_config_key: wpb_home_mani

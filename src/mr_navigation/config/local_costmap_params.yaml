@@ -1,4 +1,8 @@
 local_costmap:
+  plugins:
+    - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+    - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+
   # 局部代价地图固定在里程计坐标系下，适合随车滚动更新。
   global_frame: odom
   # 机器人底盘参考系统一为 base_footprint，便于多底盘共用导航接口。
@@ -11,8 +15,6 @@ local_costmap:
   # TF 容差保持 0.5s，吸收仿真/通信中的轻微时间抖动。
   transform_tolerance: 0.5
 
-  # 局部代价地图不直接依赖静态整图，而是围绕机器人实时滚动。
-  static_map: false
   # 开启 rolling window，形成真正随车移动的局部环境感知窗口。
   rolling_window: true
   # 局部窗口宽度设为 3m，兼顾窄场景机动和前方障碍预判。

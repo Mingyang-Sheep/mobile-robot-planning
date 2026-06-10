@@ -182,6 +182,32 @@ AMCL + move_base 至少依赖：
 roslaunch mr_navigation navigation_sim.launch model:=wpb_home robot_model:=wpb_home
 ```
 
+当前仓库中可复现的 WPB Home 导航验证配对为：
+
+```text
+world: src/mr_gazebo/worlds/turtlebot3_world.world
+map:   src/mr_maps/maps/turtlebot3_world.yaml
+pose:  x=-2.0, y=-0.5, yaw=0.0
+```
+
+对应命令：
+
+```bash
+roslaunch mr_navigation navigation_sim.launch \
+  model:=wpb_home \
+  robot_model:=wpb_home \
+  world_name:=$(rospack find mr_gazebo)/worlds/turtlebot3_world.world \
+  map_name:=turtlebot3_world
+
+roslaunch mr_navigation navigation_sim.launch \
+  model:=wpb_home_mani \
+  robot_model:=wpb_home_mani \
+  world_name:=$(rospack find mr_gazebo)/worlds/turtlebot3_world.world \
+  map_name:=turtlebot3_world
+```
+
+这组 world/map 是当前仓库已有、文件层面一一对应并已验证的组合。它不是 WPB Home 官方专属环境，只是用于确认 WPB Home 能接入本仓库现有 Gazebo / SLAM / Navigation 主链路。
+
 ## 11. 检查命令
 
 ```bash
@@ -288,7 +314,129 @@ roslaunch mr_description wpb_home_description.launch model:=wpb_home
 roslaunch mr_navigation simulation.launch model:=wpb_home robot_model:=wpb_home
 roslaunch mr_navigation slam_sim.launch model:=wpb_home robot_model:=wpb_home
 roslaunch mr_navigation navigation_sim.launch model:=wpb_home robot_model:=wpb_home
-roslaunch mr_navigation navigation_sim.launch robot_model:=wpb_home_mani
+roslaunch mr_navigation simulation.launch model:=wpb_home_mani robot_model:=wpb_home_mani
+roslaunch mr_navigation slam_sim.launch model:=wpb_home_mani robot_model:=wpb_home_mani
+roslaunch mr_navigation navigation_sim.launch model:=wpb_home_mani robot_model:=wpb_home_mani
 ```
 
 `wpb_home_mani` 使用独立导航参数，导航 footprint 仍然只按底盘处理，机械臂保持静止并通过 Gazebo joint state publisher 发布 TF。
+
+## 14. 本仓库验证命令与结果
+
+本次验证使用当前工作区源码，关闭 GUI/RViz 做短时 headless 启动检查。验证目标是确认 launch 能解析、模型能展开、Gazebo 能发布导航闭环所需的关键 topic。长期运动稳定性、真实避障效果和复杂地图导航质量需要后续人工在 RViz 中继续测试。
+
+基础编译：
+
+```bash
+source /opt/ros/noetic/setup.bash
+catkin_make
+source devel/setup.bash
+```
+
+结果：
+
+```text
+catkin_make: PASS
+```
+
+Launch 解析验证：
+
+```bash
+roslaunch --nodes mr_navigation simulation.launch model:=<model> robot_model:=<model> gui:=false headless:=true
+roslaunch --nodes mr_navigation slam_sim.launch model:=<model> robot_model:=<model> gui:=false headless:=true use_rviz:=false
+roslaunch --nodes mr_navigation navigation_sim.launch model:=<model> robot_model:=<model> gui:=false headless:=true use_rviz:=false
+```
+
+验证模型：
+
+```text
+burger
+waffle
+waffle_pi
+wpb_home
+wpb_home_mani
+```
+
+结果：
+
+```text
+15/15 launch parse checks: PASS
+```
+
+URDF / Xacro 检查：
+
+```bash
+rosrun xacro xacro $(rospack find mr_description)/urdf/project/turtlebot3_burger.simulation.urdf.xacro > /tmp/burger_simulation_check.urdf
+check_urdf /tmp/burger_simulation_check.urdf
+
+rosrun xacro xacro $(rospack find mr_description)/urdf/project/turtlebot3_waffle.simulation.urdf.xacro > /tmp/waffle_simulation_check.urdf
+check_urdf /tmp/waffle_simulation_check.urdf
+
+rosrun xacro xacro $(rospack find mr_description)/urdf/project/turtlebot3_waffle_pi.simulation.urdf.xacro > /tmp/waffle_pi_simulation_check.urdf
+check_urdf /tmp/waffle_pi_simulation_check.urdf
+
+rosrun xacro xacro $(rospack find mr_description)/urdf/wpb_home/simulation/wpb_home_sim.urdf.xacro > /tmp/wpb_home_simulation_check.urdf
+check_urdf /tmp/wpb_home_simulation_check.urdf
+
+rosrun xacro xacro $(rospack find mr_description)/urdf/wpb_home/simulation/wpb_home_mani_sim.urdf.xacro > /tmp/wpb_home_mani_simulation_check.urdf
+check_urdf /tmp/wpb_home_mani_simulation_check.urdf
+```
+
+结果：
+
+```text
+burger: PASS
+waffle: PASS
+waffle_pi: PASS
+wpb_home: PASS
+wpb_home_mani: PASS
+```
+
+短时运行验证命令模板：
+
+```bash
+roslaunch mr_navigation simulation.launch \
+  model:=<model> robot_model:=<model> \
+  gui:=false headless:=true paused:=false
+
+roslaunch mr_navigation slam_sim.launch \
+  model:=<model> robot_model:=<model> \
+  gui:=false headless:=true use_rviz:=false paused:=false \
+  slam_method:=gmapping
+
+roslaunch mr_navigation navigation_sim.launch \
+  model:=<model> robot_model:=<model> \
+  gui:=false headless:=true use_rviz:=false paused:=false \
+  map_name:=turtlebot3_world \
+  world_name:=$(rospack find mr_gazebo)/worlds/turtlebot3_world.world
+```
+
+短时运行验证口径：
+
+```text
+simulation.launch:     /scan /odom /cmd_vel /tf
+slam_sim.launch:       /scan /odom /tf /map
+navigation_sim.launch: /scan /odom /cmd_vel /tf /map
+```
+
+短时运行验证结果：
+
+| 机器人 | simulation.launch | slam_sim.launch | navigation_sim.launch |
+|---|---|---|---|
+| burger | PASS | PASS | PASS |
+| waffle | PASS | PASS | PASS |
+| waffle_pi | PASS | PASS | PASS |
+| wpb_home | PASS | PASS | PASS |
+| wpb_home_mani | PASS | PASS | PASS |
+
+验证后检查未发现残留进程：
+
+```bash
+pgrep -fa 'roslaunch|gzserver|gzclient|rosmaster|roscore'
+```
+
+结果：
+
+```text
+no residual ROS/Gazebo process found
+```

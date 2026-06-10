@@ -1,7 +1,8 @@
 <launch>
-  <!-- 标准导航联调入口：加载官方 turtlebot3_world 仿真世界。 -->
+  <!-- 标准导航联调入口：默认加载与 mr_maps/maps/turtlebot3_world.yaml 对齐的世界。 -->
   <arg name="robot_model" default="burger"/>
   <arg name="robot_name" default="$(eval arg('robot_model') if arg('robot_model').startswith('turtlebot3_') or arg('robot_model').startswith('wpb_home') else 'turtlebot3_' + arg('robot_model'))"/>
+  <arg name="world_name" default="$(find mr_gazebo)/worlds/turtlebot3_world.world"/>
 
   <!-- 固定起点对齐官方 turtlebot3_world.launch 与对应地图 YAML。 -->
   <arg name="x" default="-2.0"/>
@@ -27,7 +28,7 @@
   <env name="GAZEBO_MODEL_DATABASE_URI" value=""/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find mr_gazebo)/worlds/turtlebot3_world.world"/>
+    <arg name="world_name" value="$(arg world_name)"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
     <arg name="gui" value="$(arg gui)"/>
