@@ -3,11 +3,19 @@
   <arg name="algorithm" default="astar"/>
   <arg name="impl" default="cpp"/>
   <arg name="planner_plugin" default=""/>
+  <arg name="goal_topic" default="/move_base_simple/goal"/>
+  <arg name="path_topic" default="/mr_traditional_planner/optimal_path"/>
+  <arg name="robot_radius" default="0.25"/>
 
   <group if="$(eval arg('impl') == 'cpp')">
     <node pkg="mr_traditional_planner" type="planner_plugin_node" name="planner_plugin_node" output="screen">
       <param name="algorithm" value="$(arg algorithm)"/>
       <param name="planner_plugin" value="$(arg planner_plugin)"/>
+      <param name="goal_topic" value="$(arg goal_topic)"/>
+      <param name="path_topic" value="$(arg path_topic)"/>
+      <param name="robot_radius" value="$(arg robot_radius)"/>
+      <remap from="/move_base_simple/goal" to="$(arg goal_topic)"/>
+      <remap from="/mr_traditional_planner/optimal_path" to="$(arg path_topic)"/>
     </node>
   </group>
 
@@ -15,6 +23,11 @@
     <node pkg="mr_traditional_planner" type="python_planner_node.py"
           name="python_planner_node" output="screen">
       <param name="algorithm" value="$(arg algorithm)"/>
+      <param name="goal_topic" value="$(arg goal_topic)"/>
+      <param name="path_topic" value="$(arg path_topic)"/>
+      <param name="robot_radius" value="$(arg robot_radius)"/>
+      <remap from="/move_base_simple/goal" to="$(arg goal_topic)"/>
+      <remap from="/mr_traditional_planner/optimal_path" to="$(arg path_topic)"/>
     </node>
   </group>
 </launch>

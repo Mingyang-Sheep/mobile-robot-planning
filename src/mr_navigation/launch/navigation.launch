@@ -9,6 +9,12 @@
   <arg name="move_forward_only" default="false"/>
   <arg name="odom_model_type" default="diff"/>
   <arg name="controller_frequency" default="10.0"/>
+  <arg name="base_global_planner" default="navfn/NavfnROS"/>
+  <arg name="traditional_goal_topic"
+       default="/mr_traditional_planner/planner_goal"/>
+  <arg name="traditional_path_topic"
+       default="/mr_traditional_planner/optimal_path"/>
+  <arg name="traditional_plan_timeout" default="5.0"/>
   <!-- 默认起始点服务于 TurtleBot3 示例；Go2W 入口会覆盖为 maze_2_hector 对应初始位姿。 -->
   <arg name="initial_pose_x" default="-2.0"/>
   <arg name="initial_pose_y" default="-0.5"/>
@@ -32,5 +38,12 @@
     <arg name="odom_topic" value="$(arg odom_topic)"/>
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
     <arg name="controller_frequency" value="$(arg controller_frequency)"/>
+    <arg name="base_global_planner" value="$(arg base_global_planner)"/>
+    <arg name="traditional_goal_topic"
+         value="$(arg traditional_goal_topic)"/>
+    <arg name="traditional_path_topic"
+         value="$(arg traditional_path_topic)"/>
+    <arg name="traditional_plan_timeout"
+         value="$(arg traditional_plan_timeout)"/>
   </include>
 </launch>

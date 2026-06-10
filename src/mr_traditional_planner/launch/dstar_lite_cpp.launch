@@ -1,6 +1,8 @@
 <launch>
   <!-- D* Lite C++ plugin：/map + /move_base_simple/goal -> /mr_traditional_planner/optimal_path -->
+  <arg name="robot_radius" default="0.25"/>
   <node pkg="mr_traditional_planner" type="planner_plugin_node" name="dstar_lite_planner_cpp" output="screen">
     <param name="planner_plugin" value="mr_traditional_planner/DStarLitePlanner"/>
+    <param name="robot_radius" value="$(arg robot_radius)"/>
   </node>
 </launch>

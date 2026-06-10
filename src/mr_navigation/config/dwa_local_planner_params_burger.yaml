@@ -49,7 +49,7 @@ DWAPlannerROS:
   # 目标偏置设为 24.0，略高于旧值，使机器人在临近终点时更积极收敛。
   goal_distance_bias: 24.0
   # 障碍代价权重设为 0.02，保持避障敏感度但不过度保守。
-  occdist_scale: 0.02
+  occdist_scale: 0.08
   # 前瞻点评分距离保持 0.325，维持对前向可行轨迹的偏好。
   forward_point_distance: 0.325
   # 停车时间缓冲保持 0.2s，避免高频控制下误选来不及刹停的轨迹。

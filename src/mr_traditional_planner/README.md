@@ -49,6 +49,50 @@
 - Debug trigger: all algorithms use RViz `2D Nav Goal`
 - Coverage note: for `bcd` / `stc`, the clicked point only acts as a trigger signal
 
+## TurtleBot move_base Execution
+
+The standalone optimal planners can be used as the global path source for
+TurtleBot while `move_base` continues to use `DWAPlannerROS` as its local
+controller:
+
+```bash
+roslaunch mr_navigation navigation_sim.launch \
+  model:=burger \
+  map_name:=maze_2_hector \
+  use_traditional_global_planner:=true \
+  traditional_algorithm:=astar \
+  traditional_impl:=cpp \
+  traditional_robot_radius:=0.25
+```
+
+Increase `traditional_robot_radius` to keep the global path farther from walls.
+For TurtleBot3 Burger, start with `0.25`; use `0.30` if the local controller
+still clips corners. A* also rejects diagonal moves that would cut through an
+occupied corner.
+
+Replace `astar` with one of:
+
+```text
+astar
+dijkstra
+dstar
+dstar_lite
+theta_star
+rrt_star
+```
+
+In this mode, `PathTopicGlobalPlanner` sends a planning request to the selected
+standalone planner, receives `/mr_traditional_planner/optimal_path`, and returns
+that path to `move_base`. The existing local DWA planner then follows the path
+and publishes velocity commands.
+
+Do not select `dwa`, `bcd`, or `stc` through this global-path mode. The custom
+`dwa` implementation is itself a velocity controller, while `bcd` and `stc`
+produce coverage paths with different execution semantics.
+
+The Go2W launch explicitly keeps `navfn/NavfnROS`, so this TurtleBot option does
+not change the Go2W navigation stack.
+
 ## C++ Plugin Extension
 
 New C++ algorithms implement `mr_traditional_planner::PlannerPlugin`, export the class

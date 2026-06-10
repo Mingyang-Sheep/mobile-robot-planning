@@ -1,5 +1,6 @@
 <launch>
   <arg name="stage" default="1"/>
+  <arg name="maze" default="1"/>
   <arg name="robot_model" default="turtlebot3_burger"/>
   <arg name="robot_name" default="$(arg robot_model)"/>
 
@@ -17,7 +18,7 @@
   <env name="GAZEBO_MODEL_PATH" value="$(find mr_gazebo)/models:$(optenv GAZEBO_MODEL_PATH)"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find mr_gazebo)/worlds/stage_$(arg stage).world"/>
+    <arg name="world_name" value="$(find mr_gazebo)/worlds/maze_$(arg maze).world"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
     <arg name="gui" value="$(arg gui)"/>

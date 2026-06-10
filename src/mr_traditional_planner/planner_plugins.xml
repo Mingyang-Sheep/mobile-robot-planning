@@ -1,4 +1,11 @@
 <library path="lib/libmr_traditional_planner_plugins">
+  <class name="mr_traditional_planner/PathTopicGlobalPlanner"
+         type="mr_traditional_planner::PathTopicGlobalPlanner"
+         base_class_type="nav_core::BaseGlobalPlanner">
+    <description>
+      Adapts a nav_msgs/Path from a standalone traditional planner for move_base.
+    </description>
+  </class>
   <class name="mr_traditional_planner/AStarPlanner"
          type="mr_traditional_planner::optimal::AStarPlanner"
          base_class_type="mr_traditional_planner::PlannerPlugin">

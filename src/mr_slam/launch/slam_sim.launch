@@ -4,11 +4,13 @@
   <arg name="slam_method" default="gmapping"/>
   <arg name="model" default="turtlebot3_burger"/>
   <arg name="stage" default="1"/>
+  <arg name="maze" default="1"/>
   <arg name="scan_topic" default="/scan"/>
   <arg name="odom_topic" default="/odom"/>
 
   <!-- Gazebo + robot (reuses mr_gazebo). -->
   <include file="$(find mr_gazebo)/launch/spawn_robot.launch">
+  <arg name="maze" value="$(arg maze)"/>
     <arg name="stage" value="$(arg stage)"/>
     <arg name="robot_model" value="$(arg model)"/>
   </include>

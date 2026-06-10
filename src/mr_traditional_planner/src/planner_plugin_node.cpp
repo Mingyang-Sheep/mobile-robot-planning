@@ -63,6 +63,8 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  ROS_INFO_STREAM("Loading traditional planner plugin: " << planner_plugin);
+
   try {
     pluginlib::ClassLoader<mr_traditional_planner::PlannerPlugin> loader(
         "mr_traditional_planner", "mr_traditional_planner::PlannerPlugin");

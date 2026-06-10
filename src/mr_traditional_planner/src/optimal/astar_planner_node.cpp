@@ -44,7 +44,7 @@ AStarPlanner::AStarPlanner()
       resolution_(0.0),
       origin_x_(0.0),
       origin_y_(0.0),
-      robot_radius_(0.15),
+      robot_radius_(0.25),
       map_frame_("map"),
       robot_frame_("base_footprint") {}
 
@@ -273,6 +273,14 @@ std::vector<int> AStarPlanner::planPath(int start_x, int start_y, int goal_x, in
       const double step_cost = std::get<2>(motion);
 
       if (!inBounds(next_x, next_y) || isObstacle(next_x, next_y)) {
+        continue;
+      }
+
+      const int delta_x = std::get<0>(motion);
+      const int delta_y = std::get<1>(motion);
+      if (delta_x != 0 && delta_y != 0 &&
+          (isObstacle(current_node.x + delta_x, current_node.y) ||
+           isObstacle(current_node.x, current_node.y + delta_y))) {
         continue;
       }
 

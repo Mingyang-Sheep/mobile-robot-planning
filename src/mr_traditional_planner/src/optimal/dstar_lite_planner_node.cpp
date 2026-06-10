@@ -17,7 +17,7 @@ DStarLitePlanner::DStarLitePlanner()
       resolution_(0.0),
       origin_x_(0.0),
       origin_y_(0.0),
-      robot_radius_(0.15),
+      robot_radius_(0.25),
       map_frame_("map"),
       robot_frame_("base_footprint"),
       search_start_index_(-1),
@@ -42,9 +42,15 @@ void DStarLitePlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_
   map_sub_ = nh_.subscribe(map_topic, 1, &DStarLitePlanner::mapCallback, this);
   goal_sub_ = nh_.subscribe(goal_topic, 1, &DStarLitePlanner::goalCallback, this);
   path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic, 1, true);
+
+  ROS_INFO_STREAM("D* Lite planner initialized: map=" << map_topic
+                  << ", goal=" << goal_topic
+                  << ", path=" << path_topic
+                  << ", robot_radius=" << robot_radius_);
 }
 
 void DStarLitePlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
+  const ros::WallTime build_start = ros::WallTime::now();
   latest_map_ = msg;
   map_width_ = static_cast<int>(msg->info.width);
   map_height_ = static_cast<int>(msg->info.height);
@@ -52,19 +58,23 @@ void DStarLitePlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
   origin_x_ = msg->info.origin.position.x;
   origin_y_ = msg->info.origin.position.y;
   buildObstacleLookup();
+  ROS_INFO_STREAM("D* Lite map ready: " << map_width_ << "x"
+                  << map_height_ << ", resolution=" << resolution_
+                  << ", obstacle lookup="
+                  << (ros::WallTime::now() - build_start).toSec() << " s");
 }
 
 void DStarLitePlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
   latest_goal_ = msg;
 
   if (!latest_map_) {
-    ROS_WARN("D* Lite C++: /map 尚未收到，无法开始规划。");
+    ROS_WARN("D* Lite cannot plan because /map has not been received.");
     return;
   }
 
   if (!msg->header.frame_id.empty() && msg->header.frame_id != map_frame_) {
-    ROS_WARN_STREAM("D* Lite C++: 仅支持 " << map_frame_ << " 坐标系目标点，当前收到的是 "
-                                          << msg->header.frame_id << "。");
+    ROS_WARN_STREAM("D* Lite expected goal frame " << map_frame_
+                    << " but received " << msg->header.frame_id << ".");
     return;
   }
 
@@ -78,32 +88,52 @@ void DStarLitePlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& ms
   const std::pair<int, int> goal = worldToGrid(msg->pose.position.x, msg->pose.position.y);
 
   if (!inBounds(start.first, start.second)) {
-    ROS_WARN("D* Lite C++: 起点超出地图范围，停止规划。");
+    ROS_WARN_STREAM("D* Lite start is outside the map: world=("
+                    << start_world_x << ", " << start_world_y
+                    << "), grid=(" << start.first << ", " << start.second
+                    << ").");
     return;
   }
 
   if (!inBounds(goal.first, goal.second)) {
-    ROS_WARN("D* Lite C++: 终点超出地图范围，停止规划。");
+    ROS_WARN_STREAM("D* Lite goal is outside the map: world=("
+                    << msg->pose.position.x << ", "
+                    << msg->pose.position.y << "), grid=("
+                    << goal.first << ", " << goal.second << ").");
     return;
   }
 
   if (isObstacle(start.first, start.second)) {
-    ROS_WARN("D* Lite C++: 起点位于障碍物膨胀区内，停止规划。");
+    ROS_WARN_STREAM("D* Lite start is blocked: world=("
+                    << start_world_x << ", " << start_world_y
+                    << "), grid=(" << start.first << ", " << start.second
+                    << "). Check the spawn and AMCL initial pose.");
     return;
   }
 
   if (isObstacle(goal.first, goal.second)) {
-    ROS_WARN("D* Lite C++: 终点位于障碍物膨胀区内，停止规划。");
+    ROS_WARN_STREAM("D* Lite goal is blocked: world=("
+                    << msg->pose.position.x << ", "
+                    << msg->pose.position.y << "), grid=("
+                    << goal.first << ", " << goal.second << ").");
     return;
   }
 
-  const std::vector<int> path_indices = planPath(start.first, start.second, goal.first, goal.second);
+  const ros::WallTime plan_start = ros::WallTime::now();
+  const std::vector<int> path_indices =
+      planPath(start.first, start.second, goal.first, goal.second);
   if (path_indices.empty()) {
-    ROS_WARN("D* Lite C++: 未找到可行路径。");
+    ROS_WARN_STREAM("D* Lite found no path from grid=("
+                    << start.first << ", " << start.second
+                    << ") to grid=(" << goal.first << ", "
+                    << goal.second << ").");
     return;
   }
 
   publishPath(path_indices);
+  ROS_INFO_STREAM("D* Lite published " << path_indices.size()
+                  << " poses in "
+                  << (ros::WallTime::now() - plan_start).toSec() << " s");
 }
 
 void DStarLitePlanner::buildObstacleLookup() {
@@ -116,16 +146,26 @@ void DStarLitePlanner::buildObstacleLookup() {
 
   for (std::size_t linear_index = 0; linear_index < latest_map_->data.size(); ++linear_index) {
     const int occupancy = latest_map_->data[linear_index];
-    if (occupancy < 0 || occupancy >= 50) {
-      const int obstacle_x = static_cast<int>(linear_index % static_cast<std::size_t>(map_width_));
-      const int obstacle_y = static_cast<int>(linear_index / static_cast<std::size_t>(map_width_));
+    if (occupancy < 0) {
+      obstacle_grid_[linear_index] = 1U;
+      continue;
+    }
 
-      for (const std::pair<int, int>& offset : inflation_offsets_) {
-        const int inflated_x = obstacle_x + offset.first;
-        const int inflated_y = obstacle_y + offset.second;
-        if (inBounds(inflated_x, inflated_y)) {
-          obstacle_grid_[static_cast<std::size_t>(toIndex(inflated_x, inflated_y))] = 1U;
-        }
+    if (occupancy < 50) {
+      continue;
+    }
+
+    const int obstacle_x =
+        static_cast<int>(linear_index % static_cast<std::size_t>(map_width_));
+    const int obstacle_y =
+        static_cast<int>(linear_index / static_cast<std::size_t>(map_width_));
+
+    for (const std::pair<int, int>& offset : inflation_offsets_) {
+      const int inflated_x = obstacle_x + offset.first;
+      const int inflated_y = obstacle_y + offset.second;
+      if (inBounds(inflated_x, inflated_y)) {
+        obstacle_grid_[static_cast<std::size_t>(
+            toIndex(inflated_x, inflated_y))] = 1U;
       }
     }
   }
@@ -152,8 +192,8 @@ bool DStarLitePlanner::lookupStartPose(double& start_world_x, double& start_worl
     tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
     tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
   } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("D* Lite C++: 获取 " << map_frame_ << " -> " << robot_frame_
-                                         << " 失败，停止规划。" << ex.what());
+    ROS_WARN_STREAM("D* Lite failed to look up " << map_frame_
+                    << " -> " << robot_frame_ << ": " << ex.what());
     return false;
   }
 
@@ -253,9 +293,17 @@ std::vector<int> DStarLitePlanner::neighbors(int linear_index) const {
 
       const int next_x = grid.first + offset_x;
       const int next_y = grid.second + offset_y;
-      if (inBounds(next_x, next_y)) {
-        neighbor_indices.push_back(toIndex(next_x, next_y));
+      if (!inBounds(next_x, next_y) || isObstacle(next_x, next_y)) {
+        continue;
       }
+
+      if (offset_x != 0 && offset_y != 0 &&
+          (isObstacle(grid.first + offset_x, grid.second) ||
+           isObstacle(grid.first, grid.second + offset_y))) {
+        continue;
+      }
+
+      neighbor_indices.push_back(toIndex(next_x, next_y));
     }
   }
 
@@ -298,6 +346,9 @@ bool DStarLitePlanner::compareKeys(const Key& lhs, const Key& rhs) const {
 }
 
 bool DStarLitePlanner::nearlyEqual(double lhs, double rhs) const {
+  if (std::isinf(lhs) || std::isinf(rhs)) {
+    return lhs == rhs;
+  }
   return std::fabs(lhs - rhs) <= 1.0e-9;
 }
 
@@ -320,10 +371,15 @@ void DStarLitePlanner::updateVertex(int linear_index) {
 }
 
 bool DStarLitePlanner::computeShortestPath() {
-  const int map_size = map_width_ * map_height_;
-  const int max_iterations = std::max(1, map_size * 32);
+  const std::size_t map_size =
+      static_cast<std::size_t>(map_width_) *
+      static_cast<std::size_t>(map_height_);
+  const std::size_t max_iterations =
+      std::max<std::size_t>(1U, map_size * 32U);
 
-  for (int iteration = 0; iteration < max_iterations; ++iteration) {
+  for (std::size_t iteration = 0;
+       iteration < max_iterations;
+       ++iteration) {
     if (open_queue_.empty() &&
         nearlyEqual(rhs_values_[static_cast<std::size_t>(search_start_index_)],
                     g_values_[static_cast<std::size_t>(search_start_index_)])) {
@@ -370,7 +426,8 @@ bool DStarLitePlanner::computeShortestPath() {
     }
   }
 
-  ROS_WARN("D* Lite C++: 搜索迭代次数超过上限，停止规划。");
+  ROS_WARN_STREAM("D* Lite exceeded its search iteration limit: "
+                  << max_iterations << ".");
   return false;
 }
 

@@ -155,6 +155,7 @@
     <arg name="cmd_vel_topic" value="$(arg move_base_cmd_vel_topic)"/>
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
     <arg name="controller_frequency" value="$(arg move_base_controller_frequency)"/>
+    <arg name="base_global_planner" value="navfn/NavfnROS"/>
     <arg name="odom_model_type" value="diff"/>
     <arg name="initial_pose_x" value="$(arg x)"/>
     <arg name="initial_pose_y" value="$(arg y)"/>
@@ -169,6 +170,7 @@
     <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
     <arg name="controller_frequency" value="$(arg move_base_controller_frequency)"/>
+    <arg name="base_global_planner" value="navfn/NavfnROS"/>
     <arg name="odom_model_type" value="diff"/>
     <arg name="initial_pose_x" value="$(arg x)"/>
     <arg name="initial_pose_y" value="$(arg y)"/>

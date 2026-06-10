@@ -4,8 +4,10 @@ project(mr_traditional_planner)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
+  costmap_2d
   geometry_msgs
   move_base_msgs
+  nav_core
   nav_msgs
   pluginlib
   roscpp
@@ -19,8 +21,10 @@ catkin_package(
   CATKIN_DEPENDS
     actionlib
     actionlib_msgs
+    costmap_2d
     geometry_msgs
     move_base_msgs
+    nav_core
     nav_msgs
     pluginlib
     roscpp
@@ -34,6 +38,7 @@ include_directories(
 )
 
 add_library(mr_traditional_planner_plugins
+  src/path_topic_global_planner.cpp
   src/optimal/astar_planner_node.cpp
   src/optimal/dijkstra_planner_node.cpp
   src/optimal/dstar_planner_node.cpp
