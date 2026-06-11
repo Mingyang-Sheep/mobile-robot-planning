@@ -438,6 +438,7 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_cor
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/debug_path_tools.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/optimal/astar_planner.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/planner_plugin.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/astar_planner_node.cpp
@@ -684,6 +685,7 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/debug_path_tools.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/optimal/dijkstra_planner.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/planner_plugin.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dijkstra_planner_node.cpp
@@ -807,6 +809,7 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/debug_path_tools.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/optimal/dstar_lite_planner.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/planner_plugin.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_lite_planner_node.cpp
@@ -930,6 +933,7 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_lite_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/debug_path_tools.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/optimal/dstar_planner.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/planner_plugin.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dstar_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dstar_planner_node.cpp
@@ -1179,6 +1183,7 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dwa_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dwa_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/debug_path_tools.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/optimal/rrt_star_planner.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/planner_plugin.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/rrt_star_planner_node.cpp
@@ -1302,6 +1307,7 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/rrt_star_planner_node.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/debug_path_tools.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/optimal/theta_star_planner.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include/mr_traditional_planner/planner_plugin.h
 mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/theta_star_planner_node.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/theta_star_planner_node.cpp

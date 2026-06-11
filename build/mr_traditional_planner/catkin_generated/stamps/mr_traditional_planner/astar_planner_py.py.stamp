@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils import debug_path
 from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
 
 
@@ -26,16 +27,24 @@ class Node:
 
 class AStarPlannerNode:
     def __init__(self):
-        self.map_sub = rospy.Subscriber("/map", OccupancyGrid, self.map_callback, queue_size=1)
+        self.algorithm = "astar"
+        self.map_topic = rospy.get_param("~map_topic", "/map")
+        self.goal_topic = rospy.get_param("~goal_topic", "/move_base_simple/goal")
+        self.map_frame = rospy.get_param("~map_frame", "map")
+        self.robot_frames = debug_path.robot_frame_candidates("base_footprint")
+        self.tf_timeout = max(0.1, float(rospy.get_param("~tf_timeout", 1.0)))
+        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
+        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
         self.goal_sub = rospy.Subscriber(
-            "/move_base_simple/goal", PoseStamped, self.goal_callback, queue_size=1
+            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
         )
         self.path_pub = rospy.Publisher(
-            rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path"),
+            self.path_topic,
             Path,
             queue_size=1,
             latch=True,
         )
+        self.publish_failure("goal_not_received")
 
         self.tf_listener = tf.TransformListener()
         self.grid_map = None
@@ -58,18 +67,37 @@ class AStarPlannerNode:
     def map_callback(self, msg):
         self.grid_map = GridMap(msg)
         self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
+        debug_path.log_map_ready(
+            self.algorithm,
+            self.map_topic,
+            self.grid_map.width,
+            self.grid_map.height,
+            self.grid_map.resolution,
+            msg.header.frame_id,
+        )
 
     def goal_callback(self, msg):
+        debug_path.log_goal_received(
+            self.algorithm,
+            self.goal_topic,
+            msg.header.frame_id or self.map_frame,
+            msg.pose.position.x,
+            msg.pose.position.y,
+            self.grid_map is not None,
+        )
         if self.grid_map is None:
             rospy.logwarn("A* Python: /map 尚未收到，无法开始规划。")
+            self.publish_failure("map_not_ready")
             return
 
-        if msg.header.frame_id and msg.header.frame_id != "map":
+        if msg.header.frame_id and msg.header.frame_id != self.map_frame:
             rospy.logwarn("A* Python: 仅支持 map 坐标系目标点，当前收到的是 %s。", msg.header.frame_id)
+            self.publish_failure("goal_frame_mismatch")
             return
 
         start_world = self.lookup_start_pose()
         if start_world is None:
+            self.publish_failure("tf_lookup_failed")
             return
 
         start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
@@ -77,10 +105,12 @@ class AStarPlannerNode:
 
         if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("A* Python: 起点超出地图范围，停止规划。")
+            self.publish_failure("start_out_of_bounds")
             return
 
         if not self.grid_map.in_bounds(goal_x, goal_y):
             rospy.logwarn("A* Python: 终点超出地图范围，停止规划。")
+            self.publish_failure("goal_out_of_bounds")
             return
 
         start_index = self.grid_map.to_index(start_x, start_y)
@@ -88,31 +118,29 @@ class AStarPlannerNode:
 
         if start_index in self.obstacle_set:
             rospy.logwarn("A* Python: 起点位于障碍物膨胀区内，停止规划。")
+            self.publish_failure("start_blocked")
             return
 
         if goal_index in self.obstacle_set:
             rospy.logwarn("A* Python: 终点位于障碍物膨胀区内，停止规划。")
+            self.publish_failure("goal_blocked")
             return
 
         path_indices = self.plan_path(start_x, start_y, goal_x, goal_y)
         if not path_indices:
             rospy.logwarn("A* Python: 未找到可行路径。")
+            self.publish_failure("no_path")
             return
 
         self.publish_path(path_indices)
 
     def lookup_start_pose(self):
-        try:
-            self.tf_listener.waitForTransform(
-                "map", "base_footprint", rospy.Time(0), rospy.Duration(0.2)
-            )
-            translation, _ = self.tf_listener.lookupTransform(
-                "map", "base_footprint", rospy.Time(0)
-            )
-            return translation[0], translation[1]
-        except (tf.Exception, tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as exc:
-            rospy.logwarn("A* Python: 获取 map -> base_footprint 失败，停止规划。%s", exc)
+        result = debug_path.lookup_start_pose(
+            self.tf_listener, self.map_frame, self.robot_frames, self.tf_timeout, self.algorithm
+        )
+        if result is None:
             return None
+        return result[0], result[1]
 
     def plan_path(self, start_x, start_y, goal_x, goal_y):
         gm = self.grid_map
@@ -181,7 +209,7 @@ class AStarPlannerNode:
         gm = self.grid_map
         path_msg = Path()
         path_msg.header.stamp = rospy.Time.now()
-        path_msg.header.frame_id = "map"
+        path_msg.header.frame_id = self.map_frame
 
         for linear_index in path_indices:
             grid_x, grid_y = gm.index_to_grid(linear_index)
@@ -195,6 +223,12 @@ class AStarPlannerNode:
             path_msg.poses.append(pose)
 
         self.path_pub.publish(path_msg)
+        debug_path.log_success(self.algorithm, self.path_topic, len(path_msg.poses))
+
+    def publish_failure(self, reason):
+        debug_path.publish_empty(
+            self.path_pub, self.map_frame, self.algorithm, self.path_topic, reason
+        )
 
 
 if __name__ == "__main__":

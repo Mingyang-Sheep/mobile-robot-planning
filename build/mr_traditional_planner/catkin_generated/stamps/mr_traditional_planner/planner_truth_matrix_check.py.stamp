@@ -128,6 +128,13 @@ def static_source_checks():
     python_node_path = os.path.join(
         root, "src", "mr_traditional_planner", "scripts", "python_planner_node.py"
     )
+    debug_tools_path = os.path.join(
+        root, "src", "mr_traditional_planner", "include", "mr_traditional_planner",
+        "debug_path_tools.h"
+    )
+    py_debug_tools_path = os.path.join(
+        root, "src", "mr_traditional_planner", "scripts", "utils", "debug_path.py"
+    )
 
     with open(adapter_path, "r", encoding="utf-8") as handle:
         adapter = handle.read()
@@ -135,6 +142,10 @@ def static_source_checks():
         plugin_node = handle.read()
     with open(python_node_path, "r", encoding="utf-8") as handle:
         python_node = handle.read()
+    with open(debug_tools_path, "r", encoding="utf-8") as handle:
+        debug_tools = handle.read()
+    with open(py_debug_tools_path, "r", encoding="utf-8") as handle:
+        py_debug_tools = handle.read()
 
     required_adapter_tokens = [
         "publishEmptyVisualPath",
@@ -164,12 +175,10 @@ def static_source_checks():
         failures,
         "debug Python entry should not publish executed_global_path",
     )
-    expect("cleared debug path topic" in plugin_node, failures, "C++ debug startup clear missing")
-    expect("Cleared debug path topic" in python_node, failures, "Python debug startup clear missing")
-    expect("[DebugPlanner]" in plugin_node, failures, "C++ debug path publication log missing")
-    expect("[DebugPlanner]" in python_node, failures, "Python debug path publication log missing")
-    expect("goalCallback" in plugin_node, failures, "C++ debug goal clear missing")
-    expect("goal_callback" in python_node, failures, "Python debug goal clear missing")
+    expect("path_sub" not in plugin_node, failures, "C++ debug entry should not self-subscribe path")
+    expect("path_sub" not in python_node, failures, "Python debug entry should not self-subscribe path")
+    expect("[DebugPlanner]" in debug_tools, failures, "C++ debug path publication log missing")
+    expect("[DebugPlanner]" in py_debug_tools, failures, "Python debug path publication log missing")
     return failures
 
 
@@ -203,7 +212,7 @@ def main():
             print("- FAIL: %s" % failure)
     else:
         print("- PASS: failure clears executed path, request_id logging exists, fallback is disabled")
-        print("- PASS: debug entry points clear debug path on startup/new goal and never publish executed_global_path")
+        print("- PASS: debug entry points never publish executed_global_path or self-subscribe debug paths")
 
     return 1 if failed else 0
 

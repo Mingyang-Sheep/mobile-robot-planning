@@ -10,16 +10,20 @@ from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils import debug_path
 from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
 
 
 class DStarLitePlannerNode:
     def __init__(self):
+        self.algorithm = "dstar_lite"
         self.map_topic = rospy.get_param("~map_topic", "/map")
         self.goal_topic = rospy.get_param("~goal_topic", "/move_base_simple/goal")
         self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
         self.map_frame = rospy.get_param("~map_frame", "map")
         self.robot_frame = rospy.get_param("~robot_frame", "base_footprint")
+        self.robot_frames = debug_path.robot_frame_candidates(self.robot_frame)
+        self.tf_timeout = max(0.1, float(rospy.get_param("~tf_timeout", 1.0)))
         self.robot_radius = rospy.get_param("~robot_radius", 0.15)
 
         self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
@@ -29,6 +33,7 @@ class DStarLitePlannerNode:
         self.path_pub = rospy.Publisher(
             self.path_topic, Path, queue_size=1, latch=True
         )
+        self.publish_failure("goal_not_received")
 
         self.tf_listener = tf.TransformListener()
         self.grid_map = None
@@ -43,10 +48,27 @@ class DStarLitePlannerNode:
     def map_callback(self, msg):
         self.grid_map = GridMap(msg)
         self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
+        debug_path.log_map_ready(
+            self.algorithm,
+            self.map_topic,
+            self.grid_map.width,
+            self.grid_map.height,
+            self.grid_map.resolution,
+            msg.header.frame_id,
+        )
 
     def goal_callback(self, msg):
+        debug_path.log_goal_received(
+            self.algorithm,
+            self.goal_topic,
+            msg.header.frame_id or self.map_frame,
+            msg.pose.position.x,
+            msg.pose.position.y,
+            self.grid_map is not None,
+        )
         if self.grid_map is None:
             rospy.logwarn("D* Lite Python: /map 尚未收到，无法开始规划。")
+            self.publish_failure("map_not_ready")
             return
 
         if msg.header.frame_id and msg.header.frame_id != self.map_frame:
@@ -55,10 +77,12 @@ class DStarLitePlannerNode:
                 self.map_frame,
                 msg.header.frame_id,
             )
+            self.publish_failure("goal_frame_mismatch")
             return
 
         start_world = self.lookup_start_pose()
         if start_world is None:
+            self.publish_failure("tf_lookup_failed")
             return
 
         start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
@@ -66,51 +90,41 @@ class DStarLitePlannerNode:
 
         if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("D* Lite Python: 起点超出地图范围，停止规划。")
+            self.publish_failure("start_out_of_bounds")
             return
 
         if not self.grid_map.in_bounds(goal_x, goal_y):
             rospy.logwarn("D* Lite Python: 终点超出地图范围，停止规划。")
+            self.publish_failure("goal_out_of_bounds")
             return
 
         start_index = self.grid_map.to_index(start_x, start_y)
         goal_index = self.grid_map.to_index(goal_x, goal_y)
         if start_index in self.obstacle_set:
             rospy.logwarn("D* Lite Python: 起点位于障碍物膨胀区内，停止规划。")
+            self.publish_failure("start_blocked")
             return
 
         if goal_index in self.obstacle_set:
             rospy.logwarn("D* Lite Python: 终点位于障碍物膨胀区内，停止规划。")
+            self.publish_failure("goal_blocked")
             return
 
         path_indices = self.plan_path(start_x, start_y, goal_x, goal_y)
         if not path_indices:
             rospy.logwarn("D* Lite Python: 未找到可行路径。")
+            self.publish_failure("no_path")
             return
 
         self.publish_path(path_indices)
 
     def lookup_start_pose(self):
-        try:
-            self.tf_listener.waitForTransform(
-                self.map_frame, self.robot_frame, rospy.Time(0), rospy.Duration(0.2)
-            )
-            translation, _ = self.tf_listener.lookupTransform(
-                self.map_frame, self.robot_frame, rospy.Time(0)
-            )
-            return translation[0], translation[1]
-        except (
-            tf.Exception,
-            tf.LookupException,
-            tf.ConnectivityException,
-            tf.ExtrapolationException,
-        ) as exc:
-            rospy.logwarn(
-                "D* Lite Python: 获取 %s -> %s 失败，停止规划。%s",
-                self.map_frame,
-                self.robot_frame,
-                exc,
-            )
+        result = debug_path.lookup_start_pose(
+            self.tf_listener, self.map_frame, self.robot_frames, self.tf_timeout, self.algorithm
+        )
+        if result is None:
             return None
+        return result[0], result[1]
 
     def plan_path(self, start_x, start_y, goal_x, goal_y):
         map_size = self.grid_map.width * self.grid_map.height
@@ -258,6 +272,12 @@ class DStarLitePlannerNode:
             pose.pose.orientation.w = 1.0
             path_msg.poses.append(pose)
         self.path_pub.publish(path_msg)
+        debug_path.log_success(self.algorithm, self.path_topic, len(path_msg.poses))
+
+    def publish_failure(self, reason):
+        debug_path.publish_empty(
+            self.path_pub, self.map_frame, self.algorithm, self.path_topic, reason
+        )
 
 
 if __name__ == "__main__":

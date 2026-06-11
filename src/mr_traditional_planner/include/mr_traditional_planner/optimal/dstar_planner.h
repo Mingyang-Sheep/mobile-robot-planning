@@ -72,6 +72,7 @@ class DStarPlanner : public PlannerPlugin {
   void insertState(int linear_index, double new_h);
   bool nearlyEqual(double lhs, double rhs) const;
   void publishPath(const std::vector<int>& path_indices) const;
+  void publishFailure(const std::string& reason) const;
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
@@ -90,6 +91,7 @@ class DStarPlanner : public PlannerPlugin {
   double robot_radius_;
   std::string map_frame_;
   std::string robot_frame_;
+  std::string path_topic_;
   std::vector<std::uint8_t> obstacle_grid_;
   std::vector<std::pair<int, int>> inflation_offsets_;
   std::vector<SearchState> search_states_;

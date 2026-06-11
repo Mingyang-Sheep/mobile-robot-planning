@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid, Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from utils import debug_path
 from utils.math_utils import GridMap, build_obstacle_set, euclidean_distance
 
 
@@ -25,11 +26,14 @@ class RRTStarNode:
 
 class RRTStarPlannerNode:
     def __init__(self):
+        self.algorithm = "rrt_star"
         self.map_topic = rospy.get_param("~map_topic", "/map")
         self.goal_topic = rospy.get_param("~goal_topic", "/move_base_simple/goal")
         self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
         self.map_frame = rospy.get_param("~map_frame", "map")
         self.robot_frame = rospy.get_param("~robot_frame", "base_footprint")
+        self.robot_frames = debug_path.robot_frame_candidates(self.robot_frame)
+        self.tf_timeout = max(0.1, float(rospy.get_param("~tf_timeout", 1.0)))
         self.robot_radius = rospy.get_param("~robot_radius", 0.15)
         self.max_iterations = max(1, int(rospy.get_param("~max_iterations", 1000)))
         self.expand_distance = max(1.0e-3, float(rospy.get_param("~expand_distance", 0.5)))
@@ -46,6 +50,7 @@ class RRTStarPlannerNode:
             self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
         )
         self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
+        self.publish_failure("goal_not_received")
 
         self.tf_listener = tf.TransformListener()
         self.grid_map = None
@@ -54,10 +59,27 @@ class RRTStarPlannerNode:
     def map_callback(self, msg):
         self.grid_map = GridMap(msg)
         self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
+        debug_path.log_map_ready(
+            self.algorithm,
+            self.map_topic,
+            self.grid_map.width,
+            self.grid_map.height,
+            self.grid_map.resolution,
+            msg.header.frame_id,
+        )
 
     def goal_callback(self, msg):
+        debug_path.log_goal_received(
+            self.algorithm,
+            self.goal_topic,
+            msg.header.frame_id or self.map_frame,
+            msg.pose.position.x,
+            msg.pose.position.y,
+            self.grid_map is not None,
+        )
         if self.grid_map is None:
             rospy.logwarn("RRT* Python: /map has not been received yet.")
+            self.publish_failure("map_not_ready")
             return
 
         if msg.header.frame_id and msg.header.frame_id != self.map_frame:
@@ -66,10 +88,12 @@ class RRTStarPlannerNode:
                 self.map_frame,
                 msg.header.frame_id,
             )
+            self.publish_failure("goal_frame_mismatch")
             return
 
         start_world = self.lookup_start_pose()
         if start_world is None:
+            self.publish_failure("tf_lookup_failed")
             return
 
         start_x, start_y = start_world
@@ -77,40 +101,28 @@ class RRTStarPlannerNode:
         goal_y = msg.pose.position.y
         if not self.is_world_point_free(start_x, start_y):
             rospy.logwarn("RRT* Python: start is outside the map or inside an inflated obstacle.")
+            self.publish_failure("start_blocked")
             return
         if not self.is_world_point_free(goal_x, goal_y):
             rospy.logwarn("RRT* Python: goal is outside the map or inside an inflated obstacle.")
+            self.publish_failure("goal_blocked")
             return
 
         path_points = self.plan_path(start_x, start_y, goal_x, goal_y)
         if not path_points:
             rospy.logwarn("RRT* Python: no path found.")
+            self.publish_failure("no_path")
             return
 
         self.publish_path(path_points)
 
     def lookup_start_pose(self):
-        try:
-            self.tf_listener.waitForTransform(
-                self.map_frame, self.robot_frame, rospy.Time(0), rospy.Duration(0.2)
-            )
-            translation, _ = self.tf_listener.lookupTransform(
-                self.map_frame, self.robot_frame, rospy.Time(0)
-            )
-            return translation[0], translation[1]
-        except (
-            tf.Exception,
-            tf.LookupException,
-            tf.ConnectivityException,
-            tf.ExtrapolationException,
-        ) as exc:
-            rospy.logwarn(
-                "RRT* Python: failed to lookup %s -> %s: %s",
-                self.map_frame,
-                self.robot_frame,
-                exc,
-            )
+        result = debug_path.lookup_start_pose(
+            self.tf_listener, self.map_frame, self.robot_frames, self.tf_timeout, self.algorithm
+        )
+        if result is None:
             return None
+        return result[0], result[1]
 
     def plan_path(self, start_x, start_y, goal_x, goal_y):
         if euclidean_distance(start_x, start_y, goal_x, goal_y) <= self.path_resolution and self.is_segment_free(
@@ -299,6 +311,12 @@ class RRTStarPlannerNode:
             path_msg.poses.append(pose)
 
         self.path_pub.publish(path_msg)
+        debug_path.log_success(self.algorithm, self.path_topic, len(path_msg.poses))
+
+    def publish_failure(self, reason):
+        debug_path.publish_empty(
+            self.path_pub, self.map_frame, self.algorithm, self.path_topic, reason
+        )
 
     def world_in_bounds(self, world_x, world_y):
         gm = self.grid_map

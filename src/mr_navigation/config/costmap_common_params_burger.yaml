@@ -37,5 +37,5 @@ obstacle_layer:
     clearing: true
 
 inflation_layer:
-  inflation_radius: 0.38
-  cost_scaling_factor: 3.0
+  inflation_radius: 0.28
+  cost_scaling_factor: 4.0

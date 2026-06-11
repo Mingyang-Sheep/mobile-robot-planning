@@ -1,5 +1,7 @@
 #include "mr_traditional_planner/optimal/rrt_star_planner.h"
 
+#include "mr_traditional_planner/debug_path_tools.h"
+
 #include <pluginlib/class_list_macros.h>
 
 #include <algorithm>
@@ -34,11 +36,10 @@ void RRTStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh
 
   std::string map_topic;
   std::string goal_topic;
-  std::string path_topic;
   int random_seed = 0;
   private_nh_.param<std::string>("map_topic", map_topic, std::string("/map"));
   private_nh_.param<std::string>("goal_topic", goal_topic, std::string("/move_base_simple/goal"));
-  private_nh_.param<std::string>("path_topic", path_topic,
+  private_nh_.param<std::string>("path_topic", path_topic_,
                                  std::string("/mr_traditional_planner/debug_optimal_path"));
   private_nh_.param<double>("robot_radius", robot_radius_, robot_radius_);
   private_nh_.param<std::string>("map_frame", map_frame_, map_frame_);
@@ -62,7 +63,8 @@ void RRTStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh
 
   map_sub_ = nh_.subscribe(map_topic, 1, &RRTStarPlanner::mapCallback, this);
   goal_sub_ = nh_.subscribe(goal_topic, 1, &RRTStarPlanner::goalCallback, this);
-  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic, 1, true);
+  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  publishFailure("startup_clear");
 }
 
 void RRTStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
@@ -80,18 +82,21 @@ void RRTStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
 
   if (!latest_map_) {
     ROS_WARN("RRT* C++: /map has not been received yet.");
+    publishFailure("map_missing");
     return;
   }
 
   if (!msg->header.frame_id.empty() && msg->header.frame_id != map_frame_) {
     ROS_WARN_STREAM("RRT* C++: goal frame must be " << map_frame_ << ", got "
                                                     << msg->header.frame_id << ".");
+    publishFailure("goal_frame_mismatch");
     return;
   }
 
   double start_world_x = 0.0;
   double start_world_y = 0.0;
   if (!lookupStartPose(start_world_x, start_world_y)) {
+    publishFailure("tf_lookup_failed");
     return;
   }
 
@@ -99,10 +104,12 @@ void RRTStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
   const double goal_world_y = msg->pose.position.y;
   if (!isWorldPointFree(start_world_x, start_world_y)) {
     ROS_WARN("RRT* C++: start is outside the map or inside an inflated obstacle.");
+    publishFailure("start_blocked");
     return;
   }
   if (!isWorldPointFree(goal_world_x, goal_world_y)) {
     ROS_WARN("RRT* C++: goal is outside the map or inside an inflated obstacle.");
+    publishFailure("goal_blocked");
     return;
   }
 
@@ -110,6 +117,7 @@ void RRTStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
       planPath(start_world_x, start_world_y, goal_world_x, goal_world_y);
   if (path_points.empty()) {
     ROS_WARN("RRT* C++: no path found.");
+    publishFailure("no_path");
     return;
   }
 
@@ -456,6 +464,11 @@ void RRTStarPlanner::publishPath(const std::vector<std::pair<double, double>>& p
   }
 
   path_pub_.publish(path_msg);
+  logDebugPathSuccess("rrt_star", "cpp", path_topic_, path_msg.poses.size());
+}
+
+void RRTStarPlanner::publishFailure(const std::string& reason) const {
+  publishEmptyDebugPath(path_pub_, map_frame_, "rrt_star", "cpp", path_topic_, reason);
 }
 
 }  // namespace optimal

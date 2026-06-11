@@ -1,5 +1,7 @@
 #include "mr_traditional_planner/optimal/astar_planner.h"
 
+#include "mr_traditional_planner/debug_path_tools.h"
+
 #include <geometry_msgs/Quaternion.h>
 #include <pluginlib/class_list_macros.h>
 #include <tf/transform_datatypes.h>
@@ -54,10 +56,9 @@ void AStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) 
 
   std::string map_topic;
   std::string goal_topic;
-  std::string path_topic;
   private_nh_.param<std::string>("map_topic", map_topic, std::string("/map"));
   private_nh_.param<std::string>("goal_topic", goal_topic, std::string("/move_base_simple/goal"));
-  private_nh_.param<std::string>("path_topic", path_topic,
+  private_nh_.param<std::string>("path_topic", path_topic_,
                                  std::string("/mr_traditional_planner/debug_optimal_path"));
   private_nh_.param<double>("robot_radius", robot_radius_, robot_radius_);
   private_nh_.param<std::string>("map_frame", map_frame_, map_frame_);
@@ -68,7 +69,8 @@ void AStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) 
   // 最优路径类算法统一监听 RViz 2D Goal 目标点输入。
   goal_sub_ = nh_.subscribe(goal_topic, 1, &AStarPlanner::goalCallback, this);
   // 统一输出最优路径消息。
-  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic, 1, true);
+  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  publishFailure("startup_clear");
 }
 
 void AStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
@@ -86,18 +88,21 @@ void AStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
 
   if (!latest_map_) {
     ROS_WARN("A* C++: /map 尚未收到，无法开始规划。");
+    publishFailure("map_missing");
     return;
   }
 
   if (!msg->header.frame_id.empty() && msg->header.frame_id != map_frame_) {
     ROS_WARN_STREAM("A* C++: 仅支持 " << map_frame_ << " 坐标系目标点，当前收到的是 "
                                       << msg->header.frame_id << "。");
+    publishFailure("goal_frame_mismatch");
     return;
   }
 
   double start_world_x = 0.0;
   double start_world_y = 0.0;
   if (!lookupStartPose(start_world_x, start_world_y)) {
+    publishFailure("tf_lookup_failed");
     return;
   }
 
@@ -108,27 +113,32 @@ void AStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
 
   if (!inBounds(start.first, start.second)) {
     ROS_WARN("A* C++: 起点超出地图范围，停止规划。");
+    publishFailure("start_out_of_bounds");
     return;
   }
 
   if (!inBounds(goal.first, goal.second)) {
     ROS_WARN("A* C++: 终点超出地图范围，停止规划。");
+    publishFailure("goal_out_of_bounds");
     return;
   }
 
   if (isObstacle(start.first, start.second)) {
     ROS_WARN("A* C++: 起点位于障碍物膨胀区内，停止规划。");
+    publishFailure("start_blocked");
     return;
   }
 
   if (isObstacle(goal.first, goal.second)) {
     ROS_WARN("A* C++: 终点位于障碍物膨胀区内，停止规划。");
+    publishFailure("goal_blocked");
     return;
   }
 
   const std::vector<int> path_indices = planPath(start.first, start.second, goal.first, goal.second);
   if (path_indices.empty()) {
     ROS_WARN("A* C++: 未找到可行路径。");
+    publishFailure("no_path");
     return;
   }
 
@@ -337,6 +347,11 @@ void AStarPlanner::publishPath(const std::vector<int>& path_indices) const {
   }
 
   path_pub_.publish(path_msg);
+  logDebugPathSuccess("astar", "cpp", path_topic_, path_msg.poses.size());
+}
+
+void AStarPlanner::publishFailure(const std::string& reason) const {
+  publishEmptyDebugPath(path_pub_, map_frame_, "astar", "cpp", path_topic_, reason);
 }
 
 }  // namespace optimal

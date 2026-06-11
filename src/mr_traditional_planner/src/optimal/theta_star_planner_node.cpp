@@ -1,5 +1,7 @@
 #include "mr_traditional_planner/optimal/theta_star_planner.h"
 
+#include "mr_traditional_planner/debug_path_tools.h"
+
 #include <pluginlib/class_list_macros.h>
 
 #include <algorithm>
@@ -50,10 +52,9 @@ void ThetaStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_
 
   std::string map_topic;
   std::string goal_topic;
-  std::string path_topic;
   private_nh_.param<std::string>("map_topic", map_topic, std::string("/map"));
   private_nh_.param<std::string>("goal_topic", goal_topic, std::string("/move_base_simple/goal"));
-  private_nh_.param<std::string>("path_topic", path_topic,
+  private_nh_.param<std::string>("path_topic", path_topic_,
                                  std::string("/mr_traditional_planner/debug_optimal_path"));
   private_nh_.param<double>("robot_radius", robot_radius_, robot_radius_);
   private_nh_.param<std::string>("map_frame", map_frame_, map_frame_);
@@ -61,7 +62,8 @@ void ThetaStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_
 
   map_sub_ = nh_.subscribe(map_topic, 1, &ThetaStarPlanner::mapCallback, this);
   goal_sub_ = nh_.subscribe(goal_topic, 1, &ThetaStarPlanner::goalCallback, this);
-  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic, 1, true);
+  path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  publishFailure("startup_clear");
 }
 
 void ThetaStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
@@ -79,18 +81,21 @@ void ThetaStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& ms
 
   if (!latest_map_) {
     ROS_WARN("Theta* C++: /map has not been received yet.");
+    publishFailure("map_missing");
     return;
   }
 
   if (!msg->header.frame_id.empty() && msg->header.frame_id != map_frame_) {
     ROS_WARN_STREAM("Theta* C++: goal frame must be " << map_frame_ << ", got "
                                                       << msg->header.frame_id << ".");
+    publishFailure("goal_frame_mismatch");
     return;
   }
 
   double start_world_x = 0.0;
   double start_world_y = 0.0;
   if (!lookupStartPose(start_world_x, start_world_y)) {
+    publishFailure("tf_lookup_failed");
     return;
   }
 
@@ -99,24 +104,29 @@ void ThetaStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& ms
 
   if (!inBounds(start.first, start.second)) {
     ROS_WARN("Theta* C++: start is outside the map.");
+    publishFailure("start_out_of_bounds");
     return;
   }
   if (!inBounds(goal.first, goal.second)) {
     ROS_WARN("Theta* C++: goal is outside the map.");
+    publishFailure("goal_out_of_bounds");
     return;
   }
   if (isObstacle(start.first, start.second)) {
     ROS_WARN("Theta* C++: start is inside an inflated obstacle.");
+    publishFailure("start_blocked");
     return;
   }
   if (isObstacle(goal.first, goal.second)) {
     ROS_WARN("Theta* C++: goal is inside an inflated obstacle.");
+    publishFailure("goal_blocked");
     return;
   }
 
   const std::vector<int> path_indices = planPath(start.first, start.second, goal.first, goal.second);
   if (path_indices.empty()) {
     ROS_WARN("Theta* C++: no path found.");
+    publishFailure("no_path");
     return;
   }
 
@@ -365,6 +375,11 @@ void ThetaStarPlanner::publishPath(const std::vector<int>& path_indices) const {
   }
 
   path_pub_.publish(path_msg);
+  logDebugPathSuccess("theta_star", "cpp", path_topic_, path_msg.poses.size());
+}
+
+void ThetaStarPlanner::publishFailure(const std::string& reason) const {
+  publishEmptyDebugPath(path_pub_, map_frame_, "theta_star", "cpp", path_topic_, reason);
 }
 
 }  // namespace optimal

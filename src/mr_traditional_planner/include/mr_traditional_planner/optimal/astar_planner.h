@@ -48,6 +48,7 @@ class AStarPlanner : public PlannerPlugin {
   std::vector<int> reconstructPath(int goal_index,
                                    const std::unordered_map<int, Node>& node_lookup) const;
   void publishPath(const std::vector<int>& path_indices) const;
+  void publishFailure(const std::string& reason) const;
 
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
@@ -66,6 +67,7 @@ class AStarPlanner : public PlannerPlugin {
   double robot_radius_;
   std::string map_frame_;
   std::string robot_frame_;
+  std::string path_topic_;
   std::vector<std::uint8_t> obstacle_grid_;
   std::vector<std::pair<int, int>> inflation_offsets_;
 };
