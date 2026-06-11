@@ -43,9 +43,8 @@ class BcdPlannerNode:
         self.goal_sub = rospy.Subscriber(
             "/move_base_simple/goal", PoseStamped, self.goal_callback, queue_size=1
         )
-        self.path_pub = rospy.Publisher(
-            "/mr_traditional_planner/coverage_path", Path, queue_size=1, latch=True
-        )
+        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/coverage_path")
+        self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
         self.move_base_client = actionlib.SimpleActionClient("/move_base", MoveBaseAction)
         self.tf_listener = tf.TransformListener()
         self.grid_map = None

@@ -15,7 +15,7 @@ global_costmap:
 
   # 全局地图更新频率降到 1Hz，静态地图场景下足够且能减少无谓开销。
   update_frequency: 1.0
-  # 发布频率同样设为 1Hz，使上层可视化与全局规划拿到稳定更新。
-  publish_frequency: 1.0
+  # 发布频率降到 0.5Hz，静态地图下减少无意义的大图发布。
+  publish_frequency: 0.5
   # TF 容差保持 0.5s，避免定位与地图更新偶发时间差导致报错。
   transform_tolerance: 0.5

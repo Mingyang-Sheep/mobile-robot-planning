@@ -1,4 +1,9 @@
 <library path="lib/libmr_traditional_planner_plugins">
+  <class name="mr_traditional_planner/GlobalPlannerAdapter"
+         type="mr_traditional_planner::nav_core_adapter::GlobalPlannerAdapter"
+         base_class_type="nav_core::BaseGlobalPlanner">
+    <description>move_base global planner adapter for traditional grid/sampling planners.</description>
+  </class>
   <class name="mr_traditional_planner/AStarPlanner"
          type="mr_traditional_planner::optimal::AStarPlanner"
          base_class_type="mr_traditional_planner::PlannerPlugin">

@@ -1,5 +1,5 @@
 <launch>
-  <!-- Theta* C++ plugin: /map + /move_base_simple/goal -> /mr_traditional_planner/optimal_path -->
+  <!-- Theta* C++ plugin: /map + /move_base_simple/goal -> /mr_traditional_planner/debug_optimal_path -->
   <node pkg="mr_traditional_planner" type="planner_plugin_node" name="theta_star_planner_cpp" output="screen">
     <param name="planner_plugin" value="mr_traditional_planner/ThetaStarPlanner"/>
   </node>

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import bisect
+import heapq
 import math
 import os
 import sys
@@ -95,7 +96,7 @@ class CubicSplinePlannerNode:
     def __init__(self):
         self.map_topic = rospy.get_param("~map_topic", "/map")
         self.goal_topic = rospy.get_param("~goal_topic", "/move_base_simple/goal")
-        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/optimal_path")
+        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
         self.input_path_topic = rospy.get_param("~input_path_topic", "")
         self.map_frame = rospy.get_param("~map_frame", "map")
         self.robot_frame = rospy.get_param("~robot_frame", "base_footprint")
@@ -104,7 +105,7 @@ class CubicSplinePlannerNode:
         self.control_point_ratio = min(
             1.0, max(0.05, float(rospy.get_param("~control_point_ratio", 0.35)))
         )
-        self.collision_check = bool(rospy.get_param("~collision_check", False))
+        self.collision_check = bool(rospy.get_param("~collision_check", True))
 
         self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
         self.goal_sub = rospy.Subscriber(
@@ -142,27 +143,42 @@ class CubicSplinePlannerNode:
         if start_pose is None:
             return
 
-        goal_yaw = self.yaw_from_pose(msg)
-        anchors = self.build_goal_anchors(
-            start_pose[0],
-            start_pose[1],
-            start_pose[2],
-            msg.pose.position.x,
-            msg.pose.position.y,
-            goal_yaw,
-        )
-        path_points = self.smooth_anchors(anchors)
+        if self.collision_check:
+            raw_path = self.build_grid_path(
+                start_pose[0], start_pose[1], msg.pose.position.x, msg.pose.position.y
+            )
+            if not raw_path:
+                rospy.logwarn("CubicSpline Python: failed to generate collision-free raw path.")
+                return
+        else:
+            goal_yaw = self.yaw_from_pose(msg)
+            raw_path = self.build_goal_anchors(
+                start_pose[0],
+                start_pose[1],
+                start_pose[2],
+                msg.pose.position.x,
+                msg.pose.position.y,
+                goal_yaw,
+            )
+
+        raw_path = self.sanitize_path_points(raw_path)
+        path_points = self.smooth_anchors(raw_path)
         if not path_points:
             rospy.logwarn("CubicSpline Python: failed to generate spline path.")
             return
 
         if self.collision_check and not self.path_is_free(path_points):
-            rospy.logwarn("CubicSpline Python: generated spline path intersects an inflated obstacle.")
+            rospy.logwarn("[CubicSpline] collision detected, fallback to raw path")
+            self.publish_path(raw_path)
             return
 
         self.publish_path(path_points)
 
     def input_path_callback(self, msg):
+        if self.collision_check and self.grid_map is None:
+            rospy.logwarn("CubicSpline Python: /map has not been received yet.")
+            return
+
         if len(msg.poses) < 2:
             rospy.logwarn("CubicSpline Python: input path needs at least two poses.")
             return
@@ -175,14 +191,21 @@ class CubicSplinePlannerNode:
             )
             return
 
-        anchors = [(pose.pose.position.x, pose.pose.position.y) for pose in msg.poses]
+        anchors = self.sanitize_path_points(
+            [(pose.pose.position.x, pose.pose.position.y) for pose in msg.poses]
+        )
+        if len(anchors) < 2:
+            rospy.logwarn("CubicSpline Python: input path has fewer than two valid poses after cleanup.")
+            return
+
         path_points = self.smooth_anchors(anchors)
         if not path_points:
             rospy.logwarn("CubicSpline Python: failed to smooth input path.")
             return
 
         if self.collision_check and not self.path_is_free(path_points):
-            rospy.logwarn("CubicSpline Python: smoothed path intersects an inflated obstacle.")
+            rospy.logwarn("[CubicSpline] collision detected, fallback to raw path")
+            self.publish_path(anchors)
             return
 
         self.publish_path(path_points)
@@ -232,8 +255,94 @@ class CubicSplinePlannerNode:
             ]
         )
 
+    def build_grid_path(self, start_x, start_y, goal_x, goal_y):
+        if self.grid_map is None or self.grid_map.resolution <= 0.0:
+            return []
+
+        start_grid = self.world_to_grid(start_x, start_y)
+        goal_grid = self.world_to_grid(goal_x, goal_y)
+        if self.grid_map.is_obstacle(start_grid[0], start_grid[1], self.obstacle_set):
+            return []
+        if self.grid_map.is_obstacle(goal_grid[0], goal_grid[1], self.obstacle_set):
+            return []
+
+        start_index = self.grid_map.to_index(start_grid[0], start_grid[1])
+        goal_index = self.grid_map.to_index(goal_grid[0], goal_grid[1])
+        total_cells = self.grid_map.width * self.grid_map.height
+        costs = [float("inf")] * total_cells
+        parents = [-1] * total_cells
+        closed = [False] * total_cells
+
+        def heuristic(grid_x, grid_y):
+            return (
+                math.hypot(goal_grid[0] - grid_x, goal_grid[1] - grid_y)
+                * self.grid_map.resolution
+            )
+
+        costs[start_index] = 0.0
+        parents[start_index] = start_index
+        open_set = [(heuristic(start_grid[0], start_grid[1]), start_index)]
+        directions = (
+            (1, 0),
+            (-1, 0),
+            (0, 1),
+            (0, -1),
+            (1, 1),
+            (1, -1),
+            (-1, 1),
+            (-1, -1),
+        )
+
+        while open_set:
+            _, current_index = heapq.heappop(open_set)
+            if closed[current_index]:
+                continue
+            closed[current_index] = True
+            if current_index == goal_index:
+                break
+
+            current_x, current_y = self.grid_map.index_to_grid(current_index)
+            for dx, dy in directions:
+                next_x = current_x + dx
+                next_y = current_y + dy
+                if self.grid_map.is_obstacle(next_x, next_y, self.obstacle_set):
+                    continue
+                if dx != 0 and dy != 0 and (
+                    self.grid_map.is_obstacle(current_x + dx, current_y, self.obstacle_set)
+                    or self.grid_map.is_obstacle(current_x, current_y + dy, self.obstacle_set)
+                ):
+                    continue
+
+                next_index = self.grid_map.to_index(next_x, next_y)
+                step_cost = math.hypot(dx, dy) * self.grid_map.resolution
+                next_cost = costs[current_index] + step_cost
+                if next_cost < costs[next_index]:
+                    costs[next_index] = next_cost
+                    parents[next_index] = current_index
+                    heapq.heappush(open_set, (next_cost + heuristic(next_x, next_y), next_index))
+
+        if parents[goal_index] < 0:
+            return []
+
+        reversed_indices = []
+        current_index = goal_index
+        while current_index != start_index:
+            reversed_indices.append(current_index)
+            current_index = parents[current_index]
+        reversed_indices.append(start_index)
+        reversed_indices.reverse()
+
+        path_points = []
+        for index in reversed_indices:
+            grid_x, grid_y = self.grid_map.index_to_grid(index)
+            path_points.append(self.grid_map.grid_to_world(grid_x, grid_y))
+        if path_points:
+            path_points[0] = (start_x, start_y)
+            path_points[-1] = (goal_x, goal_y)
+        return self.sanitize_path_points(path_points)
+
     def smooth_anchors(self, anchors):
-        clean_anchors = self.deduplicate_anchors(anchors)
+        clean_anchors = self.sanitize_path_points(anchors)
         if len(clean_anchors) < 2:
             return clean_anchors
 
@@ -248,28 +357,90 @@ class CubicSplinePlannerNode:
             path_points.append(spline.calc_position(s_value))
             s_value += self.spline_resolution
         path_points.append(spline.calc_position(max_s))
-        return path_points
+        return self.sanitize_path_points(path_points)
+
+    def path_cleanup_distance(self):
+        fallback_distance = max(1.0e-6, self.spline_resolution * 0.5)
+        if self.grid_map is None or self.grid_map.resolution <= 0.0:
+            return fallback_distance
+        return max(1.0e-6, min(fallback_distance, self.grid_map.resolution * 0.25))
+
+    def sanitize_path_points(self, path_points):
+        clean_points = []
+        min_distance = self.path_cleanup_distance()
+
+        for point in path_points:
+            if not math.isfinite(point[0]) or not math.isfinite(point[1]):
+                continue
+            if clean_points and math.hypot(
+                point[0] - clean_points[-1][0], point[1] - clean_points[-1][1]
+            ) < min_distance:
+                continue
+            if len(clean_points) >= 2 and math.hypot(
+                point[0] - clean_points[-2][0], point[1] - clean_points[-2][1]
+            ) < min_distance:
+                clean_points.pop()
+                continue
+            clean_points.append(point)
+
+        return clean_points
 
     def path_is_free(self, path_points):
-        return all(self.is_world_point_free(world_x, world_y) for world_x, world_y in path_points)
+        if not path_points:
+            return True
+
+        if not self.is_world_point_free(path_points[0][0], path_points[0][1]):
+            return False
+
+        sample_step = self.collision_check_step()
+        for index in range(1, len(path_points)):
+            start = path_points[index - 1]
+            end = path_points[index]
+            distance = math.hypot(end[0] - start[0], end[1] - start[1])
+            sample_count = max(1, int(math.ceil(distance / sample_step)))
+            for sample in range(1, sample_count + 1):
+                ratio = float(sample) / float(sample_count)
+                world_x = start[0] + (end[0] - start[0]) * ratio
+                world_y = start[1] + (end[1] - start[1]) * ratio
+                if not self.is_world_point_free(world_x, world_y):
+                    return False
+        return True
+
+    def collision_check_step(self):
+        fallback_step = max(1.0e-6, self.spline_resolution)
+        if self.grid_map is None or self.grid_map.resolution <= 0.0:
+            return fallback_step
+        return max(1.0e-6, min(fallback_step, self.grid_map.resolution * 0.5))
 
     def is_world_point_free(self, world_x, world_y):
+        if not math.isfinite(world_x) or not math.isfinite(world_y):
+            return False
         if self.grid_map is None:
             return True
-        grid_x, grid_y = self.grid_map.world_to_grid(world_x, world_y)
+        grid_x, grid_y = self.world_to_grid(world_x, world_y)
         return self.grid_map.in_bounds(grid_x, grid_y) and self.grid_map.to_index(grid_x, grid_y) not in self.obstacle_set
 
+    def world_to_grid(self, world_x, world_y):
+        return (
+            int(math.floor((world_x - self.grid_map.origin_x) / self.grid_map.resolution)),
+            int(math.floor((world_y - self.grid_map.origin_y) / self.grid_map.resolution)),
+        )
+
     def publish_path(self, path_points):
+        clean_points = self.sanitize_path_points(path_points)
+        if not clean_points:
+            return
+
         path_msg = Path()
         path_msg.header.stamp = rospy.Time.now()
         path_msg.header.frame_id = self.map_frame
 
-        for index, point in enumerate(path_points):
+        for index, point in enumerate(clean_points):
             yaw = 0.0
-            if index + 1 < len(path_points):
-                yaw = math.atan2(path_points[index + 1][1] - point[1], path_points[index + 1][0] - point[0])
+            if index + 1 < len(clean_points):
+                yaw = math.atan2(clean_points[index + 1][1] - point[1], clean_points[index + 1][0] - point[0])
             elif index > 0:
-                yaw = math.atan2(point[1] - path_points[index - 1][1], point[0] - path_points[index - 1][0])
+                yaw = math.atan2(point[1] - clean_points[index - 1][1], point[0] - clean_points[index - 1][0])
 
             quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
             pose = PoseStamped()

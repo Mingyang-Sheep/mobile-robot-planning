@@ -187,7 +187,7 @@ foreach(t ${mr_traditional_planner_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "actionlib;actionlib_msgs;geometry_msgs;move_base_msgs;nav_msgs;pluginlib;roscpp;rospy;tf")
+set(depends "actionlib;actionlib_msgs;costmap_2d;geometry_msgs;move_base_msgs;nav_msgs;nav_core;pluginlib;roscpp;rospy;tf")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls

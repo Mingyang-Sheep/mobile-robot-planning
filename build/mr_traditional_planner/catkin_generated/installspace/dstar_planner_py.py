@@ -29,7 +29,7 @@ class DStarPlannerNode:
     def __init__(self):
         self.map_topic = rospy.get_param("~map_topic", "/map")
         self.goal_topic = rospy.get_param("~goal_topic", "/move_base_simple/goal")
-        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/optimal_path")
+        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
         self.map_frame = rospy.get_param("~map_frame", "map")
         self.robot_frame = rospy.get_param("~robot_frame", "base_footprint")
         self.robot_radius = rospy.get_param("~robot_radius", 0.15)

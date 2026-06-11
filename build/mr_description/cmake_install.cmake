@@ -54,8 +54,10 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/mr_description" TYPE DIRECTORY FILES
+    "/home/lmy/mobile_robot_benchmark/src/mr_description/config"
     "/home/lmy/mobile_robot_benchmark/src/mr_description/launch"
     "/home/lmy/mobile_robot_benchmark/src/mr_description/meshes"
+    "/home/lmy/mobile_robot_benchmark/src/mr_description/rviz"
     "/home/lmy/mobile_robot_benchmark/src/mr_description/urdf"
     USE_SOURCE_PERMISSIONS)
 endif()

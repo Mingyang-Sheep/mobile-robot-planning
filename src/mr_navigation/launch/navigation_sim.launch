@@ -30,6 +30,14 @@
   <arg name="odom_topic" default="/odom"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="move_forward_only" default="false"/>
+  <arg name="planning_mode" default="normal"/>
+  <arg name="global_planner" default="navfn"/>
+  <arg name="path_smoother" default="none"/>
+  <arg name="local_planner" default="dwa"/>
+  <arg name="coverage_planner" default="stc"/>
+  <arg name="costmap_cost_weight" default="2.0"/>
+  <arg name="base_global_planner" default=""/>
+  <arg name="base_local_planner" default=""/>
 
   <!-- 先拉起与地图一一对应的官方导航仿真世界。 -->
   <include file="$(find mr_gazebo)/launch/spawn_navigation_world.launch">
@@ -62,6 +70,14 @@
     <arg name="odom_topic" value="$(arg odom_topic)"/>
     <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+    <arg name="planning_mode" value="$(arg planning_mode)"/>
+    <arg name="global_planner" value="$(arg global_planner)"/>
+    <arg name="path_smoother" value="$(arg path_smoother)"/>
+    <arg name="local_planner" value="$(arg local_planner)"/>
+    <arg name="coverage_planner" value="$(arg coverage_planner)"/>
+    <arg name="costmap_cost_weight" value="$(arg costmap_cost_weight)"/>
+    <arg name="base_global_planner" value="$(arg base_global_planner)"/>
+    <arg name="base_local_planner" value="$(arg base_local_planner)"/>
     <arg name="initial_pose_x" value="$(arg x)"/>
     <arg name="initial_pose_y" value="$(arg y)"/>
     <arg name="initial_pose_a" value="$(arg yaw)"/>

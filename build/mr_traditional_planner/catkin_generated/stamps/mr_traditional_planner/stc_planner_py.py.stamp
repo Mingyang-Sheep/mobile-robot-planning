@@ -45,10 +45,9 @@ class StcPlannerNode:
         self.goal_sub = rospy.Subscriber(
             "/move_base_simple/goal", PoseStamped, self.goal_callback, queue_size=1
         )
-        # 全覆盖路径统一输出到固定 Path 话题。
-        self.path_pub = rospy.Publisher(
-            "/mr_traditional_planner/coverage_path", Path, queue_size=1, latch=True
-        )
+        # 全覆盖路径统一输出到可配置 Path 话题。
+        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/coverage_path")
+        self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
         # 统一以 /move_base 为动作客户端接口，覆盖算法只负责编排 Waypoints。
         self.move_base_client = actionlib.SimpleActionClient("/move_base", MoveBaseAction)
         self.tf_listener = tf.TransformListener()

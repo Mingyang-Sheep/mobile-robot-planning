@@ -1,7 +1,7 @@
 # generated from catkin/cmake/template/pkg.context.pc.in
 CATKIN_PACKAGE_PREFIX = ""
 PROJECT_PKG_CONFIG_INCLUDE_DIRS = "${prefix}/include".split(';') if "${prefix}/include" != "" else []
-PROJECT_CATKIN_DEPENDS = "actionlib;actionlib_msgs;geometry_msgs;move_base_msgs;nav_msgs;pluginlib;roscpp;rospy;tf".replace(';', ' ')
+PROJECT_CATKIN_DEPENDS = "actionlib;actionlib_msgs;costmap_2d;geometry_msgs;move_base_msgs;nav_msgs;nav_core;pluginlib;roscpp;rospy;tf".replace(';', ' ')
 PKG_CONFIG_LIBRARIES_WITH_PREFIX = "-lmr_traditional_planner_plugins".split(';') if "-lmr_traditional_planner_plugins" != "" else []
 PROJECT_NAME = "mr_traditional_planner"
 PROJECT_SPACE_DIR = "/home/lmy/mobile_robot_benchmark/install"

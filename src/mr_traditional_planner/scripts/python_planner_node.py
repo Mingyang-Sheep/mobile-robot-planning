@@ -13,6 +13,8 @@ import os
 import sys
 
 import rospy
+from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Path
 
 # Ensure the scripts directory is on the module path so that
 # ``optimal.astar_planner_py`` etc. can be imported by name.
@@ -34,6 +36,37 @@ _ALGORITHM_MAP = {
 }
 
 
+class DebugPathSupervisor:
+    def __init__(self, algorithm):
+        self.algorithm = algorithm
+        self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
+        self.goal_topic = rospy.get_param("~goal_topic", "/move_base_simple/goal")
+        self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
+        self.path_sub = rospy.Subscriber(self.path_topic, Path, self.path_callback, queue_size=10)
+        self.goal_sub = rospy.Subscriber(self.goal_topic, PoseStamped, self.goal_callback, queue_size=1)
+        self.publish_empty("map")
+        rospy.loginfo("Cleared debug path topic: %s", self.path_topic)
+
+    def goal_callback(self, msg):
+        self.publish_empty(msg.header.frame_id or "map")
+
+    def publish_empty(self, frame_id):
+        empty_path = Path()
+        empty_path.header.stamp = rospy.Time.now()
+        empty_path.header.frame_id = frame_id
+        self.path_pub.publish(empty_path)
+
+    def path_callback(self, msg):
+        rospy.loginfo(
+            "[DebugPlanner] algorithm=%s topic=%s success=%s points=%d frame=%s",
+            self.algorithm,
+            self.path_topic,
+            str(bool(msg.poses)).lower(),
+            len(msg.poses),
+            msg.header.frame_id,
+        )
+
+
 def main():
     rospy.init_node("python_planner_node", anonymous=False)
 
@@ -46,6 +79,8 @@ def main():
         sys.exit(1)
 
     module_name, class_name = _ALGORITHM_MAP[algorithm]
+    debug_path_supervisor = DebugPathSupervisor(algorithm)
+
     rospy.loginfo("Loading planner: %s.%s", module_name, class_name)
 
     module = importlib.import_module(module_name)

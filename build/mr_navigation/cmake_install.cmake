@@ -56,6 +56,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/mr_navigation" TYPE DIRECTORY FILES
     "/home/lmy/mobile_robot_benchmark/src/mr_navigation/config"
     "/home/lmy/mobile_robot_benchmark/src/mr_navigation/launch"
+    "/home/lmy/mobile_robot_benchmark/src/mr_navigation/rviz"
     USE_SOURCE_PERMISSIONS)
 endif()
 

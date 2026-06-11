@@ -8,10 +8,10 @@ local_costmap:
   # 机器人底盘参考系统一为 base_footprint，便于多底盘共用导航接口。
   robot_base_frame: base_footprint
 
-  # 局部地图更新频率设为 10Hz，保证避障响应足够及时。
-  update_frequency: 10.0
-  # 发布频率同样设为 10Hz，方便控制器始终消费到最新局部代价地图。
-  publish_frequency: 10.0
+  # 局部地图更新频率降到 5Hz，兼顾避障响应和仿真负载。
+  update_frequency: 5.0
+  # 发布频率降到 2Hz，减少 RViz/costmap 发布开销。
+  publish_frequency: 2.0
   # TF 容差保持 0.5s，吸收仿真/通信中的轻微时间抖动。
   transform_tolerance: 0.5
 

@@ -50,7 +50,7 @@ void DijkstraPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_n
   private_nh_.param<std::string>("map_topic", map_topic, std::string("/map"));
   private_nh_.param<std::string>("goal_topic", goal_topic, std::string("/move_base_simple/goal"));
   private_nh_.param<std::string>("path_topic", path_topic,
-                                 std::string("/mr_traditional_planner/optimal_path"));
+                                 std::string("/mr_traditional_planner/debug_optimal_path"));
   private_nh_.param<double>("robot_radius", robot_radius_, robot_radius_);
   private_nh_.param<std::string>("map_frame", map_frame_, map_frame_);
   private_nh_.param<std::string>("robot_frame", robot_frame_, robot_frame_);

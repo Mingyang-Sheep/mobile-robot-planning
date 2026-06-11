@@ -16,7 +16,9 @@
   <exec_depend>mr_gazebo</exec_depend>
   <exec_depend>mr_maps</exec_depend>
   <exec_depend>mr_msgs</exec_depend>
+  <exec_depend>mr_slam</exec_depend>
   <exec_depend>navfn</exec_depend>
+  <exec_depend>rviz</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
 
   <export/>

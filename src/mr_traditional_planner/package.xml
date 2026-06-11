@@ -11,9 +11,11 @@
 
   <depend>actionlib</depend>
   <depend>actionlib_msgs</depend>
+  <depend>costmap_2d</depend>
   <depend>geometry_msgs</depend>
   <depend>move_base_msgs</depend>
   <depend>nav_msgs</depend>
+  <depend>nav_core</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>
@@ -21,5 +23,6 @@
 
   <export>
     <mr_traditional_planner plugin="${prefix}/planner_plugins.xml"/>
+    <nav_core plugin="${prefix}/planner_plugins.xml"/>
   </export>
 </package>

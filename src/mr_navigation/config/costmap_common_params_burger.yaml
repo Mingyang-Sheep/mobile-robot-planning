@@ -6,10 +6,10 @@ raytrace_range: 3.5
 # Burger 车体近似为 0.138m x 0.178m 的矩形，这里用中心对称 footprint 定义“生死线”。
 footprint: [[-0.069, -0.089], [-0.069, 0.089], [0.069, 0.089], [0.069, -0.089]]
 
-# 膨胀半径设为 0.2m，略大于 Burger 外接圆，给贴墙通行留出安全冗余。
-inflation_radius: 0.2
-# 代价值衰减斜率取 4.0，在“离墙更安全”和“窄路还能过”之间折中。
-cost_scaling_factor: 4.0
+# 膨胀半径提高到 0.38m，让全局路径主动避开墙体，同时保留小底盘通过窄路的余量。
+inflation_radius: 0.38
+# 降低代价衰减斜率，使离墙一定距离内仍保持可见惩罚，减少贴墙路径。
+cost_scaling_factor: 3.0
 
 # 当前仅以激光作为观测源，后续接入其他底盘时可在对应 _model.yaml 中扩展。
 observation_sources: scan
@@ -37,5 +37,5 @@ obstacle_layer:
     clearing: true
 
 inflation_layer:
-  inflation_radius: 0.2
-  cost_scaling_factor: 4.0
+  inflation_radius: 0.38
+  cost_scaling_factor: 3.0

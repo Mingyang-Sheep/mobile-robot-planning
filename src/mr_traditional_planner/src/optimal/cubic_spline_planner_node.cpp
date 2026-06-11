@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <queue>
 #include <vector>
 
 namespace mr_traditional_planner {
@@ -160,7 +161,7 @@ CubicSplinePlanner::CubicSplinePlanner()
       robot_radius_(0.15),
       spline_resolution_(0.05),
       control_point_ratio_(0.35),
-      collision_check_(false),
+      collision_check_(true),
       map_frame_("map"),
       robot_frame_("base_footprint") {}
 
@@ -174,7 +175,7 @@ void CubicSplinePlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& privat
   private_nh_.param<std::string>("map_topic", map_topic, std::string("/map"));
   private_nh_.param<std::string>("goal_topic", goal_topic, std::string("/move_base_simple/goal"));
   private_nh_.param<std::string>("path_topic", path_topic,
-                                 std::string("/mr_traditional_planner/optimal_path"));
+                                 std::string("/mr_traditional_planner/debug_optimal_path"));
   private_nh_.param<std::string>("input_path_topic", input_path_topic_, input_path_topic_);
   private_nh_.param<double>("robot_radius", robot_radius_, robot_radius_);
   private_nh_.param<double>("spline_resolution", spline_resolution_, spline_resolution_);
@@ -226,18 +227,29 @@ void CubicSplinePlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& 
     return;
   }
 
-  const double goal_yaw = tf::getYaw(msg->pose.orientation);
-  const std::vector<std::pair<double, double>> anchors =
-      buildGoalAnchors(start_x, start_y, start_yaw, msg->pose.position.x, msg->pose.position.y,
-                       goal_yaw);
-  const std::vector<std::pair<double, double>> path_points = smoothAnchors(anchors);
+  std::vector<std::pair<double, double>> raw_path;
+  if (collision_check_) {
+    raw_path = buildGridPath(start_x, start_y, msg->pose.position.x, msg->pose.position.y);
+    if (raw_path.empty()) {
+      ROS_WARN("CubicSpline C++: failed to generate collision-free raw path.");
+      return;
+    }
+  } else {
+    const double goal_yaw = tf::getYaw(msg->pose.orientation);
+    raw_path = buildGoalAnchors(start_x, start_y, start_yaw, msg->pose.position.x,
+                                msg->pose.position.y, goal_yaw);
+  }
+
+  raw_path = sanitizePathPoints(raw_path);
+  const std::vector<std::pair<double, double>> path_points = smoothAnchors(raw_path);
   if (path_points.empty()) {
     ROS_WARN("CubicSpline C++: failed to generate spline path.");
     return;
   }
 
   if (collision_check_ && !pathIsFree(path_points)) {
-    ROS_WARN("CubicSpline C++: generated spline path intersects an inflated obstacle.");
+    ROS_WARN("[CubicSpline] collision detected, fallback to raw path");
+    publishPath(raw_path);
     return;
   }
 
@@ -245,6 +257,11 @@ void CubicSplinePlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& 
 }
 
 void CubicSplinePlanner::inputPathCallback(const nav_msgs::PathConstPtr& msg) {
+  if (collision_check_ && !latest_map_) {
+    ROS_WARN("CubicSpline C++: /map has not been received yet.");
+    return;
+  }
+
   if (msg->poses.size() < 2U) {
     ROS_WARN("CubicSpline C++: input path needs at least two poses.");
     return;
@@ -261,6 +278,11 @@ void CubicSplinePlanner::inputPathCallback(const nav_msgs::PathConstPtr& msg) {
   for (const geometry_msgs::PoseStamped& pose : msg->poses) {
     anchors.emplace_back(pose.pose.position.x, pose.pose.position.y);
   }
+  anchors = sanitizePathPoints(anchors);
+  if (anchors.size() < 2U) {
+    ROS_WARN("CubicSpline C++: input path has fewer than two valid poses after cleanup.");
+    return;
+  }
 
   const std::vector<std::pair<double, double>> path_points = smoothAnchors(anchors);
   if (path_points.empty()) {
@@ -269,7 +291,8 @@ void CubicSplinePlanner::inputPathCallback(const nav_msgs::PathConstPtr& msg) {
   }
 
   if (collision_check_ && !pathIsFree(path_points)) {
-    ROS_WARN("CubicSpline C++: smoothed path intersects an inflated obstacle.");
+    ROS_WARN("[CubicSpline] collision detected, fallback to raw path");
+    publishPath(anchors);
     return;
   }
 
@@ -346,6 +369,9 @@ bool CubicSplinePlanner::isObstacle(int grid_x, int grid_y) const {
 }
 
 bool CubicSplinePlanner::isWorldPointFree(double world_x, double world_y) const {
+  if (!std::isfinite(world_x) || !std::isfinite(world_y)) {
+    return false;
+  }
   if (!latest_map_) {
     return true;
   }
@@ -358,8 +384,121 @@ int CubicSplinePlanner::toIndex(int grid_x, int grid_y) const {
 }
 
 std::pair<int, int> CubicSplinePlanner::worldToGrid(double world_x, double world_y) const {
-  return std::make_pair(static_cast<int>((world_x - origin_x_) / resolution_),
-                        static_cast<int>((world_y - origin_y_) / resolution_));
+  return std::make_pair(static_cast<int>(std::floor((world_x - origin_x_) / resolution_)),
+                        static_cast<int>(std::floor((world_y - origin_y_) / resolution_)));
+}
+
+std::pair<double, double> CubicSplinePlanner::gridToWorld(int grid_x, int grid_y) const {
+  return std::make_pair(origin_x_ + (static_cast<double>(grid_x) + 0.5) * resolution_,
+                        origin_y_ + (static_cast<double>(grid_y) + 0.5) * resolution_);
+}
+
+std::vector<std::pair<double, double>> CubicSplinePlanner::buildGridPath(
+    double start_x, double start_y, double goal_x, double goal_y) const {
+  if (!latest_map_ || resolution_ <= 0.0) {
+    return std::vector<std::pair<double, double>>();
+  }
+
+  const std::pair<int, int> start_grid = worldToGrid(start_x, start_y);
+  const std::pair<int, int> goal_grid = worldToGrid(goal_x, goal_y);
+  if (isObstacle(start_grid.first, start_grid.second) ||
+      isObstacle(goal_grid.first, goal_grid.second)) {
+    return std::vector<std::pair<double, double>>();
+  }
+
+  struct QueueNode {
+    int index;
+    double priority;
+
+    bool operator<(const QueueNode& other) const {
+      return priority > other.priority;
+    }
+  };
+
+  const int total_cells = map_width_ * map_height_;
+  const int start_index = toIndex(start_grid.first, start_grid.second);
+  const int goal_index = toIndex(goal_grid.first, goal_grid.second);
+  std::vector<double> cost(static_cast<std::size_t>(total_cells),
+                           std::numeric_limits<double>::infinity());
+  std::vector<int> parent(static_cast<std::size_t>(total_cells), -1);
+  std::vector<std::uint8_t> closed(static_cast<std::size_t>(total_cells), 0U);
+  std::priority_queue<QueueNode> open;
+
+  const auto heuristic = [&](int grid_x, int grid_y) {
+    return std::hypot(static_cast<double>(goal_grid.first - grid_x),
+                      static_cast<double>(goal_grid.second - grid_y)) *
+           resolution_;
+  };
+
+  cost[static_cast<std::size_t>(start_index)] = 0.0;
+  parent[static_cast<std::size_t>(start_index)] = start_index;
+  open.push(QueueNode{start_index, heuristic(start_grid.first, start_grid.second)});
+
+  const int directions[8][2] = {{1, 0},   {-1, 0},  {0, 1},  {0, -1},
+                                {1, 1},   {1, -1},  {-1, 1}, {-1, -1}};
+
+  while (!open.empty()) {
+    const QueueNode current = open.top();
+    open.pop();
+
+    if (closed[static_cast<std::size_t>(current.index)] != 0U) {
+      continue;
+    }
+    closed[static_cast<std::size_t>(current.index)] = 1U;
+
+    if (current.index == goal_index) {
+      break;
+    }
+
+    const int current_x = current.index % map_width_;
+    const int current_y = current.index / map_width_;
+    for (const int* direction : directions) {
+      const int next_x = current_x + direction[0];
+      const int next_y = current_y + direction[1];
+      if (isObstacle(next_x, next_y)) {
+        continue;
+      }
+      if (direction[0] != 0 && direction[1] != 0 &&
+          (isObstacle(current_x + direction[0], current_y) ||
+           isObstacle(current_x, current_y + direction[1]))) {
+        continue;
+      }
+
+      const int next_index = toIndex(next_x, next_y);
+      const double step_cost =
+          std::hypot(static_cast<double>(direction[0]), static_cast<double>(direction[1])) *
+          resolution_;
+      const double next_cost = cost[static_cast<std::size_t>(current.index)] + step_cost;
+      if (next_cost < cost[static_cast<std::size_t>(next_index)]) {
+        cost[static_cast<std::size_t>(next_index)] = next_cost;
+        parent[static_cast<std::size_t>(next_index)] = current.index;
+        open.push(QueueNode{next_index, next_cost + heuristic(next_x, next_y)});
+      }
+    }
+  }
+
+  if (parent[static_cast<std::size_t>(goal_index)] < 0) {
+    return std::vector<std::pair<double, double>>();
+  }
+
+  std::vector<int> reversed_indices;
+  for (int index = goal_index; index != start_index;
+       index = parent[static_cast<std::size_t>(index)]) {
+    reversed_indices.push_back(index);
+  }
+  reversed_indices.push_back(start_index);
+  std::reverse(reversed_indices.begin(), reversed_indices.end());
+
+  std::vector<std::pair<double, double>> path_points;
+  path_points.reserve(reversed_indices.size());
+  for (const int index : reversed_indices) {
+    path_points.push_back(gridToWorld(index % map_width_, index / map_width_));
+  }
+  if (!path_points.empty()) {
+    path_points.front() = std::make_pair(start_x, start_y);
+    path_points.back() = std::make_pair(goal_x, goal_y);
+  }
+  return sanitizePathPoints(path_points);
 }
 
 std::vector<std::pair<double, double>> CubicSplinePlanner::buildGoalAnchors(
@@ -383,7 +522,7 @@ std::vector<std::pair<double, double>> CubicSplinePlanner::buildGoalAnchors(
 
 std::vector<std::pair<double, double>> CubicSplinePlanner::smoothAnchors(
     const std::vector<std::pair<double, double>>& anchors) const {
-  const std::vector<std::pair<double, double>> clean_anchors = deduplicateAnchors(anchors);
+  const std::vector<std::pair<double, double>> clean_anchors = sanitizePathPoints(anchors);
   if (clean_anchors.size() < 2U) {
     return clean_anchors;
   }
@@ -399,14 +538,79 @@ std::vector<std::pair<double, double>> CubicSplinePlanner::smoothAnchors(
     path_points.push_back(spline.calcPosition(s));
   }
   path_points.push_back(spline.calcPosition(max_s));
-  return path_points;
+  return sanitizePathPoints(path_points);
+}
+
+double CubicSplinePlanner::pathCleanupDistance() const {
+  const double fallback_distance = std::max(1.0e-6, spline_resolution_ * 0.5);
+  if (resolution_ <= 0.0) {
+    return fallback_distance;
+  }
+  return std::max(1.0e-6, std::min(fallback_distance, resolution_ * 0.25));
+}
+
+std::vector<std::pair<double, double>> CubicSplinePlanner::sanitizePathPoints(
+    const std::vector<std::pair<double, double>>& path_points) const {
+  std::vector<std::pair<double, double>> clean_points;
+  clean_points.reserve(path_points.size());
+  const double min_distance = pathCleanupDistance();
+
+  for (const std::pair<double, double>& point : path_points) {
+    if (!std::isfinite(point.first) || !std::isfinite(point.second)) {
+      continue;
+    }
+    if (!clean_points.empty() &&
+        std::hypot(point.first - clean_points.back().first,
+                   point.second - clean_points.back().second) < min_distance) {
+      continue;
+    }
+    if (clean_points.size() >= 2U) {
+      const std::pair<double, double>& previous_previous =
+          clean_points[clean_points.size() - 2U];
+      if (std::hypot(point.first - previous_previous.first,
+                     point.second - previous_previous.second) < min_distance) {
+        clean_points.pop_back();
+        continue;
+      }
+    }
+    clean_points.push_back(point);
+  }
+
+  return clean_points;
+}
+
+double CubicSplinePlanner::collisionCheckStep() const {
+  const double fallback_step = std::max(1.0e-6, spline_resolution_);
+  if (resolution_ <= 0.0) {
+    return fallback_step;
+  }
+  return std::max(1.0e-6, std::min(fallback_step, resolution_ * 0.5));
 }
 
 bool CubicSplinePlanner::pathIsFree(
     const std::vector<std::pair<double, double>>& path_points) const {
-  for (const std::pair<double, double>& point : path_points) {
-    if (!isWorldPointFree(point.first, point.second)) {
-      return false;
+  if (path_points.empty()) {
+    return true;
+  }
+
+  if (!isWorldPointFree(path_points.front().first, path_points.front().second)) {
+    return false;
+  }
+
+  const double sample_step = collisionCheckStep();
+  for (std::size_t i = 1U; i < path_points.size(); ++i) {
+    const std::pair<double, double>& start = path_points[i - 1U];
+    const std::pair<double, double>& end = path_points[i];
+    const double distance = std::hypot(end.first - start.first, end.second - start.second);
+    const int sample_count = std::max(1, static_cast<int>(std::ceil(distance / sample_step)));
+
+    for (int sample = 1; sample <= sample_count; ++sample) {
+      const double ratio = static_cast<double>(sample) / static_cast<double>(sample_count);
+      const double world_x = start.first + (end.first - start.first) * ratio;
+      const double world_y = start.second + (end.second - start.second) * ratio;
+      if (!isWorldPointFree(world_x, world_y)) {
+        return false;
+      }
     }
   }
   return true;
@@ -414,25 +618,30 @@ bool CubicSplinePlanner::pathIsFree(
 
 void CubicSplinePlanner::publishPath(
     const std::vector<std::pair<double, double>>& path_points) const {
+  const std::vector<std::pair<double, double>> clean_points = sanitizePathPoints(path_points);
+  if (clean_points.empty()) {
+    return;
+  }
+
   nav_msgs::Path path_msg;
   path_msg.header.stamp = ros::Time::now();
   path_msg.header.frame_id = map_frame_;
 
-  path_msg.poses.reserve(path_points.size());
-  for (std::size_t i = 0; i < path_points.size(); ++i) {
+  path_msg.poses.reserve(clean_points.size());
+  for (std::size_t i = 0; i < clean_points.size(); ++i) {
     double yaw = 0.0;
-    if (i + 1U < path_points.size()) {
-      yaw = std::atan2(path_points[i + 1U].second - path_points[i].second,
-                       path_points[i + 1U].first - path_points[i].first);
+    if (i + 1U < clean_points.size()) {
+      yaw = std::atan2(clean_points[i + 1U].second - clean_points[i].second,
+                       clean_points[i + 1U].first - clean_points[i].first);
     } else if (i > 0U) {
-      yaw = std::atan2(path_points[i].second - path_points[i - 1U].second,
-                       path_points[i].first - path_points[i - 1U].first);
+      yaw = std::atan2(clean_points[i].second - clean_points[i - 1U].second,
+                       clean_points[i].first - clean_points[i - 1U].first);
     }
 
     geometry_msgs::PoseStamped pose;
     pose.header = path_msg.header;
-    pose.pose.position.x = path_points[i].first;
-    pose.pose.position.y = path_points[i].second;
+    pose.pose.position.x = clean_points[i].first;
+    pose.pose.position.y = clean_points[i].second;
     pose.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
     path_msg.poses.push_back(pose);
   }

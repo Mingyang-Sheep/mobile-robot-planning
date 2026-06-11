@@ -11,7 +11,7 @@
 
 - Subscribe: `/map` (`nav_msgs/OccupancyGrid`)
 - Subscribe: `/move_base_simple/goal` (`geometry_msgs/PoseStamped`)
-- Publish: `/mr_traditional_planner/optimal_path` (`nav_msgs/Path`)
+- Publish: `/mr_traditional_planner/debug_optimal_path` (`nav_msgs/Path`)
 
 ### Coverage planners
 
@@ -23,10 +23,13 @@
 ### Local controllers and smoothers
 
 - `dwa` subscribes `/map`, `/odom`, and `/move_base_simple/goal`; publishes `/cmd_vel`
-  and the selected preview trajectory on `/mr_traditional_planner/optimal_path`.
+  and the selected preview trajectory on `/mr_traditional_planner/debug_optimal_path`.
 - `cubic_spline` publishes a smoothed `nav_msgs/Path` to
-  `/mr_traditional_planner/optimal_path`; it can use either RViz `2D Nav Goal` or
+  `/mr_traditional_planner/debug_optimal_path`; it can use either RViz `2D Nav Goal` or
   `input_path_topic`.
+
+`/mr_traditional_planner/executed_global_path` is reserved for the
+`move_base` `GlobalPlannerAdapter` path that is actually returned to the navigation stack.
 
 ## Launch Switching
 

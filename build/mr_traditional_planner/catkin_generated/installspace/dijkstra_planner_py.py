@@ -34,7 +34,10 @@ class DijkstraPlannerNode:
         )
         # 最优路径统一输出到固定 Path 话题。
         self.path_pub = rospy.Publisher(
-            "/mr_traditional_planner/optimal_path", Path, queue_size=1, latch=True
+            rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path"),
+            Path,
+            queue_size=1,
+            latch=True,
         )
 
         self.tf_listener = tf.TransformListener()

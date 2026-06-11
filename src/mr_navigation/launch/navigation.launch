@@ -8,10 +8,27 @@
   <arg name="odom_topic" default="/odom"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="move_forward_only" default="false"/>
+  <arg name="planning_mode" default="normal"/>
+  <arg name="global_planner" default="navfn"/>
+  <arg name="path_smoother" default="none"/>
+  <arg name="local_planner" default="dwa"/>
+  <arg name="coverage_planner" default="stc"/>
+  <arg name="costmap_cost_weight" default="2.0"/>
+  <arg name="base_global_planner" default=""/>
+  <arg name="base_local_planner" default=""/>
   <!-- turtlebot3_world 的固定起始点来自官方地图与仿真启动配置。 -->
   <arg name="initial_pose_x" default="-2.0"/>
   <arg name="initial_pose_y" default="-0.5"/>
   <arg name="initial_pose_a" default="0.0"/>
+
+  <node pkg="mr_traditional_planner" type="planner_compatibility_validator.py"
+        name="planner_compatibility_validator" output="screen" required="true">
+    <param name="planning_mode" value="$(arg planning_mode)"/>
+    <param name="global_planner" value="$(arg global_planner)"/>
+    <param name="path_smoother" value="$(arg path_smoother)"/>
+    <param name="local_planner" value="$(arg local_planner)"/>
+    <param name="coverage_planner" value="$(arg coverage_planner)"/>
+  </node>
 
   <include file="$(find mr_maps)/launch/map_loader.launch">
     <arg name="map_name" value="$(arg map_name)"/>
@@ -32,5 +49,19 @@
     <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
     <arg name="odom_topic" value="$(arg odom_topic)"/>
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+    <arg name="planning_mode" value="$(arg planning_mode)"/>
+    <arg name="global_planner" value="$(arg global_planner)"/>
+    <arg name="path_smoother" value="$(arg path_smoother)"/>
+    <arg name="local_planner" value="$(arg local_planner)"/>
+    <arg name="coverage_planner" value="$(arg coverage_planner)"/>
+    <arg name="costmap_cost_weight" value="$(arg costmap_cost_weight)"/>
+    <arg name="base_global_planner" value="$(arg base_global_planner)"/>
+    <arg name="base_local_planner" value="$(arg base_local_planner)"/>
+  </include>
+
+  <include file="$(find mr_traditional_planner)/launch/planner.launch"
+           if="$(eval arg('planning_mode') == 'coverage')">
+    <arg name="algorithm" value="$(arg coverage_planner)"/>
+    <arg name="impl" value="cpp"/>
   </include>
 </launch>

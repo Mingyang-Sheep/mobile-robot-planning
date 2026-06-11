@@ -35,12 +35,19 @@ class CubicSplinePlanner : public PlannerPlugin {
   bool isWorldPointFree(double world_x, double world_y) const;
   int toIndex(int grid_x, int grid_y) const;
   std::pair<int, int> worldToGrid(double world_x, double world_y) const;
+  std::pair<double, double> gridToWorld(int grid_x, int grid_y) const;
+  std::vector<std::pair<double, double>> buildGridPath(double start_x, double start_y,
+                                                       double goal_x, double goal_y) const;
   std::vector<std::pair<double, double>> buildGoalAnchors(double start_x, double start_y,
                                                           double start_yaw, double goal_x,
                                                           double goal_y,
                                                           double goal_yaw) const;
   std::vector<std::pair<double, double>> smoothAnchors(
       const std::vector<std::pair<double, double>>& anchors) const;
+  double pathCleanupDistance() const;
+  std::vector<std::pair<double, double>> sanitizePathPoints(
+      const std::vector<std::pair<double, double>>& path_points) const;
+  double collisionCheckStep() const;
   bool pathIsFree(const std::vector<std::pair<double, double>>& path_points) const;
   void publishPath(const std::vector<std::pair<double, double>>& path_points) const;
 

@@ -7,6 +7,15 @@
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="odom_topic" default="/odom"/>
   <arg name="move_forward_only" default="false"/>
+  <arg name="planning_mode" default="normal"/>
+  <arg name="global_planner" default="navfn"/>
+  <arg name="path_smoother" default="none"/>
+  <arg name="local_planner" default="dwa"/>
+  <arg name="coverage_planner" default="stc"/>
+  <arg name="costmap_cost_weight" default="2.0"/>
+  <!-- Leave empty to use the YAML default; set from CLI to override per test. -->
+  <arg name="base_global_planner" default=""/>
+  <arg name="base_local_planner" default=""/>
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <!-- 专有参数按 robot_model 动态拼接，后续新增底盘只需补同名 yaml。 -->
@@ -21,6 +30,25 @@
     <rosparam file="$(find mr_navigation)/config/global_costmap_params_$(arg nav_model_key).yaml" command="load" if="$(eval arg('nav_model_key') in ['wpb_home', 'wpb_home_mani'])"/>
     <rosparam file="$(find mr_navigation)/config/move_base_params_$(arg nav_model_key).yaml" command="load" if="$(eval arg('nav_model_key') in ['wpb_home', 'wpb_home_mani'])"/>
     <rosparam file="$(find mr_navigation)/config/dwa_local_planner_params_$(arg nav_model_key).yaml" command="load"/>
+
+    <param name="planning_mode" value="$(arg planning_mode)"/>
+    <param name="global_planner" value="$(arg global_planner)"/>
+    <param name="path_smoother" value="$(arg path_smoother)"/>
+    <param name="local_planner" value="$(arg local_planner)"/>
+    <param name="coverage_planner" value="$(arg coverage_planner)"/>
+    <param name="costmap_cost_weight" value="$(arg costmap_cost_weight)"/>
+
+    <param name="base_global_planner" value="navfn/NavfnROS"
+           if="$(eval arg('base_global_planner') == '' and arg('global_planner') == 'navfn')"/>
+    <param name="base_global_planner" value="mr_traditional_planner/GlobalPlannerAdapter"
+           if="$(eval arg('base_global_planner') == '' and arg('global_planner') != 'navfn')"/>
+    <param name="base_global_planner" value="$(arg base_global_planner)"
+           if="$(eval arg('base_global_planner') != '')"/>
+
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"
+           if="$(eval arg('base_local_planner') == '' and arg('local_planner') == 'dwa')"/>
+    <param name="base_local_planner" value="$(arg base_local_planner)"
+           if="$(eval arg('base_local_planner') != '')"/>
 
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
     <remap from="odom" to="$(arg odom_topic)"/>

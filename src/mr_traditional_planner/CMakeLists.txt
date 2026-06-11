@@ -4,9 +4,11 @@ project(mr_traditional_planner)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
+  costmap_2d
   geometry_msgs
   move_base_msgs
   nav_msgs
+  nav_core
   pluginlib
   roscpp
   rospy
@@ -19,9 +21,11 @@ catkin_package(
   CATKIN_DEPENDS
     actionlib
     actionlib_msgs
+    costmap_2d
     geometry_msgs
     move_base_msgs
     nav_msgs
+    nav_core
     pluginlib
     roscpp
     rospy
@@ -44,6 +48,7 @@ add_library(mr_traditional_planner_plugins
   src/optimal/cubic_spline_planner_node.cpp
   src/coverage/bcd_planner_node.cpp
   src/coverage/stc_planner_node.cpp
+  src/nav_core/global_planner_adapter.cpp
 )
 target_link_libraries(mr_traditional_planner_plugins
   ${catkin_LIBRARIES}
@@ -62,6 +67,8 @@ add_dependencies(planner_plugin_node ${catkin_EXPORTED_TARGETS})
 # Python 节点和包安装。
 catkin_install_python(PROGRAMS
   scripts/python_planner_node.py
+  scripts/planner_compatibility_validator.py
+  scripts/planner_truth_matrix_check.py
   scripts/optimal/astar_planner_py.py
   scripts/optimal/dijkstra_planner_py.py
   scripts/optimal/dstar_planner_py.py

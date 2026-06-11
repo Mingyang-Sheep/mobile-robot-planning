@@ -7,8 +7,8 @@ raytrace_range: 3.5
 footprint: [[-0.200, -0.210], [-0.200, 0.210], [0.230, 0.210], [0.230, -0.210]]
 robot_radius: 0.23
 
-inflation_radius: 0.22
-cost_scaling_factor: 5.0
+inflation_radius: 0.50
+cost_scaling_factor: 2.8
 
 observation_sources: scan
 scan:
@@ -30,5 +30,5 @@ obstacle_layer:
     clearing: true
 
 inflation_layer:
-  inflation_radius: 0.22
-  cost_scaling_factor: 5.0
+  inflation_radius: 0.50
+  cost_scaling_factor: 2.8

@@ -4,8 +4,8 @@ raytrace_range: 3.5
 
 footprint: [[-0.140, -0.153], [-0.140, 0.153], [0.140, 0.153], [0.140, -0.153]]
 
-inflation_radius: 0.28
-cost_scaling_factor: 4.0
+inflation_radius: 0.45
+cost_scaling_factor: 3.0
 
 observation_sources: scan
 scan:
@@ -27,5 +27,5 @@ obstacle_layer:
     clearing: true
 
 inflation_layer:
-  inflation_radius: 0.28
-  cost_scaling_factor: 4.0
+  inflation_radius: 0.45
+  cost_scaling_factor: 3.0

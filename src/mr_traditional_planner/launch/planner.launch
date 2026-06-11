@@ -3,11 +3,13 @@
   <arg name="algorithm" default="astar"/>
   <arg name="impl" default="cpp"/>
   <arg name="planner_plugin" default=""/>
+  <arg name="path_topic" default="/mr_traditional_planner/debug_optimal_path"/>
 
   <group if="$(eval arg('impl') == 'cpp')">
     <node pkg="mr_traditional_planner" type="planner_plugin_node" name="planner_plugin_node" output="screen">
       <param name="algorithm" value="$(arg algorithm)"/>
       <param name="planner_plugin" value="$(arg planner_plugin)"/>
+      <param name="path_topic" value="$(arg path_topic)"/>
     </node>
   </group>
 
@@ -15,6 +17,7 @@
     <node pkg="mr_traditional_planner" type="python_planner_node.py"
           name="python_planner_node" output="screen">
       <param name="algorithm" value="$(arg algorithm)"/>
+      <param name="path_topic" value="$(arg path_topic)"/>
     </node>
   </group>
 </launch>

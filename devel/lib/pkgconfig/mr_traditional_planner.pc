@@ -5,4 +5,4 @@ Description: Description of mr_traditional_planner
 Version: 0.1.0
 Cflags: -I/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include
 Libs: -L${prefix}/lib -lmr_traditional_planner_plugins
-Requires: actionlib actionlib_msgs geometry_msgs move_base_msgs nav_msgs pluginlib roscpp rospy tf
+Requires: actionlib actionlib_msgs costmap_2d geometry_msgs move_base_msgs nav_msgs nav_core pluginlib roscpp rospy tf

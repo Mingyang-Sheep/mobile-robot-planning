@@ -2,13 +2,9 @@
 # (body_link cylinder radius 0.226m). This rectangular footprint is a safe
 # first approximation for navigation and should be refined with real clearance
 # tests in each world.
-obstacle_range: 3.0
-raytrace_range: 3.5
 
 footprint: [[-0.240, -0.250], [-0.240, 0.250], [0.260, 0.250], [0.260, -0.250]]
 
-inflation_radius: 0.35
-cost_scaling_factor: 3.0
 
 observation_sources: scan
 scan:
@@ -19,8 +15,8 @@ scan:
   clearing: true
 
 obstacle_layer:
-  obstacle_range: 3.0
-  raytrace_range: 3.5
+  obstacle_range: 10.0
+  raytrace_range: 10.5
   observation_sources: scan
   scan:
     sensor_frame: laser
@@ -30,5 +26,5 @@ obstacle_layer:
     clearing: true
 
 inflation_layer:
-  inflation_radius: 0.35
-  cost_scaling_factor: 3.0
+  inflation_radius: 0.38
+  cost_scaling_factor: 4.0

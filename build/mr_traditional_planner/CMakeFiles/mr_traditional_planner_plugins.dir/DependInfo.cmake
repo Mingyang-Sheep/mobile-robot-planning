@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/bcd_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o"
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/stc_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o"
+  "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/nav_core/global_planner_adapter.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o"
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/astar_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o"
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/cubic_spline_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.o"
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/optimal/dijkstra_planner_node.cpp" "/home/lmy/mobile_robot_benchmark/build/mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dijkstra_planner_node.cpp.o"
@@ -30,6 +31,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/include"
   "/opt/ros/noetic/include"
   "/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
+  "/usr/include/eigen3"
   )
 
 # Targets to which this target links.

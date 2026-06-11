@@ -187,6 +187,19 @@ mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverag
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.s"
 	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/coverage/stc_planner_node.cpp -o CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.s
 
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/flags.make
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o: /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/nav_core/global_planner_adapter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o -c /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/nav_core/global_planner_adapter.cpp
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.i"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/nav_core/global_planner_adapter.cpp > CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.i
+
+mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.s"
+	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/lmy/mobile_robot_benchmark/src/mr_traditional_planner/src/nav_core/global_planner_adapter.cpp -o CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.s
+
 # Object files for target mr_traditional_planner_plugins
 mr_traditional_planner_plugins_OBJECTS = \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/astar_planner_node.cpp.o" \
@@ -198,7 +211,8 @@ mr_traditional_planner_plugins_OBJECTS = \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/dwa_planner_node.cpp.o" \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.o" \
 "CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o" \
-"CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o"
+"CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o" \
+"CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o"
 
 # External object files for target mr_traditional_planner_plugins
 mr_traditional_planner_plugins_EXTERNAL_OBJECTS =
@@ -213,7 +227,13 @@ mr_traditional_planner_plugins_EXTERNAL_OBJECTS =
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/optimal/cubic_spline_planner_node.cpp.o
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/bcd_planner_node.cpp.o
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/coverage/stc_planner_node.cpp.o
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/src/nav_core/global_planner_adapter.cpp.o
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/build.make
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /opt/ros/noetic/lib/libcostmap_2d.so
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /opt/ros/noetic/lib/liblayers.so
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /opt/ros/noetic/lib/libdynamic_reconfigure_config_init_mutex.so
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /opt/ros/noetic/lib/liblaser_geometry.so
+/home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /opt/ros/noetic/lib/libvoxel_grid.so
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /opt/ros/noetic/lib/libclass_loader.so
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /usr/lib/x86_64-linux-gnu/libPocoFoundation.so
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /usr/lib/x86_64-linux-gnu/libdl.so
@@ -245,7 +265,7 @@ mr_traditional_planner_plugins_EXTERNAL_OBJECTS =
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
 /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so: mr_traditional_planner/CMakeFiles/mr_traditional_planner_plugins.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX shared library /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/lmy/mobile_robot_benchmark/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX shared library /home/lmy/mobile_robot_benchmark/devel/lib/libmr_traditional_planner_plugins.so"
 	cd /home/lmy/mobile_robot_benchmark/build/mr_traditional_planner && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mr_traditional_planner_plugins.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

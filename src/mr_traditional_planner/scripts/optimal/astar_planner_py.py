@@ -31,7 +31,10 @@ class AStarPlannerNode:
             "/move_base_simple/goal", PoseStamped, self.goal_callback, queue_size=1
         )
         self.path_pub = rospy.Publisher(
-            "/mr_traditional_planner/optimal_path", Path, queue_size=1, latch=True
+            rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path"),
+            Path,
+            queue_size=1,
+            latch=True,
         )
 
         self.tf_listener = tf.TransformListener()

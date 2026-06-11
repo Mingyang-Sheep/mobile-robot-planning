@@ -1,37 +1,77 @@
 <launch>
   <!-- 一键联调入口：同时拉起导航仿真环境和指定算法节点。 -->
   <arg name="model" default="burger"/>
+  <arg name="robot_model" default="$(arg model)"/>
   <arg name="map_name" default="turtlebot3_world"/>
+  <arg name="world_name" default="$(find mr_gazebo)/worlds/turtlebot3_world.world"/>
   <arg name="algorithm" default="astar"/>
   <arg name="impl" default="cpp"/>
   <arg name="planner_plugin" default=""/>
+  <!-- Debug 节点只负责 RViz 对照显示，不参与 move_base 执行链路；DWA 使用 move_base 的 local_plan。 -->
+  <arg name="run_debug_planner" default="$(eval 'false' if arg('algorithm') == 'dwa' else 'true')"/>
+  <arg name="debug_path_topic" default="$(eval '/mr_traditional_planner/debug_coverage_path' if arg('algorithm') in ['bcd', 'stc'] else ('/mr_traditional_planner/debug_local_path' if arg('algorithm') == 'dwa' else '/mr_traditional_planner/debug_optimal_path'))"/>
+  <arg name="planning_mode" default="normal"/>
+  <arg name="global_planner" default="$(eval arg('algorithm') if arg('algorithm') in ['astar', 'dijkstra', 'dstar', 'dstar_lite', 'theta_star', 'rrt_star'] else 'astar')"/>
+  <arg name="path_smoother" default="none"/>
+  <arg name="local_planner" default="dwa"/>
+  <arg name="coverage_planner" default="stc"/>
+  <arg name="costmap_cost_weight" default="2.0"/>
+
+  <arg name="x" default="-2.0"/>
+  <arg name="y" default="-0.5"/>
+  <arg name="z" default="0.01"/>
+  <arg name="yaw" default="0.0"/>
+  <arg name="wheel_mu" default="1.0"/>
 
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
   <arg name="paused" default="false"/>
   <arg name="debug" default="false"/>
+  <arg name="use_rviz" default="true"/>
 
   <arg name="scan_topic" default="/scan"/>
   <arg name="odom_topic" default="/odom"/>
   <arg name="cmd_vel_topic" default="/cmd_vel"/>
   <arg name="move_forward_only" default="false"/>
+  <arg name="base_global_planner" default=""/>
+  <arg name="base_local_planner" default=""/>
 
   <include file="$(find mr_navigation)/launch/navigation_sim.launch">
     <arg name="model" value="$(arg model)"/>
+    <arg name="robot_model" value="$(arg robot_model)"/>
     <arg name="map_name" value="$(arg map_name)"/>
+    <arg name="world_name" value="$(arg world_name)"/>
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="z" value="$(arg z)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
+    <arg name="wheel_mu" value="$(arg wheel_mu)"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="headless" value="$(arg headless)"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="debug" value="$(arg debug)"/>
+    <arg name="use_rviz" value="$(arg use_rviz)"/>
     <arg name="scan_topic" value="$(arg scan_topic)"/>
     <arg name="odom_topic" value="$(arg odom_topic)"/>
     <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
     <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+    <arg name="planning_mode" value="$(arg planning_mode)"/>
+    <arg name="global_planner" value="$(arg global_planner)"/>
+    <arg name="path_smoother" value="$(arg path_smoother)"/>
+    <arg name="local_planner" value="$(arg local_planner)"/>
+    <arg name="coverage_planner" value="$(arg coverage_planner)"/>
+    <arg name="costmap_cost_weight" value="$(arg costmap_cost_weight)"/>
+    <arg name="base_global_planner" value="$(arg base_global_planner)"/>
+    <arg name="base_local_planner" value="$(arg base_local_planner)"/>
   </include>
 
-  <include file="$(find mr_traditional_planner)/launch/planner.launch">
-    <arg name="algorithm" value="$(arg algorithm)"/>
-    <arg name="impl" value="$(arg impl)"/>
-    <arg name="planner_plugin" value="$(arg planner_plugin)"/>
-  </include>
+  <group if="$(eval arg('planning_mode') == 'normal')">
+    <include file="$(find mr_traditional_planner)/launch/planner.launch"
+             if="$(arg run_debug_planner)">
+      <arg name="algorithm" value="$(arg algorithm)"/>
+      <arg name="impl" value="$(arg impl)"/>
+      <arg name="planner_plugin" value="$(arg planner_plugin)"/>
+      <arg name="path_topic" value="$(arg debug_path_topic)"/>
+    </include>
+  </group>
 </launch>
