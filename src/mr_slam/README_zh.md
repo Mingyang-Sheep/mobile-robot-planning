@@ -1,0 +1,70 @@
+<div align="right">
+
+[英文版](README.md)
+
+</div>
+
+# mr_slam
+
+`mr_slam` 是本工作区统一的 SLAM 启动与配置包。当前它把 `gmapping` 和 `hector` 作为普通 ROS 依赖接入，主要服务于基础建图、课程验证和 话题/TF 学习。
+
+完整专题文档见 [../../docs/zh/slam_mapping.md](../../docs/zh/slam_mapping.md)。
+
+## 当前后端
+
+| 参数值 | 预期节点 | 说明 |
+|---|---|---|
+| `gmapping` | `/slam_gmapping` | 依赖 2D 激光与里程计，适合默认仿真建图 |
+| `hector` | `/hector_mapping` | 可用于对比不同 SLAM 后端的 话题/TF 行为 |
+
+## 最小命令
+
+```bash
+roslaunch mr_slam slam.launch slam_method:=gmapping
+roslaunch mr_slam slam.launch slam_method:=hector
+```
+
+带 Gazebo 的一体化入口：
+
+```bash
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping
+roslaunch mr_slam slam_sim.launch slam_method:=hector
+```
+
+低负载运行时可按 启动文件 参数关闭 GUI 或 RViz：
+
+```bash
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping gui:=false
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping use_rviz:=false
+```
+
+## 常用参数
+
+| 参数 | 默认值 |
+|---|---|
+| `scan_topic` | `/scan` |
+| `odom_topic` | `/odom` |
+| `base_frame` | `base_footprint` |
+| `odom_frame` | `odom` |
+| `map_frame` | `map` |
+
+## 快速检查
+
+编译并 source 工作区后：
+
+```bash
+rospack find mr_slam
+roslaunch --nodes mr_slam slam.launch slam_method:=gmapping
+roslaunch --nodes mr_slam slam.launch slam_method:=hector
+```
+
+运行时重点检查：
+
+```bash
+rostopic echo -n 1 /scan
+rostopic echo -n 1 /tf
+rostopic echo -n 1 /map
+rosrun tf tf_echo map base_footprint
+```
+
+本包不应描述为高级多传感器 SLAM 框架。当前范围是基础 2D SLAM 接入和教学验证。
