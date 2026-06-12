@@ -4,6 +4,8 @@
 the benchmark-facing launch interface and keeps third-party SLAM backends as
 normal ROS package dependencies.
 
+Full user documentation is in [../../docs/slam_mapping.md](../../docs/slam_mapping.md).
+
 ## Supported Backends
 
 - `gmapping`

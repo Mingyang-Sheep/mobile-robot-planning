@@ -21,7 +21,6 @@ SYSTEM_PACKAGES=(
 )
 
 ROS_PACKAGES=(
-  ros-noetic-desktop-full
   ros-noetic-xacro
   ros-noetic-urdf
   ros-noetic-joint-state-publisher
@@ -29,11 +28,16 @@ ROS_PACKAGES=(
   ros-noetic-robot-state-publisher
   ros-noetic-gazebo-ros
   ros-noetic-gazebo-plugins
+  ros-noetic-gazebo-ros-control
   ros-noetic-map-server
   ros-noetic-amcl
   ros-noetic-move-base
   ros-noetic-navfn
+  ros-noetic-costmap-2d
+  ros-noetic-nav-core
+  ros-noetic-base-local-planner
   ros-noetic-dwa-local-planner
+  ros-noetic-pluginlib
   ros-noetic-actionlib
   ros-noetic-actionlib-msgs
   ros-noetic-gazebo-msgs
@@ -42,17 +46,20 @@ ROS_PACKAGES=(
   ros-noetic-message-runtime
   ros-noetic-move-base-msgs
   ros-noetic-nav-msgs
-  ros-noetic-pluginlib
   ros-noetic-roscpp
   ros-noetic-rospy
   ros-noetic-sensor-msgs
   ros-noetic-std-msgs
   ros-noetic-std-srvs
   ros-noetic-tf
+  ros-noetic-tf2
+  ros-noetic-tf2-ros
   ros-noetic-gmapping
   ros-noetic-hector-mapping
+  ros-noetic-hector-slam
   ros-noetic-teleop-twist-keyboard
   ros-noetic-rviz
+  ros-noetic-rqt-tf-tree
 )
 
 PYTHON_MODULES=(
@@ -173,11 +180,10 @@ print_install_examples() {
      sudo apt-get install -y build-essential cmake git gnome-terminal python3 python3-pip python3-numpy python3-rosdep python3-catkin-pkg python3-empy
 
   3. 安装 Python 训练依赖
-     python3 -m pip install --user torch
+     python3 -m pip install --user -r tools/requirements-learning.txt
 
   4. 安装 ROS / Gazebo 依赖
      sudo apt-get install -y \
-       ros-noetic-desktop-full \
        ros-noetic-xacro \
        ros-noetic-urdf \
        ros-noetic-joint-state-publisher \
@@ -185,11 +191,16 @@ print_install_examples() {
        ros-noetic-robot-state-publisher \
        ros-noetic-gazebo-ros \
        ros-noetic-gazebo-plugins \
+       ros-noetic-gazebo-ros-control \
        ros-noetic-map-server \
        ros-noetic-amcl \
        ros-noetic-move-base \
        ros-noetic-navfn \
+       ros-noetic-costmap-2d \
+       ros-noetic-nav-core \
+       ros-noetic-base-local-planner \
        ros-noetic-dwa-local-planner \
+       ros-noetic-pluginlib \
        ros-noetic-actionlib \
        ros-noetic-actionlib-msgs \
        ros-noetic-gazebo-msgs \
@@ -198,17 +209,20 @@ print_install_examples() {
        ros-noetic-message-runtime \
        ros-noetic-move-base-msgs \
        ros-noetic-nav-msgs \
-       ros-noetic-pluginlib \
        ros-noetic-roscpp \
        ros-noetic-rospy \
        ros-noetic-sensor-msgs \
        ros-noetic-std-msgs \
        ros-noetic-std-srvs \
        ros-noetic-tf \
+       ros-noetic-tf2 \
+       ros-noetic-tf2-ros \
        ros-noetic-gmapping \
        ros-noetic-hector-mapping \
+       ros-noetic-hector-slam \
        ros-noetic-teleop-twist-keyboard \
-       ros-noetic-rviz
+       ros-noetic-rviz \
+       ros-noetic-rqt-tf-tree
 
   5. 用 rosdep 复核 package.xml 依赖
      # 将 <workspace_root> 替换为当前仓库根目录

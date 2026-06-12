@@ -3,7 +3,9 @@
 `mr_traditional_planner` is the traditional-planning package for
 `mobile-robot-benchmark`.
 
-调试笔记见 [DEBUG_NOTE.md](DEBUG_NOTE.md)。
+仓库级调试说明见 [规划框架](../../docs/planner_framework.md) 和
+[Launch 参考](../../docs/launch_reference.md)。包内兼容入口见
+[DEBUG_NOTE.md](DEBUG_NOTE.md)。
 
 ## Interface Standard
 
