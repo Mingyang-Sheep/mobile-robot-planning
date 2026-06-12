@@ -1,5 +1,7 @@
 #include "mr_traditional_planner/planner_plugin.h"
 
+#include "mr_traditional_planner/debug_path_tools.h"
+
 #include <pluginlib/class_loader.hpp>
 #include <ros/ros.h>
 
@@ -58,15 +60,25 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
   ros::NodeHandle private_nh("~");
 
+  std::string algorithm;
+  std::string path_topic;
+  private_nh.param<std::string>("algorithm", algorithm, std::string("astar"));
+  private_nh.param<std::string>("path_topic", path_topic,
+                                std::string("/mr_traditional_planner/debug_optimal_path"));
   const std::string planner_plugin = resolvePlannerPlugin(private_nh);
   if (planner_plugin.empty()) {
     return 1;
   }
+  mr_traditional_planner::logDebugNodeStart(algorithm, "cpp", argv[0], planner_plugin,
+                                            path_topic);
+  mr_traditional_planner::logDebugAlgorithmSelected(algorithm, "cpp");
   try {
     pluginlib::ClassLoader<mr_traditional_planner::PlannerPlugin> loader(
         "mr_traditional_planner", "mr_traditional_planner::PlannerPlugin");
     boost::shared_ptr<mr_traditional_planner::PlannerPlugin> planner =
         loader.createInstance(planner_plugin);
+    mr_traditional_planner::logDebugModuleLoaded(algorithm, "cpp", planner_plugin,
+                                                planner.get());
     planner->initialize(nh, private_nh);
 
     ROS_INFO_STREAM("Loaded traditional planner plugin: " << planner_plugin);

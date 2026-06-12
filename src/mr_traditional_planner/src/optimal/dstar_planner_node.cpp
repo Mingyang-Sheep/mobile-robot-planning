@@ -40,10 +40,15 @@ void DStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) 
   map_sub_ = nh_.subscribe(map_topic, 1, &DStarPlanner::mapCallback, this);
   goal_sub_ = nh_.subscribe(goal_topic, 1, &DStarPlanner::goalCallback, this);
   path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  logDebugSubscriptionsReady("dstar", "cpp", map_topic, goal_topic, this,
+                             "DStarPlanner::mapCallback",
+                             "DStarPlanner::goalCallback");
   publishFailure("startup_clear");
 }
 
 void DStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
+  logDebugCallbackEnter("map_callback", "dstar", "cpp", this,
+                        "DStarPlanner::mapCallback");
   latest_map_ = msg;
   map_width_ = static_cast<int>(msg->info.width);
   map_height_ = static_cast<int>(msg->info.height);
@@ -51,10 +56,18 @@ void DStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
   origin_x_ = msg->info.origin.position.x;
   origin_y_ = msg->info.origin.position.y;
   buildObstacleLookup();
+  logDebugMapReady("dstar", "cpp", "/map", map_width_, map_height_, resolution_,
+                   msg->header.frame_id);
 }
 
 void DStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+  logDebugCallbackEnter("goal_callback", "dstar", "cpp", this,
+                        "DStarPlanner::goalCallback");
   latest_goal_ = msg;
+  logDebugGoalReceived("dstar", "cpp", "/move_base_simple/goal",
+                       msg->header.frame_id.empty() ? map_frame_ : msg->header.frame_id,
+                       msg->pose.position.x, msg->pose.position.y,
+                       static_cast<bool>(latest_map_));
 
   if (!latest_map_) {
     ROS_WARN("D* C++: /map 尚未收到，无法开始规划。");
@@ -78,6 +91,7 @@ void DStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
 
   const std::pair<int, int> start = worldToGrid(start_world_x, start_world_y);
   const std::pair<int, int> goal = worldToGrid(msg->pose.position.x, msg->pose.position.y);
+  logDebugGridPoints("dstar", "cpp", start.first, start.second, goal.first, goal.second);
 
   if (!inBounds(start.first, start.second)) {
     ROS_WARN("D* C++: 起点超出地图范围，停止规划。");
@@ -103,7 +117,9 @@ void DStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
     return;
   }
 
+  logDebugPlanCall("dstar", "cpp");
   const std::vector<int> path_indices = planPath(start.first, start.second, goal.first, goal.second);
+  logDebugPlanReturn("dstar", "cpp", path_indices.size());
   if (path_indices.empty()) {
     ROS_WARN("D* C++: 未找到可行路径。");
     publishFailure("no_path");
@@ -153,20 +169,8 @@ void DStarPlanner::precomputeInflationOffsets() {
 }
 
 bool DStarPlanner::lookupStartPose(double& start_world_x, double& start_world_y) {
-  tf::StampedTransform transform;
-
-  try {
-    tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
-    tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
-  } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("D* C++: 获取 " << map_frame_ << " -> " << robot_frame_
-                                    << " 失败，停止规划。" << ex.what());
-    return false;
-  }
-
-  start_world_x = transform.getOrigin().x();
-  start_world_y = transform.getOrigin().y();
-  return true;
+  return lookupDebugStartPose(tf_listener_, map_frame_, robot_frame_, "dstar", "cpp", 1.0,
+                              start_world_x, start_world_y);
 }
 
 bool DStarPlanner::inBounds(int grid_x, int grid_y) const {
@@ -410,7 +414,7 @@ void DStarPlanner::publishPath(const std::vector<int>& path_indices) const {
   }
 
   path_pub_.publish(path_msg);
-  logDebugPathSuccess("dstar", "cpp", path_topic_, path_msg.poses.size());
+  logDebugPathSuccess("dstar", "cpp", path_topic_, path_msg.poses.size(), map_frame_);
 }
 
 void DStarPlanner::publishFailure(const std::string& reason) const {

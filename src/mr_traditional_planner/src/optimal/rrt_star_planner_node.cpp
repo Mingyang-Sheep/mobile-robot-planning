@@ -64,10 +64,15 @@ void RRTStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh
   map_sub_ = nh_.subscribe(map_topic, 1, &RRTStarPlanner::mapCallback, this);
   goal_sub_ = nh_.subscribe(goal_topic, 1, &RRTStarPlanner::goalCallback, this);
   path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  logDebugSubscriptionsReady("rrt_star", "cpp", map_topic, goal_topic, this,
+                             "RRTStarPlanner::mapCallback",
+                             "RRTStarPlanner::goalCallback");
   publishFailure("startup_clear");
 }
 
 void RRTStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
+  logDebugCallbackEnter("map_callback", "rrt_star", "cpp", this,
+                        "RRTStarPlanner::mapCallback");
   latest_map_ = msg;
   map_width_ = static_cast<int>(msg->info.width);
   map_height_ = static_cast<int>(msg->info.height);
@@ -75,10 +80,18 @@ void RRTStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
   origin_x_ = msg->info.origin.position.x;
   origin_y_ = msg->info.origin.position.y;
   buildObstacleLookup();
+  logDebugMapReady("rrt_star", "cpp", "/map", map_width_, map_height_, resolution_,
+                   msg->header.frame_id);
 }
 
 void RRTStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+  logDebugCallbackEnter("goal_callback", "rrt_star", "cpp", this,
+                        "RRTStarPlanner::goalCallback");
   latest_goal_ = msg;
+  logDebugGoalReceived("rrt_star", "cpp", "/move_base_simple/goal",
+                       msg->header.frame_id.empty() ? map_frame_ : msg->header.frame_id,
+                       msg->pose.position.x, msg->pose.position.y,
+                       static_cast<bool>(latest_map_));
 
   if (!latest_map_) {
     ROS_WARN("RRT* C++: /map has not been received yet.");
@@ -102,6 +115,10 @@ void RRTStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
 
   const double goal_world_x = msg->pose.position.x;
   const double goal_world_y = msg->pose.position.y;
+  const std::pair<int, int> start_grid = worldToGrid(start_world_x, start_world_y);
+  const std::pair<int, int> goal_grid = worldToGrid(goal_world_x, goal_world_y);
+  logDebugGridPoints("rrt_star", "cpp", start_grid.first, start_grid.second,
+                     goal_grid.first, goal_grid.second);
   if (!isWorldPointFree(start_world_x, start_world_y)) {
     ROS_WARN("RRT* C++: start is outside the map or inside an inflated obstacle.");
     publishFailure("start_blocked");
@@ -113,8 +130,10 @@ void RRTStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg)
     return;
   }
 
+  logDebugPlanCall("rrt_star", "cpp");
   const std::vector<std::pair<double, double>> path_points =
       planPath(start_world_x, start_world_y, goal_world_x, goal_world_y);
+  logDebugPlanReturn("rrt_star", "cpp", path_points.size());
   if (path_points.empty()) {
     ROS_WARN("RRT* C++: no path found.");
     publishFailure("no_path");
@@ -164,20 +183,8 @@ void RRTStarPlanner::precomputeInflationOffsets() {
 }
 
 bool RRTStarPlanner::lookupStartPose(double& start_world_x, double& start_world_y) {
-  tf::StampedTransform transform;
-
-  try {
-    tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
-    tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
-  } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("RRT* C++: failed to lookup " << map_frame_ << " -> " << robot_frame_
-                                                  << ": " << ex.what());
-    return false;
-  }
-
-  start_world_x = transform.getOrigin().x();
-  start_world_y = transform.getOrigin().y();
-  return true;
+  return lookupDebugStartPose(tf_listener_, map_frame_, robot_frame_, "rrt_star", "cpp",
+                              1.0, start_world_x, start_world_y);
 }
 
 bool RRTStarPlanner::inBounds(int grid_x, int grid_y) const {
@@ -464,7 +471,7 @@ void RRTStarPlanner::publishPath(const std::vector<std::pair<double, double>>& p
   }
 
   path_pub_.publish(path_msg);
-  logDebugPathSuccess("rrt_star", "cpp", path_topic_, path_msg.poses.size());
+  logDebugPathSuccess("rrt_star", "cpp", path_topic_, path_msg.poses.size(), map_frame_);
 }
 
 void RRTStarPlanner::publishFailure(const std::string& reason) const {

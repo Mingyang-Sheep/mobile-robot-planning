@@ -70,10 +70,15 @@ void AStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_nh) 
   goal_sub_ = nh_.subscribe(goal_topic, 1, &AStarPlanner::goalCallback, this);
   // 统一输出最优路径消息。
   path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  logDebugSubscriptionsReady("astar", "cpp", map_topic, goal_topic, this,
+                             "AStarPlanner::mapCallback",
+                             "AStarPlanner::goalCallback");
   publishFailure("startup_clear");
 }
 
 void AStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
+  logDebugCallbackEnter("map_callback", "astar", "cpp", this,
+                        "AStarPlanner::mapCallback");
   latest_map_ = msg;
   map_width_ = static_cast<int>(msg->info.width);
   map_height_ = static_cast<int>(msg->info.height);
@@ -81,10 +86,18 @@ void AStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
   origin_x_ = msg->info.origin.position.x;
   origin_y_ = msg->info.origin.position.y;
   buildObstacleLookup();
+  logDebugMapReady("astar", "cpp", "/map", map_width_, map_height_, resolution_,
+                   msg->header.frame_id);
 }
 
 void AStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+  logDebugCallbackEnter("goal_callback", "astar", "cpp", this,
+                        "AStarPlanner::goalCallback");
   latest_goal_ = msg;
+  logDebugGoalReceived("astar", "cpp", "/move_base_simple/goal",
+                       msg->header.frame_id.empty() ? map_frame_ : msg->header.frame_id,
+                       msg->pose.position.x, msg->pose.position.y,
+                       static_cast<bool>(latest_map_));
 
   if (!latest_map_) {
     ROS_WARN("A* C++: /map 尚未收到，无法开始规划。");
@@ -110,6 +123,7 @@ void AStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
   const std::pair<int, int> start = worldToGrid(start_world_x, start_world_y);
   // 关键步骤：终点使用完全一致的映射公式，保证与 Python 版栅格索引定义一致。
   const std::pair<int, int> goal = worldToGrid(msg->pose.position.x, msg->pose.position.y);
+  logDebugGridPoints("astar", "cpp", start.first, start.second, goal.first, goal.second);
 
   if (!inBounds(start.first, start.second)) {
     ROS_WARN("A* C++: 起点超出地图范围，停止规划。");
@@ -135,7 +149,9 @@ void AStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
     return;
   }
 
+  logDebugPlanCall("astar", "cpp");
   const std::vector<int> path_indices = planPath(start.first, start.second, goal.first, goal.second);
+  logDebugPlanReturn("astar", "cpp", path_indices.size());
   if (path_indices.empty()) {
     ROS_WARN("A* C++: 未找到可行路径。");
     publishFailure("no_path");
@@ -188,20 +204,8 @@ void AStarPlanner::precomputeInflationOffsets() {
 }
 
 bool AStarPlanner::lookupStartPose(double& start_world_x, double& start_world_y) {
-  tf::StampedTransform transform;
-
-  try {
-    tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
-    tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
-  } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("A* C++: 获取 " << map_frame_ << " -> " << robot_frame_
-                                     << " 失败，停止规划。" << ex.what());
-    return false;
-  }
-
-  start_world_x = transform.getOrigin().x();
-  start_world_y = transform.getOrigin().y();
-  return true;
+  return lookupDebugStartPose(tf_listener_, map_frame_, robot_frame_, "astar", "cpp", 1.0,
+                              start_world_x, start_world_y);
 }
 
 bool AStarPlanner::inBounds(int grid_x, int grid_y) const {
@@ -347,7 +351,7 @@ void AStarPlanner::publishPath(const std::vector<int>& path_indices) const {
   }
 
   path_pub_.publish(path_msg);
-  logDebugPathSuccess("astar", "cpp", path_topic_, path_msg.poses.size());
+  logDebugPathSuccess("astar", "cpp", path_topic_, path_msg.poses.size(), map_frame_);
 }
 
 void AStarPlanner::publishFailure(const std::string& reason) const {

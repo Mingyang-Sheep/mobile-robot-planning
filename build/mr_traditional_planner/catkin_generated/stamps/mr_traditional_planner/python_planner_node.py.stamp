@@ -11,6 +11,7 @@ Usage (launched by planner.launch with impl:=py):
 import importlib
 import os
 import sys
+import traceback
 
 import rospy
 from nav_msgs.msg import Path
@@ -41,8 +42,18 @@ def main():
     rospy.init_node("python_planner_node", anonymous=False)
 
     algorithm = rospy.get_param("~algorithm", "")
+    path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
+    debug_path.log_node_start(
+        algorithm or "unknown",
+        path_topic,
+        sys.executable,
+        os.path.abspath(__file__),
+        _SCRIPT_DIR,
+        os.path.abspath(getattr(debug_path, "__file__", "unknown")),
+        os.getcwd(),
+    )
+
     if algorithm not in _ALGORITHM_MAP:
-        path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
         path_pub = rospy.Publisher(path_topic, Path, queue_size=1, latch=True)
         rospy.sleep(0.2)
         debug_path.publish_empty(path_pub, "map", algorithm or "unknown", path_topic, "unsupported_algorithm")
@@ -54,23 +65,26 @@ def main():
 
     module_name, class_name = _ALGORITHM_MAP[algorithm]
 
-    rospy.loginfo(
-        "[DebugPlanner] algorithm=%s impl=py loading=%s.%s",
-        algorithm,
-        module_name,
-        class_name,
-    )
+    debug_path.log_algorithm_selected(algorithm)
 
     try:
         module = importlib.import_module(module_name)
         planner_class = getattr(module, class_name)
-        planner_class()
+        planner = planner_class()
+        debug_path.log_module_loaded(
+            algorithm,
+            module_name,
+            class_name,
+            os.path.abspath(getattr(module, "__file__", "unknown")),
+            id(planner),
+        )
+        debug_path.log_node_ready(algorithm, planner)
     except Exception as exc:
-        path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
         path_pub = rospy.Publisher(path_topic, Path, queue_size=1, latch=True)
         rospy.sleep(0.2)
         debug_path.publish_empty(path_pub, "map", algorithm, path_topic, "exception")
         rospy.logfatal("[DebugPlanner] algorithm=%s impl=py exception=%s", algorithm, exc)
+        rospy.logerr(traceback.format_exc())
         raise
 
     rospy.spin()

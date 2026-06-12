@@ -38,24 +38,28 @@ class DStarPlannerNode:
         self.tf_timeout = max(0.1, float(rospy.get_param("~tf_timeout", 1.0)))
         self.robot_radius = rospy.get_param("~robot_radius", 0.15)
 
-        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
-        self.goal_sub = rospy.Subscriber(
-            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
-        )
         self.path_pub = rospy.Publisher(
             self.path_topic, Path, queue_size=1, latch=True
         )
-        self.publish_failure("goal_not_received")
-
         self.tf_listener = tf.TransformListener()
         self.grid_map = None
         self.obstacle_set = set()
         self.search_states = []
         self.open_heap = []
 
+        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
+        self.goal_sub = rospy.Subscriber(
+            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
+        )
+        debug_path.log_subscriptions_ready(self)
+        self.publish_failure("goal_not_received")
+
+    @debug_path.traced_callback("map_callback")
     def map_callback(self, msg):
-        self.grid_map = GridMap(msg)
-        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
+        grid_map = GridMap(msg)
+        obstacle_set = build_obstacle_set(grid_map, self.robot_radius)
+        self.grid_map = grid_map
+        self.obstacle_set = obstacle_set
         debug_path.log_map_ready(
             self.algorithm,
             self.map_topic,
@@ -65,6 +69,7 @@ class DStarPlannerNode:
             msg.header.frame_id,
         )
 
+    @debug_path.traced_callback("goal_callback")
     def goal_callback(self, msg):
         debug_path.log_goal_received(
             self.algorithm,
@@ -95,6 +100,7 @@ class DStarPlannerNode:
 
         start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
         goal_x, goal_y = self.grid_map.world_to_grid(msg.pose.position.x, msg.pose.position.y)
+        debug_path.log_grid_points(self.algorithm, start_x, start_y, goal_x, goal_y)
 
         if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("D* Python: 起点超出地图范围，停止规划。")
@@ -118,7 +124,9 @@ class DStarPlannerNode:
             self.publish_failure("goal_blocked")
             return
 
+        debug_path.log_plan_call(self.algorithm)
         path_indices = self.plan_path(start_x, start_y, goal_x, goal_y)
+        debug_path.log_plan_return(self.algorithm, len(path_indices))
         if not path_indices:
             rospy.logwarn("D* Python: 未找到可行路径。")
             self.publish_failure("no_path")
@@ -281,21 +289,14 @@ class DStarPlannerNode:
         return math.hypot(from_x - to_x, from_y - to_y)
 
     def publish_path(self, path_indices):
-        gm = self.grid_map
-        path_msg = Path()
-        path_msg.header.stamp = rospy.Time.now()
-        path_msg.header.frame_id = self.map_frame
-        for linear_index in path_indices:
-            grid_x, grid_y = gm.index_to_grid(linear_index)
-            world_x, world_y = gm.grid_to_world(grid_x, grid_y)
-            pose = PoseStamped()
-            pose.header = path_msg.header
-            pose.pose.position.x = world_x
-            pose.pose.position.y = world_y
-            pose.pose.orientation.w = 1.0
-            path_msg.poses.append(pose)
-        self.path_pub.publish(path_msg)
-        debug_path.log_success(self.algorithm, self.path_topic, len(path_msg.poses))
+        debug_path.publish_grid_path(
+            self.path_pub,
+            self.grid_map,
+            path_indices,
+            self.map_frame,
+            self.algorithm,
+            self.path_topic,
+        )
 
     def publish_failure(self, reason):
         debug_path.publish_empty(

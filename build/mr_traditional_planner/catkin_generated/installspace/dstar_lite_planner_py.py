@@ -26,28 +26,33 @@ class DStarLitePlannerNode:
         self.tf_timeout = max(0.1, float(rospy.get_param("~tf_timeout", 1.0)))
         self.robot_radius = rospy.get_param("~robot_radius", 0.15)
 
-        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
-        self.goal_sub = rospy.Subscriber(
-            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
-        )
         self.path_pub = rospy.Publisher(
             self.path_topic, Path, queue_size=1, latch=True
         )
-        self.publish_failure("goal_not_received")
-
         self.tf_listener = tf.TransformListener()
         self.grid_map = None
         self.obstacle_set = set()
         self.g_values = []
         self.rhs_values = []
         self.open_heap = []
+        self.open_lookup = {}
         self.search_start_index = -1
         self.search_goal_index = -1
         self.km = 0.0
 
+        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
+        self.goal_sub = rospy.Subscriber(
+            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
+        )
+        debug_path.log_subscriptions_ready(self)
+        self.publish_failure("goal_not_received")
+
+    @debug_path.traced_callback("map_callback")
     def map_callback(self, msg):
-        self.grid_map = GridMap(msg)
-        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
+        grid_map = GridMap(msg)
+        obstacle_set = build_obstacle_set(grid_map, self.robot_radius)
+        self.grid_map = grid_map
+        self.obstacle_set = obstacle_set
         debug_path.log_map_ready(
             self.algorithm,
             self.map_topic,
@@ -57,6 +62,7 @@ class DStarLitePlannerNode:
             msg.header.frame_id,
         )
 
+    @debug_path.traced_callback("goal_callback")
     def goal_callback(self, msg):
         debug_path.log_goal_received(
             self.algorithm,
@@ -87,6 +93,7 @@ class DStarLitePlannerNode:
 
         start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
         goal_x, goal_y = self.grid_map.world_to_grid(msg.pose.position.x, msg.pose.position.y)
+        debug_path.log_grid_points(self.algorithm, start_x, start_y, goal_x, goal_y)
 
         if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("D* Lite Python: 起点超出地图范围，停止规划。")
@@ -110,7 +117,9 @@ class DStarLitePlannerNode:
             self.publish_failure("goal_blocked")
             return
 
+        debug_path.log_plan_call(self.algorithm)
         path_indices = self.plan_path(start_x, start_y, goal_x, goal_y)
+        debug_path.log_plan_return(self.algorithm, len(path_indices))
         if not path_indices:
             rospy.logwarn("D* Lite Python: 未找到可行路径。")
             self.publish_failure("no_path")
@@ -136,13 +145,11 @@ class DStarLitePlannerNode:
         self.g_values = [float("inf")] * map_size
         self.rhs_values = [float("inf")] * map_size
         self.open_heap = []
+        self.open_lookup = {}
         self.km = 0.0
 
         self.rhs_values[self.search_goal_index] = 0.0
-        heapq.heappush(
-            self.open_heap,
-            (*self.calculate_key(self.search_goal_index), self.search_goal_index),
-        )
+        self.push_open(self.search_goal_index)
 
         if not self.compute_shortest_path():
             return []
@@ -173,29 +180,22 @@ class DStarLitePlannerNode:
     def compute_shortest_path(self):
         map_size = self.grid_map.width * self.grid_map.height
         for _ in range(max(1, map_size * 32)):
-            if not self.open_heap and self.nearly_equal(
+            top_key = self.top_key()
+            start_key = self.calculate_key(self.search_start_index)
+            if not self.compare_keys(top_key, start_key) and self.nearly_equal(
                 self.rhs_values[self.search_start_index], self.g_values[self.search_start_index]
             ):
                 return True
 
-            if not self.open_heap:
+            popped = self.pop_open()
+            if popped is None:
                 return False
 
-            key_first, key_second, current_index = self.open_heap[0]
-            start_key = self.calculate_key(self.search_start_index)
-            if not self.compare_keys((key_first, key_second), start_key) and self.nearly_equal(
-                self.rhs_values[self.search_start_index], self.g_values[self.search_start_index]
-            ):
-                return True
-
-            heapq.heappop(self.open_heap)
+            current_index, item_key = popped
             current_key = self.calculate_key(current_index)
-            item_key = (key_first, key_second)
-            if self.compare_keys(current_key, item_key):
-                continue
 
             if self.compare_keys(item_key, current_key):
-                heapq.heappush(self.open_heap, (*current_key, current_index))
+                self.push_open(current_index)
                 continue
 
             if self.g_values[current_index] > self.rhs_values[current_index]:
@@ -211,6 +211,32 @@ class DStarLitePlannerNode:
         rospy.logwarn("D* Lite Python: 搜索迭代次数超过上限，停止规划。")
         return False
 
+    def push_open(self, linear_index):
+        key = self.calculate_key(linear_index)
+        self.open_lookup[linear_index] = key
+        heapq.heappush(self.open_heap, (*key, linear_index))
+
+    def remove_open(self, linear_index):
+        self.open_lookup.pop(linear_index, None)
+
+    def top_key(self):
+        while self.open_heap:
+            key_first, key_second, linear_index = self.open_heap[0]
+            key = (key_first, key_second)
+            if self.open_lookup.get(linear_index) == key:
+                return key
+            heapq.heappop(self.open_heap)
+        return float("inf"), float("inf")
+
+    def pop_open(self):
+        while self.open_heap:
+            key_first, key_second, linear_index = heapq.heappop(self.open_heap)
+            key = (key_first, key_second)
+            if self.open_lookup.get(linear_index) == key:
+                self.remove_open(linear_index)
+                return linear_index, key
+        return None
+
     def update_vertex(self, linear_index):
         if linear_index != self.search_goal_index:
             best_rhs = float("inf")
@@ -221,8 +247,9 @@ class DStarLitePlannerNode:
                 )
             self.rhs_values[linear_index] = best_rhs
 
+        self.remove_open(linear_index)
         if not self.nearly_equal(self.g_values[linear_index], self.rhs_values[linear_index]):
-            heapq.heappush(self.open_heap, (*self.calculate_key(linear_index), linear_index))
+            self.push_open(linear_index)
 
     def calculate_key(self, linear_index):
         min_value = min(self.g_values[linear_index], self.rhs_values[linear_index])
@@ -259,20 +286,14 @@ class DStarLitePlannerNode:
         return math.hypot(from_x - to_x, from_y - to_y)
 
     def publish_path(self, path_indices):
-        path_msg = Path()
-        path_msg.header.stamp = rospy.Time.now()
-        path_msg.header.frame_id = self.map_frame
-        for linear_index in path_indices:
-            grid_x, grid_y = self.grid_map.index_to_grid(linear_index)
-            world_x, world_y = self.grid_map.grid_to_world(grid_x, grid_y)
-            pose = PoseStamped()
-            pose.header = path_msg.header
-            pose.pose.position.x = world_x
-            pose.pose.position.y = world_y
-            pose.pose.orientation.w = 1.0
-            path_msg.poses.append(pose)
-        self.path_pub.publish(path_msg)
-        debug_path.log_success(self.algorithm, self.path_topic, len(path_msg.poses))
+        debug_path.publish_grid_path(
+            self.path_pub,
+            self.grid_map,
+            path_indices,
+            self.map_frame,
+            self.algorithm,
+            self.path_topic,
+        )
 
     def publish_failure(self, reason):
         debug_path.publish_empty(

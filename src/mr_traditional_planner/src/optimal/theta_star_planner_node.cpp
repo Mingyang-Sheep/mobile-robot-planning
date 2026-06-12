@@ -63,10 +63,15 @@ void ThetaStarPlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_
   map_sub_ = nh_.subscribe(map_topic, 1, &ThetaStarPlanner::mapCallback, this);
   goal_sub_ = nh_.subscribe(goal_topic, 1, &ThetaStarPlanner::goalCallback, this);
   path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  logDebugSubscriptionsReady("theta_star", "cpp", map_topic, goal_topic, this,
+                             "ThetaStarPlanner::mapCallback",
+                             "ThetaStarPlanner::goalCallback");
   publishFailure("startup_clear");
 }
 
 void ThetaStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
+  logDebugCallbackEnter("map_callback", "theta_star", "cpp", this,
+                        "ThetaStarPlanner::mapCallback");
   latest_map_ = msg;
   map_width_ = static_cast<int>(msg->info.width);
   map_height_ = static_cast<int>(msg->info.height);
@@ -74,10 +79,18 @@ void ThetaStarPlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
   origin_x_ = msg->info.origin.position.x;
   origin_y_ = msg->info.origin.position.y;
   buildObstacleLookup();
+  logDebugMapReady("theta_star", "cpp", "/map", map_width_, map_height_, resolution_,
+                   msg->header.frame_id);
 }
 
 void ThetaStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+  logDebugCallbackEnter("goal_callback", "theta_star", "cpp", this,
+                        "ThetaStarPlanner::goalCallback");
   latest_goal_ = msg;
+  logDebugGoalReceived("theta_star", "cpp", "/move_base_simple/goal",
+                       msg->header.frame_id.empty() ? map_frame_ : msg->header.frame_id,
+                       msg->pose.position.x, msg->pose.position.y,
+                       static_cast<bool>(latest_map_));
 
   if (!latest_map_) {
     ROS_WARN("Theta* C++: /map has not been received yet.");
@@ -101,6 +114,8 @@ void ThetaStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& ms
 
   const std::pair<int, int> start = worldToGrid(start_world_x, start_world_y);
   const std::pair<int, int> goal = worldToGrid(msg->pose.position.x, msg->pose.position.y);
+  logDebugGridPoints("theta_star", "cpp", start.first, start.second, goal.first,
+                     goal.second);
 
   if (!inBounds(start.first, start.second)) {
     ROS_WARN("Theta* C++: start is outside the map.");
@@ -123,7 +138,9 @@ void ThetaStarPlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& ms
     return;
   }
 
+  logDebugPlanCall("theta_star", "cpp");
   const std::vector<int> path_indices = planPath(start.first, start.second, goal.first, goal.second);
+  logDebugPlanReturn("theta_star", "cpp", path_indices.size());
   if (path_indices.empty()) {
     ROS_WARN("Theta* C++: no path found.");
     publishFailure("no_path");
@@ -173,20 +190,8 @@ void ThetaStarPlanner::precomputeInflationOffsets() {
 }
 
 bool ThetaStarPlanner::lookupStartPose(double& start_world_x, double& start_world_y) {
-  tf::StampedTransform transform;
-
-  try {
-    tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
-    tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
-  } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("Theta* C++: failed to lookup " << map_frame_ << " -> " << robot_frame_
-                                                    << ": " << ex.what());
-    return false;
-  }
-
-  start_world_x = transform.getOrigin().x();
-  start_world_y = transform.getOrigin().y();
-  return true;
+  return lookupDebugStartPose(tf_listener_, map_frame_, robot_frame_, "theta_star", "cpp",
+                              1.0, start_world_x, start_world_y);
 }
 
 bool ThetaStarPlanner::inBounds(int grid_x, int grid_y) const {
@@ -375,7 +380,7 @@ void ThetaStarPlanner::publishPath(const std::vector<int>& path_indices) const {
   }
 
   path_pub_.publish(path_msg);
-  logDebugPathSuccess("theta_star", "cpp", path_topic_, path_msg.poses.size());
+  logDebugPathSuccess("theta_star", "cpp", path_topic_, path_msg.poses.size(), map_frame_);
 }
 
 void ThetaStarPlanner::publishFailure(const std::string& reason) const {

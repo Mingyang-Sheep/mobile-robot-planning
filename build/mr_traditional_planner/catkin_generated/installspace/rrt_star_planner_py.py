@@ -45,20 +45,24 @@ class RRTStarPlannerNode:
         self.search_until_max_iter = bool(rospy.get_param("~search_until_max_iter", False))
         self.random = random.Random(int(rospy.get_param("~random_seed", 0)))
 
-        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
-        self.goal_sub = rospy.Subscriber(
-            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
-        )
         self.path_pub = rospy.Publisher(self.path_topic, Path, queue_size=1, latch=True)
-        self.publish_failure("goal_not_received")
-
         self.tf_listener = tf.TransformListener()
         self.grid_map = None
         self.obstacle_set = set()
 
+        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
+        self.goal_sub = rospy.Subscriber(
+            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
+        )
+        debug_path.log_subscriptions_ready(self)
+        self.publish_failure("goal_not_received")
+
+    @debug_path.traced_callback("map_callback")
     def map_callback(self, msg):
-        self.grid_map = GridMap(msg)
-        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
+        grid_map = GridMap(msg)
+        obstacle_set = build_obstacle_set(grid_map, self.robot_radius)
+        self.grid_map = grid_map
+        self.obstacle_set = obstacle_set
         debug_path.log_map_ready(
             self.algorithm,
             self.map_topic,
@@ -68,6 +72,7 @@ class RRTStarPlannerNode:
             msg.header.frame_id,
         )
 
+    @debug_path.traced_callback("goal_callback")
     def goal_callback(self, msg):
         debug_path.log_goal_received(
             self.algorithm,
@@ -99,6 +104,11 @@ class RRTStarPlannerNode:
         start_x, start_y = start_world
         goal_x = msg.pose.position.x
         goal_y = msg.pose.position.y
+        start_grid_x, start_grid_y = self.grid_map.world_to_grid(start_x, start_y)
+        goal_grid_x, goal_grid_y = self.grid_map.world_to_grid(goal_x, goal_y)
+        debug_path.log_grid_points(
+            self.algorithm, start_grid_x, start_grid_y, goal_grid_x, goal_grid_y
+        )
         if not self.is_world_point_free(start_x, start_y):
             rospy.logwarn("RRT* Python: start is outside the map or inside an inflated obstacle.")
             self.publish_failure("start_blocked")
@@ -108,7 +118,9 @@ class RRTStarPlannerNode:
             self.publish_failure("goal_blocked")
             return
 
+        debug_path.log_plan_call(self.algorithm)
         path_points = self.plan_path(start_x, start_y, goal_x, goal_y)
+        debug_path.log_plan_return(self.algorithm, len(path_points))
         if not path_points:
             rospy.logwarn("RRT* Python: no path found.")
             self.publish_failure("no_path")
@@ -298,20 +310,13 @@ class RRTStarPlannerNode:
         return True
 
     def publish_path(self, path_points):
-        path_msg = Path()
-        path_msg.header.stamp = rospy.Time.now()
-        path_msg.header.frame_id = self.map_frame
-
-        for world_x, world_y in path_points:
-            pose = PoseStamped()
-            pose.header = path_msg.header
-            pose.pose.position.x = world_x
-            pose.pose.position.y = world_y
-            pose.pose.orientation.w = 1.0
-            path_msg.poses.append(pose)
-
-        self.path_pub.publish(path_msg)
-        debug_path.log_success(self.algorithm, self.path_topic, len(path_msg.poses))
+        debug_path.publish_world_path(
+            self.path_pub,
+            self.map_frame,
+            self.algorithm,
+            self.path_topic,
+            path_points,
+        )
 
     def publish_failure(self, reason):
         debug_path.publish_empty(

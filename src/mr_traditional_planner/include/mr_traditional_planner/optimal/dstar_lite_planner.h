@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <queue>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -62,7 +63,12 @@ class DStarLitePlanner : public PlannerPlugin {
   double heuristic(int from_index, int to_index) const;
   Key calculateKey(int linear_index) const;
   bool compareKeys(const Key& lhs, const Key& rhs) const;
+  bool sameKey(const Key& lhs, const Key& rhs) const;
   bool nearlyEqual(double lhs, double rhs) const;
+  void pushOpen(int linear_index);
+  void removeOpen(int linear_index);
+  Key topKey();
+  bool popOpen(int& linear_index, Key& key);
   void updateVertex(int linear_index);
   bool computeShortestPath();
   void publishPath(const std::vector<int>& path_indices) const;
@@ -91,6 +97,7 @@ class DStarLitePlanner : public PlannerPlugin {
   std::vector<double> g_values_;
   std::vector<double> rhs_values_;
   std::priority_queue<OpenItem> open_queue_;
+  std::unordered_map<int, Key> open_lookup_;
   int search_start_index_;
   int search_goal_index_;
   double km_;

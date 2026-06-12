@@ -34,12 +34,6 @@ class DijkstraPlannerNode:
         self.robot_frames = debug_path.robot_frame_candidates("base_footprint")
         self.tf_timeout = max(0.1, float(rospy.get_param("~tf_timeout", 1.0)))
         self.path_topic = rospy.get_param("~path_topic", "/mr_traditional_planner/debug_optimal_path")
-        # 最优路径类算法统一监听静态地图输入。
-        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
-        # 最优路径类算法统一监听 RViz 2D Goal 目标点输入。
-        self.goal_sub = rospy.Subscriber(
-            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
-        )
         # 最优路径统一输出到固定 Path 话题。
         self.path_pub = rospy.Publisher(
             self.path_topic,
@@ -47,14 +41,21 @@ class DijkstraPlannerNode:
             queue_size=1,
             latch=True,
         )
-        self.publish_failure("goal_not_received")
-
         self.tf_listener = tf.TransformListener()
         self.grid_map = None
         self.latest_goal = None
 
         self.robot_radius = 0.15
         self.obstacle_set = set()
+
+        # 最优路径类算法统一监听静态地图输入。
+        self.map_sub = rospy.Subscriber(self.map_topic, OccupancyGrid, self.map_callback, queue_size=1)
+        # 最优路径类算法统一监听 RViz 2D Goal 目标点输入。
+        self.goal_sub = rospy.Subscriber(
+            self.goal_topic, PoseStamped, self.goal_callback, queue_size=1
+        )
+        debug_path.log_subscriptions_ready(self)
+        self.publish_failure("goal_not_received")
 
         # 与 A* / C++ Dijkstra 严格对齐的 8 邻域扩展顺序和步进代价。
         diagonal_cost = math.sqrt(2.0)
@@ -69,9 +70,12 @@ class DijkstraPlannerNode:
             (1, -1, diagonal_cost),
         ]
 
+    @debug_path.traced_callback("map_callback")
     def map_callback(self, msg):
-        self.grid_map = GridMap(msg)
-        self.obstacle_set = build_obstacle_set(self.grid_map, self.robot_radius)
+        grid_map = GridMap(msg)
+        obstacle_set = build_obstacle_set(grid_map, self.robot_radius)
+        self.grid_map = grid_map
+        self.obstacle_set = obstacle_set
         debug_path.log_map_ready(
             self.algorithm,
             self.map_topic,
@@ -81,6 +85,7 @@ class DijkstraPlannerNode:
             msg.header.frame_id,
         )
 
+    @debug_path.traced_callback("goal_callback")
     def goal_callback(self, msg):
         self.latest_goal = msg
         debug_path.log_goal_received(
@@ -113,6 +118,7 @@ class DijkstraPlannerNode:
         start_x, start_y = self.grid_map.world_to_grid(start_world[0], start_world[1])
         # 关键步骤：终点同样使用完全一致的公式映射到 OccupancyGrid 的栅格索引。
         goal_x, goal_y = self.grid_map.world_to_grid(msg.pose.position.x, msg.pose.position.y)
+        debug_path.log_grid_points(self.algorithm, start_x, start_y, goal_x, goal_y)
 
         if not self.grid_map.in_bounds(start_x, start_y):
             rospy.logwarn("Dijkstra Python: 起点超出地图范围，停止规划。")
@@ -137,7 +143,9 @@ class DijkstraPlannerNode:
             self.publish_failure("goal_blocked")
             return
 
+        debug_path.log_plan_call(self.algorithm)
         path_indices = self.plan_path(start_x, start_y, goal_x, goal_y)
+        debug_path.log_plan_return(self.algorithm, len(path_indices))
         if not path_indices:
             rospy.logwarn("Dijkstra Python: 未找到可行路径。")
             self.publish_failure("no_path")
@@ -209,26 +217,14 @@ class DijkstraPlannerNode:
         return path_indices
 
     def publish_path(self, path_indices):
-        path_msg = Path()
-        path_msg.header.stamp = rospy.Time.now()
-        path_msg.header.frame_id = self.map_frame
-
-        for linear_index in path_indices:
-            grid_x = linear_index % self.grid_map.width
-            grid_y = linear_index // self.grid_map.width
-
-            # 关键步骤：将离散栅格索引还原为世界坐标时，取栅格中心点而不是左下角顶点。
-            world_x, world_y = self.grid_map.grid_to_world(grid_x, grid_y)
-
-            pose = PoseStamped()
-            pose.header = path_msg.header
-            pose.pose.position.x = world_x
-            pose.pose.position.y = world_y
-            pose.pose.orientation.w = 1.0
-            path_msg.poses.append(pose)
-
-        self.path_pub.publish(path_msg)
-        debug_path.log_success(self.algorithm, self.path_topic, len(path_msg.poses))
+        debug_path.publish_grid_path(
+            self.path_pub,
+            self.grid_map,
+            path_indices,
+            self.map_frame,
+            self.algorithm,
+            self.path_topic,
+        )
 
     def publish_failure(self, reason):
         debug_path.publish_empty(

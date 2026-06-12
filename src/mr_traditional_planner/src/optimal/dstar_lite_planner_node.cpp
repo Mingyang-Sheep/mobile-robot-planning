@@ -43,10 +43,15 @@ void DStarLitePlanner::initialize(ros::NodeHandle& nh, ros::NodeHandle& private_
   map_sub_ = nh_.subscribe(map_topic, 1, &DStarLitePlanner::mapCallback, this);
   goal_sub_ = nh_.subscribe(goal_topic, 1, &DStarLitePlanner::goalCallback, this);
   path_pub_ = nh_.advertise<nav_msgs::Path>(path_topic_, 1, true);
+  logDebugSubscriptionsReady("dstar_lite", "cpp", map_topic, goal_topic, this,
+                             "DStarLitePlanner::mapCallback",
+                             "DStarLitePlanner::goalCallback");
   publishFailure("startup_clear");
 }
 
 void DStarLitePlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
+  logDebugCallbackEnter("map_callback", "dstar_lite", "cpp", this,
+                        "DStarLitePlanner::mapCallback");
   latest_map_ = msg;
   map_width_ = static_cast<int>(msg->info.width);
   map_height_ = static_cast<int>(msg->info.height);
@@ -54,10 +59,18 @@ void DStarLitePlanner::mapCallback(const nav_msgs::OccupancyGridConstPtr& msg) {
   origin_x_ = msg->info.origin.position.x;
   origin_y_ = msg->info.origin.position.y;
   buildObstacleLookup();
+  logDebugMapReady("dstar_lite", "cpp", "/map", map_width_, map_height_, resolution_,
+                   msg->header.frame_id);
 }
 
 void DStarLitePlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& msg) {
+  logDebugCallbackEnter("goal_callback", "dstar_lite", "cpp", this,
+                        "DStarLitePlanner::goalCallback");
   latest_goal_ = msg;
+  logDebugGoalReceived("dstar_lite", "cpp", "/move_base_simple/goal",
+                       msg->header.frame_id.empty() ? map_frame_ : msg->header.frame_id,
+                       msg->pose.position.x, msg->pose.position.y,
+                       static_cast<bool>(latest_map_));
 
   if (!latest_map_) {
     ROS_WARN("D* Lite C++: /map 尚未收到，无法开始规划。");
@@ -81,6 +94,8 @@ void DStarLitePlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& ms
 
   const std::pair<int, int> start = worldToGrid(start_world_x, start_world_y);
   const std::pair<int, int> goal = worldToGrid(msg->pose.position.x, msg->pose.position.y);
+  logDebugGridPoints("dstar_lite", "cpp", start.first, start.second, goal.first,
+                     goal.second);
 
   if (!inBounds(start.first, start.second)) {
     ROS_WARN("D* Lite C++: 起点超出地图范围，停止规划。");
@@ -106,7 +121,9 @@ void DStarLitePlanner::goalCallback(const geometry_msgs::PoseStampedConstPtr& ms
     return;
   }
 
+  logDebugPlanCall("dstar_lite", "cpp");
   const std::vector<int> path_indices = planPath(start.first, start.second, goal.first, goal.second);
+  logDebugPlanReturn("dstar_lite", "cpp", path_indices.size());
   if (path_indices.empty()) {
     ROS_WARN("D* Lite C++: 未找到可行路径。");
     publishFailure("no_path");
@@ -156,20 +173,8 @@ void DStarLitePlanner::precomputeInflationOffsets() {
 }
 
 bool DStarLitePlanner::lookupStartPose(double& start_world_x, double& start_world_y) {
-  tf::StampedTransform transform;
-
-  try {
-    tf_listener_.waitForTransform(map_frame_, robot_frame_, ros::Time(0), ros::Duration(0.2));
-    tf_listener_.lookupTransform(map_frame_, robot_frame_, ros::Time(0), transform);
-  } catch (tf::TransformException& ex) {
-    ROS_WARN_STREAM("D* Lite C++: 获取 " << map_frame_ << " -> " << robot_frame_
-                                         << " 失败，停止规划。" << ex.what());
-    return false;
-  }
-
-  start_world_x = transform.getOrigin().x();
-  start_world_y = transform.getOrigin().y();
-  return true;
+  return lookupDebugStartPose(tf_listener_, map_frame_, robot_frame_, "dstar_lite", "cpp",
+                              1.0, start_world_x, start_world_y);
 }
 
 bool DStarLitePlanner::inBounds(int grid_x, int grid_y) const {
@@ -212,10 +217,11 @@ std::vector<int> DStarLitePlanner::planPath(int start_x, int start_y, int goal_x
   g_values_.assign(static_cast<std::size_t>(map_size), std::numeric_limits<double>::infinity());
   rhs_values_.assign(static_cast<std::size_t>(map_size), std::numeric_limits<double>::infinity());
   open_queue_ = std::priority_queue<OpenItem>();
+  open_lookup_.clear();
   km_ = 0.0;
 
   rhs_values_[static_cast<std::size_t>(search_goal_index_)] = 0.0;
-  open_queue_.push(OpenItem{calculateKey(search_goal_index_), search_goal_index_});
+  pushOpen(search_goal_index_);
 
   if (!computeShortestPath()) {
     return std::vector<int>();
@@ -307,8 +313,52 @@ bool DStarLitePlanner::compareKeys(const Key& lhs, const Key& rhs) const {
   return lhs.second < rhs.second && !nearlyEqual(lhs.second, rhs.second);
 }
 
+bool DStarLitePlanner::sameKey(const Key& lhs, const Key& rhs) const {
+  return nearlyEqual(lhs.first, rhs.first) && nearlyEqual(lhs.second, rhs.second);
+}
+
 bool DStarLitePlanner::nearlyEqual(double lhs, double rhs) const {
   return std::fabs(lhs - rhs) <= 1.0e-9;
+}
+
+void DStarLitePlanner::pushOpen(int linear_index) {
+  const Key key = calculateKey(linear_index);
+  open_lookup_[linear_index] = key;
+  open_queue_.push(OpenItem{key, linear_index});
+}
+
+void DStarLitePlanner::removeOpen(int linear_index) {
+  open_lookup_.erase(linear_index);
+}
+
+DStarLitePlanner::Key DStarLitePlanner::topKey() {
+  while (!open_queue_.empty()) {
+    const OpenItem item = open_queue_.top();
+    const auto lookup_it = open_lookup_.find(item.index);
+    if (lookup_it != open_lookup_.end() && sameKey(lookup_it->second, item.key)) {
+      return item.key;
+    }
+    open_queue_.pop();
+  }
+
+  return Key{std::numeric_limits<double>::infinity(),
+             std::numeric_limits<double>::infinity()};
+}
+
+bool DStarLitePlanner::popOpen(int& linear_index, Key& key) {
+  while (!open_queue_.empty()) {
+    const OpenItem item = open_queue_.top();
+    open_queue_.pop();
+    const auto lookup_it = open_lookup_.find(item.index);
+    if (lookup_it != open_lookup_.end() && sameKey(lookup_it->second, item.key)) {
+      linear_index = item.index;
+      key = item.key;
+      removeOpen(item.index);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void DStarLitePlanner::updateVertex(int linear_index) {
@@ -323,9 +373,10 @@ void DStarLitePlanner::updateVertex(int linear_index) {
     rhs_values_[static_cast<std::size_t>(linear_index)] = best_rhs;
   }
 
+  removeOpen(linear_index);
   if (!nearlyEqual(g_values_[static_cast<std::size_t>(linear_index)],
                    rhs_values_[static_cast<std::size_t>(linear_index)])) {
-    open_queue_.push(OpenItem{calculateKey(linear_index), linear_index});
+    pushOpen(linear_index);
   }
 }
 
@@ -334,33 +385,24 @@ bool DStarLitePlanner::computeShortestPath() {
   const int max_iterations = std::max(1, map_size * 32);
 
   for (int iteration = 0; iteration < max_iterations; ++iteration) {
-    if (open_queue_.empty() &&
+    const Key queue_top_key = topKey();
+    const Key start_key = calculateKey(search_start_index_);
+    if (!compareKeys(queue_top_key, start_key) &&
         nearlyEqual(rhs_values_[static_cast<std::size_t>(search_start_index_)],
                     g_values_[static_cast<std::size_t>(search_start_index_)])) {
       return true;
     }
 
-    if (open_queue_.empty()) {
+    int current_index = -1;
+    Key item_key;
+    if (!popOpen(current_index, item_key)) {
       return false;
     }
 
-    const OpenItem current_item = open_queue_.top();
-    const Key start_key = calculateKey(search_start_index_);
-    if (!compareKeys(current_item.key, start_key) &&
-        nearlyEqual(rhs_values_[static_cast<std::size_t>(search_start_index_)],
-                    g_values_[static_cast<std::size_t>(search_start_index_)])) {
-      return true;
-    }
-
-    open_queue_.pop();
-    const int current_index = current_item.index;
     const Key current_key = calculateKey(current_index);
-    if (compareKeys(current_key, current_item.key)) {
-      continue;
-    }
 
-    if (compareKeys(current_item.key, current_key)) {
-      open_queue_.push(OpenItem{current_key, current_index});
+    if (compareKeys(item_key, current_key)) {
+      pushOpen(current_index);
       continue;
     }
 
@@ -403,7 +445,7 @@ void DStarLitePlanner::publishPath(const std::vector<int>& path_indices) const {
   }
 
   path_pub_.publish(path_msg);
-  logDebugPathSuccess("dstar_lite", "cpp", path_topic_, path_msg.poses.size());
+  logDebugPathSuccess("dstar_lite", "cpp", path_topic_, path_msg.poses.size(), map_frame_);
 }
 
 void DStarLitePlanner::publishFailure(const std::string& reason) const {
