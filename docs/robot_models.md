@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 机器人模型与切换
 
 适合读者：想在同一套 Gazebo / SLAM / Navigation 链路中切换机器人模型的用户。
@@ -166,3 +173,15 @@ roslaunch mr_description wpb_home_description.launch model:=wpb_home_mani
 ## 7. 下一步阅读
 
 Gazebo 插件看 [gazebo_simulation.md](gazebo_simulation.md)，移植新模型看 [import_robot_urdf_to_navigation.md](import_robot_urdf_to_navigation.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page documents the robot model switch system. `robot_model` selects the URDF/Xacro model, while `model` selects navigation parameters such as footprint, costmap, and DWA settings.
+
+Currently documented model keys are `burger`, `waffle`, `waffle_pi`, `wpb_home`, and `wpb_home_mani`. TurtleBot3-style models use `base_scan`; WPB Home models use `laser` as the laser frame. WPB Home and WPB Home Mani keep the official URDF/mesh assets and add a simulation-only adaptation layer for Gazebo diff-drive, laser, camera/depth, and IMU interfaces.
+
+The Mani model is treated as a mobile base for this repository. Arm planning, MoveIt, and grasping are not implemented.

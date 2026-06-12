@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 外部机器人 URDF 移植到 Gazebo / SLAM / Navigation
 
 适合读者：已经有一个外部机器人 URDF/mesh，希望接入本仓库 Gazebo、SLAM、Navigation 和规划链路的开发者。
@@ -254,3 +261,22 @@ rosrun tf tf_echo base_footprint <laser_frame>
 ## 7. 下一步阅读
 
 模型说明看 [robot_models.md](robot_models.md)，Gazebo 插件看 [gazebo_simulation.md](gazebo_simulation.md)，导航参数看 [configuration_reference.md](configuration_reference.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page is the practical guide for migrating a new robot model into the simulation and navigation chain.
+
+Recommended order:
+
+- Preserve upstream URDF/Xacro/mesh files.
+- Add a simulation adaptation layer under `mr_description`.
+- Add Gazebo plugins for differential drive, laser, camera/depth, IMU, and odometry as needed.
+- Verify topic names and TF frames.
+- Add model-specific footprint, costmap, AMCL, and DWA configuration.
+- Validate Gazebo first, then SLAM, then Navigation.
+
+The WPB Home migration is the main example in the current repository.

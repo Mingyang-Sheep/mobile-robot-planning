@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # Launch 文件与启动参数参考
 
 适合读者：想复制启动命令、切换机器人/地图/规划算法，或想确认某个 launch 是否适合直接使用的用户。
@@ -330,3 +337,21 @@ roslaunch mr_learning dqn_train.launch stage:=1 gui:=false
 ## 7. 下一步阅读
 
 普通导航看 [navigation.md](navigation.md)，传统规划看 [planner_framework.md](planner_framework.md)，覆盖规划看 [coverage_path_planning.md](coverage_path_planning.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page is the detailed launch and argument reference. It is the best place to confirm real launch file names, accepted parameters, and example command combinations.
+
+Important entries include:
+
+- `mr_navigation navigation_sim.launch` for one-command Gazebo + map + AMCL + move_base + RViz.
+- `mr_slam slam_sim.launch` for SLAM simulation.
+- `mr_traditional_planner planner.launch` for standalone planner debug nodes.
+- `mr_traditional_planner planner_sim.launch` for simulation plus planner debugging.
+- `mr_learning dqn_train.launch` for the stage 1 DQN experiment.
+
+Always prefer the exact arguments listed in this file over assumptions from ROS conventions.

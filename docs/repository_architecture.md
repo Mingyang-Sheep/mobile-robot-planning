@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 仓库架构
 
 适合读者：想理解本仓库各 ROS package 职责、数据流和扩展边界的用户。
@@ -13,7 +20,7 @@
 | `mr_navigation` | 统一仿真、导航、AMCL、move_base、RViz、teleop 的 launch 与参数 |
 | `mr_traditional_planner` | 传统规划算法、move_base 全局规划 adapter、调试路径节点和覆盖规划节点 |
 | `mr_learning` | stage 1 DQN 实验性训练入口和 Gazebo 环境封装 |
-| `mr_msgs` | 预留 benchmark 级消息接口包，当前没有实际 `.msg` 文件 |
+| `mr_msgs` | benchmark 级消息接口包，当前包含 `PlannerResult.msg` |
 
 ## 2. 主数据流
 
@@ -121,3 +128,24 @@ Coverage Planner
 ## 7. 下一步阅读
 
 启动入口看 [launch_reference.md](launch_reference.md)，机器人模型看 [robot_models.md](robot_models.md)，路径规划看 [planner_framework.md](planner_framework.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page explains how the ROS packages fit together.
+
+Package roles:
+
+- `mr_description`: URDF/Xacro, meshes, and `robot_description` launch entries.
+- `mr_gazebo`: Gazebo worlds, models, and robot spawning.
+- `mr_maps`: static maps and the `map_server` entry.
+- `mr_slam`: unified `gmapping` and `hector` launch interface.
+- `mr_navigation`: AMCL, `move_base`, DWA, RViz, teleop, and simulation launch orchestration.
+- `mr_traditional_planner`: global planners, coverage planners, debug nodes, and `GlobalPlannerAdapter`.
+- `mr_learning`: stage 1 DQN experimental demo.
+- `mr_msgs`: benchmark-level message package with `PlannerResult.msg`.
+
+The main navigation flow is URDF/Gazebo sensors -> map or SLAM -> AMCL -> `move_base` -> global planner -> DWA -> `/cmd_vel`.

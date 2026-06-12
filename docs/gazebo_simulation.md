@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # Gazebo 仿真
 
 适合读者：想检查 world、机器人 spawn、底盘插件和传感器 topic 的用户。
@@ -124,3 +131,15 @@ rostopic pub -1 /cmd_vel geometry_msgs/Twist "{linear: {x: 0.02, y: 0.0, z: 0.0}
 ## 6. 下一步阅读
 
 Navigation 启动看 [navigation.md](navigation.md)，模型适配看 [robot_models.md](robot_models.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page focuses on Gazebo simulation entries, world files, robot spawning, and sensor/plugin behavior.
+
+Use it when you need to check whether the robot appears in Gazebo, publishes `/scan` and `/odom`, accepts `/cmd_vel`, or needs a different world file. Navigation-ready worlds should have a matching static map when AMCL and `move_base` are used. The repository contains multiple worlds, but only the documented map/world pairs should be assumed ready for Navigation.
+
+For lower resource usage, pass launch arguments such as `gui:=false`, `headless:=true`, or `use_rviz:=false` when supported by the launch file.

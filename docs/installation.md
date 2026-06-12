@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 安装与环境准备
 
 适合读者：第一次在 Ubuntu 20.04 + ROS Noetic 环境中使用本仓库的用户。
@@ -127,3 +134,21 @@ bash tools/check_environment.sh
 ## 7. 下一步阅读
 
 安装完成后继续阅读 [quick_start.md](quick_start.md)。如果环境检查失败，先看 [troubleshooting.md](troubleshooting.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page describes the environment needed by the current repository: Ubuntu 20.04, ROS Noetic, Gazebo 11, catkin, and Python 3.
+
+Recommended flow:
+
+- Source ROS with `source /opt/ros/noetic/setup.bash`.
+- Run `bash tools/check_environment.sh` to inspect the local setup.
+- Install ROS dependencies with `sudo bash tools/install_dependencies.sh`.
+- Build with `catkin_make` from the workspace root.
+- Source `devel/setup.bash` in every terminal that runs ROS commands.
+
+Learning features need `numpy` and optionally `torch`. PyTorch is not forced by the install script because CPU/GPU and CUDA choices vary by machine.

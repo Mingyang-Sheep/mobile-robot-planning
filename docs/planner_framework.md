@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 规划框架
 
 适合读者：想理解普通点到点规划、覆盖规划、调试路径和实际执行路径区别的用户。
@@ -140,3 +147,15 @@ Python 入口：
 ## 8. 下一步阅读
 
 普通全局算法看 [optimal_path_planners.md](optimal_path_planners.md)，覆盖算法看 [coverage_path_planning.md](coverage_path_planning.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page explains the difference between point-to-point navigation, coverage planning, debug paths, and executed paths.
+
+For normal navigation, `move_base` calls a global planner and `DWAPlannerROS`, then publishes `/cmd_vel`. For coverage tasks, BCD/STC generate a coverage path and send waypoints through the `/move_base` action interface.
+
+Do not treat `/mr_traditional_planner/debug_optimal_path` as the path the robot is executing. For actual execution, inspect `/mr_traditional_planner/executed_global_path`, DWA global/local plans, and `/cmd_vel`.

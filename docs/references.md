@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 参考资料
 
 适合读者：想追溯模型来源、第三方算法来源和学习资料的用户。
@@ -42,6 +49,8 @@ src/mr_traditional_planner/THIRD_PARTY_NOTICES.md
 
 ## 4. 覆盖路径规划学习资料
 
+下面两篇覆盖路径规划学习解析由作者本人撰写：
+
 - [【全覆盖路径规划】回溯螺旋算法 Backtracking Spiral Algorithm (BSA)：基于优先级状态机的底层逻辑深入解析](https://blog.csdn.net/weixin_66211313/article/details/159582434)
 - [【全覆盖路径规划】螺旋生成树覆盖算法（Spiral-STC）：基于双层栅格与宏观拓扑的在线路径规划解析](https://blog.csdn.net/weixin_66211313/article/details/159733957)
 
@@ -50,3 +59,15 @@ src/mr_traditional_planner/THIRD_PARTY_NOTICES.md
 ## 5. 下一步阅读
 
 回到 [index.md](index.md) 选择专题文档。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page lists traceable references for ROS/Gazebo, robot models, planner implementations, and coverage-planning learning material.
+
+The two coverage-planning blog posts linked in the Chinese section were written by the repository author. They are learning references for BSA and Spiral-STC. The implemented coverage planners in this repository are BCD and STC.
+
+Third-party notices for planner code adapted from PythonRobotics are kept in `src/mr_traditional_planner/THIRD_PARTY_NOTICES.md`.

@@ -1,81 +1,171 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
+
 # mr_traditional_planner
 
-`mr_traditional_planner` is the traditional-planning package for
-`mobile-robot-benchmark`.
+`mr_traditional_planner` 是本仓库的传统规划 package。它负责普通全局规划、覆盖路径规划、路径平滑/局部控制调试、`move_base` 全局规划 adapter，以及 C++ / Python 双实现的算法对比入口。
 
-仓库级调试说明见 [规划框架](../../docs/planner_framework.md) 和
-[Launch 参考](../../docs/launch_reference.md)。包内兼容入口见
-[DEBUG_NOTE.md](DEBUG_NOTE.md)。
+仓库级完整文档请优先阅读：
 
-## Interface Standard
+| 主题 | 文档 |
+|---|---|
+| 规划链路与路径含义 | [../../docs/planner_framework.md](../../docs/planner_framework.md) |
+| 普通全局路径规划 | [../../docs/optimal_path_planners.md](../../docs/optimal_path_planners.md) |
+| 覆盖路径规划 | [../../docs/coverage_path_planning.md](../../docs/coverage_path_planning.md) |
+| 启动参数 | [../../docs/launch_reference.md](../../docs/launch_reference.md) |
+| Topic 与 TF | [../../docs/topics_and_tf.md](../../docs/topics_and_tf.md) |
 
-### Optimal planners
+## 包职责
 
-- Subscribe: `/map` (`nav_msgs/OccupancyGrid`)
-- Subscribe: `/move_base_simple/goal` (`geometry_msgs/PoseStamped`)
-- Publish: `/mr_traditional_planner/debug_optimal_path` (`nav_msgs/Path`)
+| 模块 | 当前作用 |
+|---|---|
+| `src/nav_core/global_planner_adapter.cpp` | 将自定义全局规划算法接入 `nav_core::BaseGlobalPlanner`，供 `move_base` 实际调用 |
+| `include/mr_traditional_planner/optimal/` | A*、Dijkstra、D*、D* Lite、Theta*、RRT*、DWA、Cubic Spline 等 C++ 插件声明 |
+| `src/optimal/` | 普通规划、DWA 调试、样条平滑的 C++ 节点入口 |
+| `include/mr_traditional_planner/coverage/` 与 `src/coverage/` | BCD / STC 覆盖规划插件和节点入口 |
+| `scripts/` | Python 调试规划器、兼容性校验和工具函数 |
+| `planner_plugins.xml` | C++ pluginlib 注册表 |
+| `launch/` | 单算法调试和一体化仿真启动入口 |
 
-### Coverage planners
+## 路径话题边界
 
-- Subscribe: `/map` (`nav_msgs/OccupancyGrid`)
-- Subscribe: `/move_base_simple/goal` (`geometry_msgs/PoseStamped`)
-- Publish: `/mr_traditional_planner/coverage_path` (`nav_msgs/Path`)
-- Action client: `/move_base` (`move_base_msgs/MoveBaseAction`)
+| Topic | 含义 |
+|---|---|
+| `/mr_traditional_planner/debug_optimal_path` | 独立 C++/Python 调试节点输出，不代表机器人实际执行 |
+| `/mr_traditional_planner/executed_global_path` | `GlobalPlannerAdapter` 返回给 `move_base` 的实际全局路径副本 |
+| `/mr_traditional_planner/coverage_path` | BCD/STC 生成的覆盖路径，随后通过 `/move_base` action 逐 waypoint 执行 |
+| `/move_base/DWAPlannerROS/global_plan` | DWA 内部跟踪的全局参考 |
+| `/move_base/DWAPlannerROS/local_plan` | DWA 当前选择的短时局部轨迹 |
 
-### Local controllers and smoothers
+确认机器人实际怎么走时，应优先看 `executed_global_path`、DWA global/local plan 和 `/cmd_vel`，不要只看 debug path。
 
-- `dwa` subscribes `/map`, `/odom`, and `/move_base_simple/goal`; publishes `/cmd_vel`
-  and the selected preview trajectory on `/mr_traditional_planner/debug_optimal_path`.
-- `cubic_spline` publishes a smoothed `nav_msgs/Path` to
-  `/mr_traditional_planner/debug_optimal_path`; it can use either RViz `2D Nav Goal` or
-  `input_path_topic`.
+## 最小命令
 
-`/mr_traditional_planner/executed_global_path` is reserved for the
-`move_base` `GlobalPlannerAdapter` path that is actually returned to the navigation stack.
-
-## Launch Switching
-
-- Unified entry: `roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=cpp`
-- Full simulation entry: `roslaunch mr_traditional_planner planner_sim.launch algorithm:=stc impl:=py`
-- Supported `algorithm`: `astar`, `dijkstra`, `dstar`, `dstar_lite`, `theta_star`, `rrt_star`, `dwa`, `cubic_spline`, `bcd`, `stc`
-- Supported `impl`: `cpp`, `py`
-- C++ plugin override: `roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=mr_traditional_planner/AStarPlanner`
-- Built-in C++ plugins:
-  - `mr_traditional_planner/AStarPlanner`
-  - `mr_traditional_planner/DijkstraPlanner`
-  - `mr_traditional_planner/DStarPlanner`
-  - `mr_traditional_planner/DStarLitePlanner`
-  - `mr_traditional_planner/ThetaStarPlanner`
-  - `mr_traditional_planner/RRTStarPlanner`
-  - `mr_traditional_planner/DynamicWindowApproachPlanner`
-  - `mr_traditional_planner/CubicSplinePlanner`
-  - `mr_traditional_planner/BcdPlanner`
-  - `mr_traditional_planner/StcPlanner`
-- Debug trigger: all algorithms use RViz `2D Nav Goal`
-- Coverage note: for `bcd` / `stc`, the clicked point only acts as a trigger signal
-
-## C++ Plugin Extension
-
-New C++ algorithms implement `mr_traditional_planner::PlannerPlugin`, export the class
-with `PLUGINLIB_EXPORT_CLASS`, and add one class entry to `planner_plugins.xml`.
-After that, switch to it without changing launch files:
+单算法调试：
 
 ```bash
-roslaunch mr_traditional_planner planner.launch impl:=cpp planner_plugin:=your_pkg/YourPlanner
+roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=cpp
+roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=py
 ```
 
-Common private parameters exposed by the built-in plugins are `map_topic`,
-`goal_topic`, `path_topic`, `robot_radius`, `map_frame`, and `robot_frame`.
-DWA additionally exposes `odom_topic`, `cmd_vel_topic`, and sampling/control
-parameters such as `max_speed`, `predict_time`, and `control_frequency`.
-Cubic Spline additionally exposes `input_path_topic`, `spline_resolution`,
-`control_point_ratio`, and `collision_check`.
-Coverage plugins also expose `goal_timeout`; BCD exposes `sweep_spacing`, and STC
-exposes `tree_spacing`.
+完整仿真 + 调试路径：
 
-## Current Scope
+```bash
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=dstar_lite impl:=cpp global_planner:=dstar_lite
+```
 
-- A* and Dijkstra are implemented in both C++ and Python.
-- D*, D* Lite, Theta*, RRT*, Dynamic Window Approach, and Cubic Spline are adapted from PythonRobotics and implemented in both C++ and Python.
-- BCD coverage is implemented in both C++ and Python.
-- STC coverage is implemented in both C++ and Python.
+覆盖规划：
+
+```bash
+roslaunch mr_navigation navigation_sim.launch planning_mode:=coverage coverage_planner:=stc
+```
+
+## 当前算法 key
+
+```text
+astar
+dijkstra
+dstar
+dstar_lite
+theta_star
+rrt_star
+dwa
+cubic_spline
+bcd
+stc
+```
+
+`cubic_spline` 是 smoother / 调试节点，不应写成独立 `global_planner`。主导航链路中的局部规划器使用 ROS `dwa_local_planner/DWAPlannerROS`，包内 DWA 节点主要用于调试和对比。
+
+## 第三方来源
+
+部分算法参考或改写自 PythonRobotics。许可证与来源说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+---
+
+<a id="english"></a>
+
+# mr_traditional_planner
+
+`mr_traditional_planner` is the traditional-planning package in this workspace. It provides point-to-point global planners, coverage planners, smoothing/local-control debug nodes, the `move_base` global-planner adapter, and C++ / Python algorithm comparison entry points.
+
+Start with the repository-level documentation:
+
+| Topic | Document |
+|---|---|
+| Planning chain and path semantics | [../../docs/planner_framework.md](../../docs/planner_framework.md) |
+| Point-to-point global planners | [../../docs/optimal_path_planners.md](../../docs/optimal_path_planners.md) |
+| Coverage planning | [../../docs/coverage_path_planning.md](../../docs/coverage_path_planning.md) |
+| Launch arguments | [../../docs/launch_reference.md](../../docs/launch_reference.md) |
+| Topics and TF | [../../docs/topics_and_tf.md](../../docs/topics_and_tf.md) |
+
+## Package Role
+
+| Area | Current role |
+|---|---|
+| `src/nav_core/global_planner_adapter.cpp` | Bridges custom global planners into `nav_core::BaseGlobalPlanner` for actual `move_base` execution |
+| `include/mr_traditional_planner/optimal/` | C++ plugin declarations for A*, Dijkstra, D*, D* Lite, Theta*, RRT*, DWA, and Cubic Spline |
+| `src/optimal/` | C++ node entries for global-planner debug, DWA debug, and spline smoothing |
+| `include/mr_traditional_planner/coverage/` and `src/coverage/` | BCD / STC coverage planner plugins and nodes |
+| `scripts/` | Python debug planners, compatibility checks, and utilities |
+| `planner_plugins.xml` | C++ pluginlib registry |
+| `launch/` | Single-algorithm debug and simulation launch entries |
+
+## Path Topics
+
+| Topic | Meaning |
+|---|---|
+| `/mr_traditional_planner/debug_optimal_path` | Standalone C++/Python debug output; not necessarily executed by the robot |
+| `/mr_traditional_planner/executed_global_path` | Copy of the path returned by `GlobalPlannerAdapter` to `move_base` |
+| `/mr_traditional_planner/coverage_path` | Coverage path generated by BCD/STC and executed as `/move_base` waypoints |
+| `/move_base/DWAPlannerROS/global_plan` | Global reference followed by DWA |
+| `/move_base/DWAPlannerROS/local_plan` | Short-horizon local trajectory selected by DWA |
+
+To understand actual robot motion, check `executed_global_path`, DWA global/local plans, and `/cmd_vel`, not only the debug path.
+
+## Minimal Commands
+
+Standalone algorithm debug:
+
+```bash
+roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=cpp
+roslaunch mr_traditional_planner planner.launch algorithm:=astar impl:=py
+```
+
+Simulation plus debug path:
+
+```bash
+roslaunch mr_traditional_planner planner_sim.launch algorithm:=dstar_lite impl:=cpp global_planner:=dstar_lite
+```
+
+Coverage planning:
+
+```bash
+roslaunch mr_navigation navigation_sim.launch planning_mode:=coverage coverage_planner:=stc
+```
+
+## Algorithm Keys
+
+```text
+astar
+dijkstra
+dstar
+dstar_lite
+theta_star
+rrt_star
+dwa
+cubic_spline
+bcd
+stc
+```
+
+`cubic_spline` is a smoother / debug node, not a standalone `global_planner`. The main navigation chain uses ROS `dwa_local_planner/DWAPlannerROS`; this package's DWA node is mainly for debugging and comparison.
+
+## Third-Party Sources
+
+Some algorithms are adapted from PythonRobotics. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for source and license details.

@@ -1,3 +1,40 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
+# Husky Description 参考副本
+
+这是 `refer/` 下保留的 Husky description 参考文档片段，用于查看上游模型通过环境变量切换 namespace、URDF extras、bumper、top plate、PACS、sensor arch 等配置的方式。
+
+该文件属于参考材料，不是本仓库主 ROS 工作区的核心入口。当前主仓库的机器人模型和导航说明请优先阅读 `docs/robot_models.md` 和 `docs/import_robot_urdf_to_navigation.md`。
+
+## 中文索引
+
+| 原文主题 | 用途 |
+|---|---|
+| Namespace | 多 Husky 机器人命名空间配置 |
+| File Paths | 通过环境变量加载额外 URDF 片段 |
+| Bumpers | 切换前后保险杠和扩展配置 |
+| Top Plate / PACS | 切换顶部安装板和 PACS 网格硬点 |
+| Brackets | 在硬点上增加不同类型支架 |
+| Sensors | 配置激光、相机、IMU、GPS 等传感器挂载 |
+| Extras | 为上游 Husky 模型添加额外 payload 或 xacro 配置 |
+
+本仓库当前没有把 Husky 作为主支持机器人。不要把这份参考副本解读为当前 Navigation demo 已经完整支持 Husky。
+
+---
+
+<a id="english"></a>
+
+# Reference Copy
+
+This file is kept under `refer/` as an external Husky description reference. It is useful for understanding how upstream Husky models use environment variables for namespace, URDF extras, bumpers, top plates, PACS hardpoints, brackets, and sensors.
+
+It is not a primary documentation entry for this workspace. For the currently supported robot models and navigation migration flow, read `docs/robot_models.md` and `docs/import_robot_urdf_to_navigation.md` from the repository root.
+
 # Husky Description
 In order to facilitate editing structures, payloads, and edit other features of the Husky, we use the following environment variables. All of the definitions below are of the default values for each variable.
 

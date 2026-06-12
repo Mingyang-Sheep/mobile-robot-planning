@@ -1,8 +1,22 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 覆盖路径规划
 
 适合读者：想使用 BCD/STC 做自由空间覆盖，或想扩展覆盖规划算法的用户。
 
 覆盖规划与普通点到点导航不同。普通导航追求从当前位置到目标点；覆盖规划追求遍历地图中的可通行区域。
+
+## 作者本人覆盖规划博客
+
+下面两篇博客由作者本人撰写，适合在阅读本仓库 BCD/STC 覆盖规划代码前先理解 BSA、Spiral-STC 等覆盖规划思路。当前仓库没有独立接入 BSA 或 Spiral-STC launch，博客内容作为学习参考。
+
+- [【全覆盖路径规划】回溯螺旋算法 Backtracking Spiral Algorithm (BSA)：基于优先级状态机的底层逻辑深入解析](https://blog.csdn.net/weixin_66211313/article/details/159582434)
+- [【全覆盖路径规划】螺旋生成树覆盖算法（Spiral-STC）：基于双层栅格与宏观拓扑的在线路径规划解析](https://blog.csdn.net/weixin_66211313/article/details/159733957)
 
 ## 1. 当前实现
 
@@ -112,9 +126,25 @@ STC 当前实现要点：
 
 ## 8. 学习参考
 
-- [【全覆盖路径规划】回溯螺旋算法 Backtracking Spiral Algorithm (BSA)：基于优先级状态机的底层逻辑深入解析](https://blog.csdn.net/weixin_66211313/article/details/159582434)
-- [【全覆盖路径规划】螺旋生成树覆盖算法（Spiral-STC）：基于双层栅格与宏观拓扑的在线路径规划解析](https://blog.csdn.net/weixin_66211313/article/details/159733957)
+覆盖规划博客已经放在本文开头，更多来源见 [references.md](references.md)。
 
 ## 9. 下一步阅读
 
 普通规划框架看 [planner_framework.md](planner_framework.md)，参数整理看 [configuration_reference.md](configuration_reference.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page documents the current coverage-planning chain.
+
+Integrated coverage planners:
+
+- `bcd`
+- `stc`
+
+They subscribe to `/map` and `/move_base_simple/goal`, publish `/mr_traditional_planner/coverage_path`, and execute waypoints through the `/move_base` action interface. In coverage mode, RViz `2D Nav Goal` is mainly a trigger; the clicked point is not the final coverage endpoint.
+
+The author-written BSA and Spiral-STC blog posts are linked near the top of this page as learning notes. They are not current launch entries in this repository.

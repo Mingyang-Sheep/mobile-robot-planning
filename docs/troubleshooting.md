@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 常见问题与排错
 
 适合读者：launch 已经启动但没有 topic、机器人不动、RViz 报错或路径异常的用户。
@@ -210,3 +217,15 @@ rosrun tf tf_echo map base_footprint
 ## 下一步阅读
 
 路径含义看 [planner_framework.md](planner_framework.md)，启动参数看 [launch_reference.md](launch_reference.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page collects common failure modes and checks.
+
+Typical problems include missing ROS environment setup, `Resource not found`, plugin loading failures, Gazebo startup issues, absent `/scan` or `/odom`, TF breaks, AMCL/map mismatch, no `/cmd_vel`, invalid planner combinations, and coverage waypoint execution failures.
+
+The debugging order is: confirm the workspace is sourced, confirm packages resolve, confirm launch files expand, inspect topics, inspect TF, then inspect planner outputs and Gazebo behavior.

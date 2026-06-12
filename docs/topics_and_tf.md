@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # Topic 与 TF 参考
 
 适合读者：想用 `rostopic`、RViz 和 TF 工具检查运行状态的用户。
@@ -108,3 +115,15 @@ rostopic pub -1 /cmd_vel geometry_msgs/Twist "{linear: {x: 0.02, y: 0.0, z: 0.0}
 ## 6. 下一步阅读
 
 路径话题的具体含义继续看 [planner_framework.md](planner_framework.md)。启动失败时看 [troubleshooting.md](troubleshooting.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page collects the important ROS topics and TF frames used by the workspace.
+
+Typical checks include `/scan`, `/odom`, `/tf`, `/tf_static`, `/map`, `/cmd_vel`, `/move_base/*`, `/mr_traditional_planner/debug_optimal_path`, `/mr_traditional_planner/executed_global_path`, and `/mr_traditional_planner/coverage_path`.
+
+The expected TF chain for navigation is usually `map -> odom -> base_footprint -> base_link -> sensor frames`. When navigation fails, verify topics first, then TF, then planner outputs.

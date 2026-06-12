@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # SLAM 建图
 
 适合读者：想用当前仓库的 Gazebo 场景生成或观察地图的用户。
@@ -137,3 +144,19 @@ roslaunch mr_navigation navigation_sim.launch map_name:=my_map world_name:=<matc
 ## 8. 下一步阅读
 
 已有地图导航看 [navigation.md](navigation.md)，地图/world 配对看 [configuration_reference.md](configuration_reference.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page describes the current SLAM scope. `mr_slam` provides a unified launch interface for `gmapping` and `hector`.
+
+Typical entry points:
+
+- `roslaunch mr_slam slam.launch slam_method:=gmapping`
+- `roslaunch mr_slam slam.launch slam_method:=hector`
+- `roslaunch mr_slam slam_sim.launch slam_method:=gmapping`
+
+The current SLAM support is intended for basic mapping, course validation, and topic/TF learning. It is not presented as an advanced multi-sensor SLAM framework.

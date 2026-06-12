@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # Learning 规划模块
 
 适合读者：想了解 `mr_learning` 当前真实完成度，或准备继续扩展强化学习环境的开发者。
@@ -161,3 +168,15 @@ roslaunch mr_learning dqn_train.launch stage:=1 gui:=false
 ## 10. 下一步阅读
 
 Learning 依赖安装看 [installation.md](installation.md)，Gazebo 环境看 [gazebo_simulation.md](gazebo_simulation.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page documents the current `mr_learning` scope. The module should be treated as an experimental stage 1 DQN demo, not a mature reinforcement-learning planning platform.
+
+The current training entry uses DQN with replay buffer, target network updates, epsilon-greedy exploration, and saved `.pth`/`.json` checkpoints. The environment reads laser and odometry data, publishes `/cmd_vel`, and uses Gazebo services for reset and goal handling.
+
+Missing pieces include multi-stage training entries, mature train/test separation, standard evaluation metrics, complex dynamic obstacle scenarios, and integration as a Navigation planner plugin.

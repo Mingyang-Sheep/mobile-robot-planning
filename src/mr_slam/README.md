@@ -1,65 +1,125 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
+
 # mr_slam
 
-`mr_slam` is the unified SLAM launch/config package for this workspace. It owns
-the benchmark-facing launch interface and keeps third-party SLAM backends as
-normal ROS package dependencies.
+`mr_slam` 是本工作区统一的 SLAM 启动与配置包。当前它把 `gmapping` 和 `hector` 作为普通 ROS 依赖接入，主要服务于基础建图、课程验证和 topic/TF 学习。
 
-Full user documentation is in [../../docs/slam_mapping.md](../../docs/slam_mapping.md).
+完整专题文档见 [../../docs/slam_mapping.md](../../docs/slam_mapping.md)。
 
-## Supported Backends
+## 当前后端
 
-- `gmapping`
-- `hector`
+| 参数值 | 预期节点 | 说明 |
+|---|---|---|
+| `gmapping` | `/slam_gmapping` | 依赖 2D 激光与里程计，适合默认仿真建图 |
+| `hector` | `/hector_mapping` | 可用于对比不同 SLAM 后端的 topic/TF 行为 |
 
-## Build
-
-The examples below use `<workspace_root>` for the repository root.
-
-```bash
-cd <workspace_root>
-source /opt/ros/noetic/setup.bash
-catkin_make
-source devel/setup.bash
-```
-
-Install dependencies with `tools/list_requirements.sh` as the checklist. The
-SLAM-specific ROS packages are `ros-noetic-gmapping` and
-`ros-noetic-hector-mapping`.
-
-## Launch Interface
-
-All SLAM backends use the same entrypoint:
+## 最小命令
 
 ```bash
 roslaunch mr_slam slam.launch slam_method:=gmapping
 roslaunch mr_slam slam.launch slam_method:=hector
 ```
 
-Common arguments:
-
-- `scan_topic`, default `/scan`
-- `odom_topic`, default `/odom`
-- `base_frame`, default `base_footprint`
-- `odom_frame`, default `odom`
-- `map_frame`, default `map`
-
-One-command simulation entry:
+带 Gazebo 的一体化入口：
 
 ```bash
 roslaunch mr_slam slam_sim.launch slam_method:=gmapping
 roslaunch mr_slam slam_sim.launch slam_method:=hector
-roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0
-roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0 wheel_mu:=1.5
 ```
 
-For lower CPU/GPU load while mapping:
+低负载运行时可按 launch 参数关闭 GUI 或 RViz：
 
 ```bash
-roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0 gui:=false
-roslaunch mr_slam slam_sim.launch slam_method:=gmapping world_name:=$(rospack find mr_gazebo)/worlds/maze/maze_1.world x:=1.7 y:=1.0 use_rviz:=false
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping gui:=false
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping use_rviz:=false
 ```
 
-## Static Checks
+## 常用参数
+
+| 参数 | 默认值 |
+|---|---|
+| `scan_topic` | `/scan` |
+| `odom_topic` | `/odom` |
+| `base_frame` | `base_footprint` |
+| `odom_frame` | `odom` |
+| `map_frame` | `map` |
+
+## 快速检查
+
+编译并 source 工作区后：
+
+```bash
+rospack find mr_slam
+roslaunch --nodes mr_slam slam.launch slam_method:=gmapping
+roslaunch --nodes mr_slam slam.launch slam_method:=hector
+```
+
+运行时重点检查：
+
+```bash
+rostopic echo -n 1 /scan
+rostopic echo -n 1 /tf
+rostopic echo -n 1 /map
+rosrun tf tf_echo map base_footprint
+```
+
+本包不应描述为高级多传感器 SLAM 框架。当前范围是基础 2D SLAM 接入和教学验证。
+
+---
+
+<a id="english"></a>
+
+# mr_slam
+
+`mr_slam` is the unified SLAM launch/config package for this workspace. It integrates `gmapping` and `hector` as normal ROS dependencies and is mainly used for basic mapping, course validation, and topic/TF learning.
+
+Full topic documentation is in [../../docs/slam_mapping.md](../../docs/slam_mapping.md).
+
+## Current Backends
+
+| Argument value | Expected node | Notes |
+|---|---|---|
+| `gmapping` | `/slam_gmapping` | Uses 2D laser and odometry; suitable for the default simulation mapping flow |
+| `hector` | `/hector_mapping` | Useful for comparing SLAM backend topic/TF behavior |
+
+## Minimal Commands
+
+```bash
+roslaunch mr_slam slam.launch slam_method:=gmapping
+roslaunch mr_slam slam.launch slam_method:=hector
+```
+
+One-command Gazebo entries:
+
+```bash
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping
+roslaunch mr_slam slam_sim.launch slam_method:=hector
+```
+
+For lower load, disable the Gazebo GUI or RViz when the launch file supports it:
+
+```bash
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping gui:=false
+roslaunch mr_slam slam_sim.launch slam_method:=gmapping use_rviz:=false
+```
+
+## Common Arguments
+
+| Argument | Default |
+|---|---|
+| `scan_topic` | `/scan` |
+| `odom_topic` | `/odom` |
+| `base_frame` | `base_footprint` |
+| `odom_frame` | `odom` |
+| `map_frame` | `map` |
+
+## Quick Checks
 
 After building and sourcing the workspace:
 
@@ -69,20 +129,7 @@ roslaunch --nodes mr_slam slam.launch slam_method:=gmapping
 roslaunch --nodes mr_slam slam.launch slam_method:=hector
 ```
 
-Expected nodes:
-
-- `gmapping`: `/slam_gmapping`
-- `hector`: `/hector_mapping`
-
-## Runtime Smoke Test
-
-Start one backend:
-
-```bash
-roslaunch mr_slam slam_sim.launch slam_method:=gmapping
-```
-
-Drive the robot, then inspect:
+During runtime, inspect:
 
 ```bash
 rostopic echo -n 1 /scan
@@ -91,5 +138,4 @@ rostopic echo -n 1 /map
 rosrun tf tf_echo map base_footprint
 ```
 
-The backend is basically running if `/scan` is publishing, `/map` receives data,
-and `map -> base_footprint` is available while the robot moves.
+This package should not be described as an advanced multi-sensor SLAM framework. Its current scope is basic 2D SLAM integration and teaching-oriented validation.

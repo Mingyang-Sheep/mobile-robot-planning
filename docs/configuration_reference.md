@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 配置参数参考
 
 适合读者：想调整机器人尺寸、costmap、DWA、AMCL、SLAM 或 planner 参数的用户。
@@ -184,3 +191,15 @@ roslaunch mr_navigation navigation_sim.launch \
 ## 9. 下一步阅读
 
 启动参数看 [launch_reference.md](launch_reference.md)，topic 和 TF 看 [topics_and_tf.md](topics_and_tf.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page summarizes configuration files and important parameters.
+
+Most navigation parameters live under `src/mr_navigation/config/`, including model-specific costmap files, DWA parameter files, move_base parameters, AMCL settings, and robot model metadata. Planner-related parameters live in `src/mr_traditional_planner/launch/` and planner nodes/plugins.
+
+When changing a robot model, keep URDF frames, laser frame, footprint, costmap parameters, DWA limits, and initial pose consistent.

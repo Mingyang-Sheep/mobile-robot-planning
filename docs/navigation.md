@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # Navigation 导航
 
 适合读者：想理解并使用 AMCL + move_base 点到点导航链路的用户。
@@ -159,3 +166,20 @@ roslaunch mr_navigation navigation_sim.launch \
 ## 9. 下一步阅读
 
 路径话题看 [topics_and_tf.md](topics_and_tf.md)，规划算法看 [planner_framework.md](planner_framework.md) 和 [optimal_path_planners.md](optimal_path_planners.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page explains the AMCL + `move_base` navigation chain.
+
+Main flow:
+
+- Gazebo publishes `/scan`, `/odom`, and TF.
+- `map_server` publishes `/map`.
+- AMCL publishes the `map -> odom` localization transform.
+- `move_base` runs global and local costmaps, a global planner, `DWAPlannerROS`, and outputs `/cmd_vel`.
+
+Use `global_planner:=navfn` for the ROS baseline, or `global_planner:=astar|dijkstra|dstar|dstar_lite|theta_star|rrt_star` for the custom adapter. `cubic_spline` is a smoother, not a global planner.

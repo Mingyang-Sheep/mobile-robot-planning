@@ -1,3 +1,10 @@
+<div align="right">
+
+[中文](#中文) | [English](#english)
+
+</div>
+
+<a id="中文"></a>
 # 普通路径规划算法
 
 适合读者：想在普通点到点导航中切换 A*、Dijkstra、D* Lite、Theta*、RRT* 等算法的用户。
@@ -119,3 +126,15 @@ RViz 中应同时观察：
 ## 7. 下一步阅读
 
 路径含义看 [planner_framework.md](planner_framework.md)，topic 检查看 [topics_and_tf.md](topics_and_tf.md)。
+
+---
+
+<a id="english"></a>
+
+## English
+
+This page documents point-to-point planners and their current support matrix.
+
+Current global planner keys include `astar`, `dijkstra`, `dstar`, `dstar_lite`, `theta_star`, and `rrt_star`. They can be used through the C++ `GlobalPlannerAdapter` for `move_base` and through C++/Python debug nodes for visualization. `cubic_spline` is a path smoother, and DWA is the local planning/control layer.
+
+Known limitations are explicitly listed in the Chinese section. In particular, D* is a static-style adaptation here, while D* Lite still needs stronger dynamic-obstacle evaluation before being described as a complete dynamic replanning system.
