@@ -104,8 +104,8 @@ Prefer these icons over plain `yes` / `no` tables when documenting support statu
 
 - Use repository-relative links, not local absolute paths.
 - From package README files to `docs/`, use relative paths such as `../../docs/planner_framework.md`.
-- Reference images and videos through repository-relative paths such as `docs/mobile-robot-planning.png`.
-- Embed the README demo video directly with `<video>` rather than using a screenshot link.
+- Reference images through repository-relative paths such as `docs/assets/mobile-robot-planning.png`.
+- Embed GIF demonstrations through repository-relative paths such as `docs/assets/00_project_overview.gif`. Do not use `<video>` or embed MP4 files in the README.
 - Do not link missing files. When renaming a page, keep a compatibility entry or update all references.
 
 ## Scope Discipline

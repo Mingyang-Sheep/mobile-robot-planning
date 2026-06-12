@@ -15,17 +15,23 @@ A ROS Noetic workspace for mobile robot simulation, SLAM, navigation, traditiona
 
 This repository grew out of the `MEE5115 Autonomous Robotic Systems` course project. The original course baseline covered a Gazebo maze environment, ROS SLAM mapping, localization, and Navigation. This workspace keeps that baseline visible while reorganizing it into reusable ROS packages and extending it with multiple robot models, planner adapters, coverage planners, and a basic learning demo.
 
+## Project Demonstration
+
 <p align="center">
-  <img src="docs/mobile-robot-planning.png" width="100%" alt="mobile-robot-planning system overview">
+  <img
+    src="docs/assets/00_project_overview.gif"
+    alt="Mobile Robot Planning Overview"
+    width="900"
+  >
+</p>
+
+A modular ROS Noetic framework for simulation, SLAM, navigation, traditional planning, coverage planning and experimental learning-based planning.
+
+<p align="center">
+  <img src="docs/assets/mobile-robot-planning.png" width="100%" alt="mobile-robot-planning system overview">
 </p>
 
 The system overview covers robot descriptions, Gazebo sensors, SLAM/localization, global planning, local planning, coverage planning, the learning demo, and RViz/Gazebo outputs. Detailed launch arguments, limits, and topic semantics are kept in the topic documentation.
-
-<p align="center">
-  <video src="docs/mobile_robot_planning_readme_demo.mp4" controls muted playsinline width="85%">
-    Your browser does not support embedded video playback.
-  </video>
-</p>
 
 ## Coverage Planning Notes
 
@@ -104,8 +110,18 @@ mobile-robot-planning/
 |-- docs/
 |   |-- index.md
 |   |-- zh/
-|   |-- mobile-robot-planning.png
-|   `-- mobile_robot_planning_readme_demo.mp4
+|   |-- assets/
+|   |   |-- mobile-robot-planning.png
+|   |   |-- 00_project_overview.gif
+|   |   |-- 01_dijkstra_dwa.gif
+|   |   |-- 02_dstar_dwa.gif
+|   |   |-- 03_rrtstar_dwa.gif
+|   |   |-- 04_bcd_coverage.gif
+|   |   |-- 05_spiral_stc_coverage.gif
+|   |   |-- 06_learning_dqn.gif
+|   |   |-- 07_dwa_baseline.gif
+|   |   `-- 08_go2w_bonus.gif
+|   `-- *.md
 |-- src/
 |   |-- mr_description/
 |   |-- mr_gazebo/
@@ -148,6 +164,53 @@ WPB Home migration keeps the official URDF and mesh assets, adds a simulation-on
 | STC | Coverage planner | ✅ | ✅ | 🟣 | ✅ | ✅ Waypoint execution through `/move_base` |
 
 C++ handles pluginlib integration, `nav_core::BaseGlobalPlanner`, and the main navigation execution path. Python is mainly used for teaching, quick algorithm checks, debug visualization, and comparison.
+
+## Planner Demonstrations
+
+| Dijkstra + DWA | D* + DWA |
+|:---:|:---:|
+| <img src="docs/assets/01_dijkstra_dwa.gif" alt="Dijkstra and DWA" width="430"> | <img src="docs/assets/02_dstar_dwa.gif" alt="D Star and DWA" width="430"> |
+| Global planning with Dijkstra<br>Local execution with move_base and DWA | Global planning with D*<br>Local execution with move_base and DWA |
+
+| RRT* + DWA | DWA Navigation Baseline |
+|:---:|:---:|
+| <img src="docs/assets/03_rrtstar_dwa.gif" alt="RRT Star and DWA" width="430"> | <img src="docs/assets/07_dwa_baseline.gif" alt="DWA Navigation Baseline" width="430"> |
+| Global planning with RRT*<br>Local execution with move_base and DWA | ROS navigation baseline<br>Local planning and motion execution |
+
+## Coverage Path Planning
+
+| BCD Coverage | Spiral-STC Coverage |
+|:---:|:---:|
+| <img src="docs/assets/04_bcd_coverage.gif" alt="BCD Coverage Planning" width="430"> | <img src="docs/assets/05_spiral_stc_coverage.gif" alt="Spiral STC Coverage Planning" width="430"> |
+| Boustrophedon Cellular Decomposition | Spiral Spanning Tree Coverage |
+
+BCD and Spiral-STC generate coverage paths. The generated waypoints are executed through move_base and DWA.
+
+## Experimental Learning-based Planning
+
+<p align="center">
+  <img
+    src="docs/assets/06_learning_dqn.gif"
+    alt="Experimental DQN Learning in Gazebo"
+    width="760"
+  >
+</p>
+
+> **Experimental:** DQN-based training and interaction in Gazebo.
+> CPU-only execution in a virtual-machine environment is supported.
+
+## Course Bonus: Go2W Navigation Integration
+
+<p align="center">
+  <img
+    src="docs/assets/08_go2w_bonus.gif"
+    alt="Go2W Navigation Integration"
+    width="760"
+  >
+</p>
+
+> The Course Bonus implementation is maintained in the
+> [`go2w-navigation`](https://github.com/Mingyang-Sheep/mobile-robot-planning/tree/go2w-navigation) branch.
 
 ## Quick Start
 

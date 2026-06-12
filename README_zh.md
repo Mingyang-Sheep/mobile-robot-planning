@@ -15,17 +15,23 @@
 
 本仓库源于 `MEE5115 Autonomous Robotic Systems` 自主机器人系统课程项目。课程基线包含 Gazebo 迷宫环境、ROS 建图、定位和导航；本仓库在此基础上整理 ROS 包，接入多种机器人模型，扩展传统路径规划算法、覆盖路径规划和基础学习演示，目标是形成一个便于复用、学习和继续开发的工作区。
 
+## 项目演示
+
 <p align="center">
-  <img src="docs/mobile-robot-planning.png" width="100%" alt="mobile-robot-planning system overview">
+  <img
+    src="docs/assets/00_project_overview.gif"
+    alt="Mobile Robot Planning Overview"
+    width="900"
+  >
+</p>
+
+面向仿真、建图、导航、传统规划、覆盖规划和实验性学习规划的模块化 ROS Noetic 框架。
+
+<p align="center">
+  <img src="docs/assets/mobile-robot-planning.png" width="100%" alt="mobile-robot-planning system overview">
 </p>
 
 系统结构图概括了机器人描述、Gazebo 传感器、建图和定位、全局规划、局部规划、覆盖规划、学习演示以及 RViz/Gazebo 输出。具体启动参数、话题含义和能力边界请阅读专题文档。
-
-<p align="center">
-  <video src="docs/mobile_robot_planning_readme_demo.mp4" controls muted playsinline width="85%">
-    当前浏览器不支持直接播放嵌入视频。
-  </video>
-</p>
 
 ## 覆盖规划学习札记
 
@@ -104,8 +110,18 @@ mobile-robot-planning/
 |-- docs/
 |   |-- index.md
 |   |-- zh/
-|   |-- mobile-robot-planning.png
-|   `-- mobile_robot_planning_readme_demo.mp4
+|   |-- assets/
+|   |   |-- mobile-robot-planning.png
+|   |   |-- 00_project_overview.gif
+|   |   |-- 01_dijkstra_dwa.gif
+|   |   |-- 02_dstar_dwa.gif
+|   |   |-- 03_rrtstar_dwa.gif
+|   |   |-- 04_bcd_coverage.gif
+|   |   |-- 05_spiral_stc_coverage.gif
+|   |   |-- 06_learning_dqn.gif
+|   |   |-- 07_dwa_baseline.gif
+|   |   `-- 08_go2w_bonus.gif
+|   `-- *.md
 |-- src/
 |   |-- mr_description/
 |   |-- mr_gazebo/
@@ -148,6 +164,53 @@ WPB Home 迁移保留官方 URDF 和 mesh，单独增加仿真适配层，并补
 | STC | 覆盖规划器 | ✅ | ✅ | 🟣 | ✅ | ✅ 通过 `/move_base` 执行路径点 |
 
 C++ 主要负责 pluginlib 接入、`nav_core::BaseGlobalPlanner` 和导航主链路执行。Python 主要用于教学、快速验证、调试可视化和算法对比。
+
+## 规划器演示
+
+| Dijkstra + DWA | D* + DWA |
+|:---:|:---:|
+| <img src="docs/assets/01_dijkstra_dwa.gif" alt="Dijkstra and DWA" width="430"> | <img src="docs/assets/02_dstar_dwa.gif" alt="D Star and DWA" width="430"> |
+| Dijkstra 全局规划<br>move_base + DWA 局部执行 | D* 全局规划<br>move_base + DWA 局部执行 |
+
+| RRT* + DWA | DWA 导航基线 |
+|:---:|:---:|
+| <img src="docs/assets/03_rrtstar_dwa.gif" alt="RRT Star and DWA" width="430"> | <img src="docs/assets/07_dwa_baseline.gif" alt="DWA Navigation Baseline" width="430"> |
+| RRT* 全局规划<br>move_base + DWA 局部执行 | ROS 导航基线<br>DWA 局部规划与运动执行 |
+
+## 覆盖路径规划演示
+
+| BCD 覆盖 | Spiral-STC 覆盖 |
+|:---:|:---:|
+| <img src="docs/assets/04_bcd_coverage.gif" alt="BCD Coverage Planning" width="430"> | <img src="docs/assets/05_spiral_stc_coverage.gif" alt="Spiral STC Coverage Planning" width="430"> |
+| Boustrophedon Cellular Decomposition | Spiral Spanning Tree Coverage |
+
+BCD 和 Spiral-STC 生成覆盖路径，所生成的路径点通过 move_base 和 DWA 执行。
+
+## 实验性学习规划模块
+
+<p align="center">
+  <img
+    src="docs/assets/06_learning_dqn.gif"
+    alt="Experimental DQN Learning in Gazebo"
+    width="760"
+  >
+</p>
+
+> **实验性：** 基于 DQN 的 Gazebo 环境训练与交互演示。
+> 支持在虚拟机纯 CPU 环境下运行。
+
+## 课程加分项：Go2W 导航集成
+
+<p align="center">
+  <img
+    src="docs/assets/08_go2w_bonus.gif"
+    alt="Go2W Navigation Integration"
+    width="760"
+  >
+</p>
+
+> 课程加分项实现维护在
+> [`go2w-navigation`](https://github.com/Mingyang-Sheep/mobile-robot-planning/tree/go2w-navigation) 分支。
 
 ## 快速上手
 

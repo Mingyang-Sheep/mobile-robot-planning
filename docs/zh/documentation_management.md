@@ -104,8 +104,8 @@ planner_path_topics.md
 
 - 仓库内链接使用相对路径，不写本机绝对路径。
 - 包内 README 链接 `docs/` 时使用相对路径，例如 `../../docs/planner_framework.md`。
-- 图片和视频使用仓库内相对路径，例如 `docs/mobile-robot-planning.png`。
-- README 演示视频使用 `<video>` 直接嵌入，不再使用封面图跳转。
+- 图片使用仓库内相对路径，例如 `docs/assets/mobile-robot-planning.png`。
+- GIF 演示通过仓库内相对路径引用，例如 `docs/assets/00_project_overview.gif`。README 中不使用 `<video>` 也不嵌入 MP4 文件。
 - 不链接不存在的文件；改名时保留兼容入口或同步更新所有引用。
 
 ## 内容边界
